@@ -29,3 +29,21 @@ Clone Realm Grapqhl
 ## MongoDB 
 MONGO_URL=mongodb://localhost:27017/HMISVRealm
 PORT =4000
+
+new grahql api endpoint
+https://realm.mongodb.com/api/client/v2.0/app/schedule-spzut/graphql
+token :
+{
+  "jwtTokenString":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOiIxMjMiLCJzY29wZSI6InNlbGYsIGFkbWlucyIsImF1ZCI6InNjaGVkdWxlLXNwenV0IiwianRpIjoiYzMyNDRmMmUtOTVkZS00NTYyLTkwOGYtYzMzMWY0OWMxNTlmIiwiaWF0IjoxNjI1NjYwODUyLCJleHAiOjE4NDE2NjA4NTJ9.iR5bmOpMc2Se-sDKADwb5GD3k_uisHUMa7xqvYh1VIY"
+}
+
+# Note 
+Note:
+
+This is independent page , there is no any authentication only booking
+so we need simple api which is provided only needed data
+1.Staff - name,color,logo,timing,and location - only query
+2.Event-name,color,logo,price,duration,timing,location-- only query
+3.Business- Name and address and logo -- only query
+4.Customer - name,ph,phone - insert
+4.Booking -- insert , update

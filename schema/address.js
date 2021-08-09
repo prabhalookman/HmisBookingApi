@@ -8,26 +8,13 @@ type Address {
   city: String, 
   state: String, 
   country: String, 
-  zipCode: String, 
-  latitude: String, 
-  longitude: String, 
-  type: String, 
+  zipCode: String,
   business_branch: Boolean, 
   address_phone: [address_phones], 
   email: String, 
-  customer_id: String, 
-  account_status: String, 
-  active: Boolean, 
-  accessible: Boolean, 
-  delete: Boolean, 
-  site_id: String, 
-  workspace_ids: [String], 
-  created_by: String, 
-  created_at: String, 
-  updated_at: String, 
-  deleted_at: String, 
-  default_address: Boolean, 
-  business_head_ofice: Boolean 
+  customer_id: ID,  
+  workspace_ids: [ID],
+  site_id: ID
 }
 
 type address_phones {
@@ -44,26 +31,13 @@ input addressInput {
   city: String, 
   state: String, 
   country: String, 
-  zipCode: String, 
-  latitude: String, 
-  longitude: String, 
-  type: String, 
+  zipCode: String,
   business_branch: Boolean, 
   address_phone: [address_phones_input], 
   email: String, 
-  customer_id: String, 
-  account_status: String, 
-  active: Boolean, 
-  accessible: Boolean, 
-  delete: Boolean, 
-  site_id: String, 
-  workspace_ids: [String], 
-  created_by: String, 
-  created_at: String, 
-  updated_at: String, 
-  deleted_at: String, 
-  default_address: Boolean, 
-  business_head_ofice: Boolean
+  customer_id: ID,  
+  workspace_ids: [ID],
+  site_id: ID
 }
 
 input address_phones_input {

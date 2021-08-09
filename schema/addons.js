@@ -8,11 +8,9 @@ type AddOn {
   variant: [addon_vaiant],
   show_multiple_time: Boolean,
   once_per_order: Boolean,
-  event_ids: [String],
-  workspace_ids: [String],
-  active: Boolean,
-  deleted: Boolean,
-  site_id: String
+  event_ids: [ID],
+  workspace_ids: [ID],  
+  site_id: ID
 }
 
 type addon_vaiant {
@@ -28,8 +26,6 @@ input addOnInput {
   once_per_order: Boolean,
   event_ids: [String],
   workspace_ids: [String],
-  active: Boolean,
-  deleted: Boolean,
   site_id: String
 }
 
