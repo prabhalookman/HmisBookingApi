@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-type Events {
+type Event {
   _id: ID
   name: String,
   color_code: String,
@@ -16,6 +16,6 @@ type Events {
 }
 
 extend type Query {
-  getEvents: [Events]
+  getEvents: [Event]
 }
 `

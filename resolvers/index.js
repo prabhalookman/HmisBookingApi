@@ -1,20 +1,22 @@
-import siteResolver from './site'
-import workspaceResolver from './workspace'
-import locationResolver from './location'
-import locationSettingResolver from './locationsetting'
-import businessResolver from './business'
-import businessInfoResolver from './businessInfo'
-import eventCategoryResolver from './eventcategory'
-import eventsResolver from './events'
 import addonsResolver from './addons'
-import roleResolver  from './role'
-import userResolver  from './user'
-import timeformatResolver  from './timeformat'
-import timingsResolver  from './timings'
-import staffResolver  from './staff'
-import staffDetailsResolver  from './staffdetails'
 import addressResolver  from './address'
 import appointmentResolver  from './appointment'
+import businessResolver from './business'
+import businessInfoResolver from './businessInfo'
+import eventsResolver from './events'
+import locationResolver from './location'
+import locationSettingResolver from './locationsetting'
+import siteResolver from './site'
+import staffResolver  from './staff'
+import staffDetailsResolver  from './staffdetails'
+import timingsResolver  from './timings'
+import workspaceResolver from './workspace'
+
+// import eventCategoryResolver from './eventcategory'
+// import roleResolver  from './role'
+// import userResolver  from './user'
+// import timeformatResolver  from './timeformat'
+
 
 const { GraphQLDateTime } = require('graphql-iso-date')
 
@@ -24,21 +26,17 @@ const { GraphQLDateTime } = require('graphql-iso-date')
 //customScalarResolver
 
 export default [
-  siteResolver, 
-  workspaceResolver, 
-  locationResolver, 
-  locationSettingResolver, 
-  businessResolver, 
-  businessInfoResolver, 
-  eventCategoryResolver, 
-  eventsResolver, 
-  addonsResolver, 
-  roleResolver, 
-  userResolver, 
-  timeformatResolver, 
-  timingsResolver, 
+  addonsResolver,
+  addressResolver,
+  appointmentResolver,
+  businessResolver,
+  businessInfoResolver,
+  eventsResolver,
+  locationResolver,
+  locationSettingResolver,
+  siteResolver,
   staffResolver,
   staffDetailsResolver,
-  addressResolver,
-  appointmentResolver
+  timingsResolver,
+  workspaceResolver
 ]

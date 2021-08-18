@@ -1,21 +1,24 @@
 import { gql } from 'apollo-server-express';
-import siteSchema from './site'
-import workspaceSchema from './workspace'
-import locationSchema  from './location'
-import loationSettingSchema  from './locationsetting'
-import businessSchema  from './business'
-import businessInfoSchema  from './businessinfo'
-import eventCategorySchema  from './eventcategory'
-import eventsSchema  from './events'
 import addOnSchema  from './addons'
-import roleSchema  from './role'
-import userSchema  from './user'
-import timeformatSchema  from './timeformat'
-import timingsSchema  from './timings'
-import staffSchema  from './staff'
-import staffDetailsSchema  from './staffdetails'
 import addressSchema  from './address'
 import appointmentSchema  from './appointment'
+import businessSchema  from './business'
+import customerSchema  from './customer'
+import eventsSchema  from './events'
+import locationSchema  from './location'
+import loationSettingSchema  from './locationsetting'
+import siteSchema from './site'
+import staffSchema  from './staff'
+import staffDetailsSchema  from './staffdetails'
+import timingsSchema  from './timings'
+import workspaceSchema from './workspace'
+
+// import businessInfoSchema  from './businessinfo'
+// import eventCategorySchema  from './eventcategory'
+// import roleSchema  from './role'
+// import userSchema  from './user'
+// import timeformatSchema  from './timeformat'
+
 
 const baseSchema = gql`
 type Query {
@@ -30,21 +33,17 @@ type Subscription {
 `;
 // scalar Date
 export default [baseSchema, 
-  siteSchema, 
-  workspaceSchema, 
-  locationSchema, 
-  loationSettingSchema, 
-  businessSchema, 
-  businessInfoSchema, 
-  eventCategorySchema, 
-  eventsSchema, 
-  addOnSchema, 
-  roleSchema, 
-  userSchema, 
-  timeformatSchema, 
-  timingsSchema, 
-  staffSchema, 
-  staffDetailsSchema,
-  addressSchema,
-  appointmentSchema
+  addOnSchema,
+addressSchema,
+appointmentSchema,
+businessSchema,
+customerSchema,
+eventsSchema,
+locationSchema,
+loationSettingSchema,
+siteSchema,
+staffSchema,
+staffDetailsSchema,
+timingsSchema,
+workspaceSchema
 ]

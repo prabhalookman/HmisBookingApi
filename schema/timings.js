@@ -11,13 +11,13 @@ type Timings {
     start_time: String,
     end_time: String,
     breaktime: [timings_BreakTime],
-    work_day_duration: Number,
-    service_ids: [Event],
+    work_day_duration: Number,    
     recurringRule: timings_recurringRule,    
-    workspace_ids: [Workspace],
-    site_id: Site,
     include_weekends: Boolean,
-    timing_order: Number,
+    timing_order: Number,    
+    site_id: Site,
+    workspace_ids: [Workspace],
+    service_ids: [Event],
     location_setting_ids: [LocationSetting]
 }
 

@@ -9,6 +9,8 @@ import models, { connectMongo } from './model/index';
 const PORT = process.env.PORT;
 const app = express();
 
+//let typeDefs = schema.concat(schema);
+
 const server = new ApolloServer({
   typeDefs: schema,
   resolvers,

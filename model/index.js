@@ -1,45 +1,42 @@
 const mongoose = require('mongoose');
-import Site from './site';
-import Workspace from './workspace';
+import AddOn from "./addons"
+import Address from "./address"
+import Appointment  from './appointment'
+import Business from './business';
+import Customer from './customer';
+import Event  from "./events"
 import Location from './location';
 import LocationSetting from './locationsetting';
-import Business from './business';
-import BusinessInfo from './businessInfo';
-import EventCategory  from "./eventcategory"
-import Event  from "./events"
-import AddOn from "./addons"
+import Site from './site';
 import Staff from "./staff"
 import StaffDetails from "./staffdetails"
-import Address from "./address"
-
-import Role  from './role'
-import User  from './user'
-import TimeFormat  from './timeformat'
 import Timings  from './timings'
-import Appointment  from './appointment'
+import Workspace from './workspace';
+
+// import BusinessInfo from './businessInfo';
+// import EventCategory  from "./eventcategory"
+// import Role  from './role'
+// import User  from './user'
+// import TimeFormat  from './timeformat'
 
 const connectMongo = () => {
   return mongoose.connect(process.env.MONGO_URL, {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
 }
 
 const models = {
-  Site,
-  Workspace,
+  AddOn,
+  Address,
+  Appointment,
+  Business,
+  Customer,
+  Event,
   Location,
   LocationSetting,
-  Business,
-  BusinessInfo,
-  EventCategory,
-  Event,
-  AddOn,
-  Role,
-  User,
-  TimeFormat,
-  Timings,
+  Site,
   Staff,
   StaffDetails,
-  Address,
-  Appointment
+  Timings,
+  Workspace
 }
 
 export {connectMongo};

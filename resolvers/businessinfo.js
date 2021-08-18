@@ -2,8 +2,8 @@ export default {
   Query: {
       getBusinessInfo: async (parent, args, { models }, info) => {
           try {
-              let location = await models.BusinessInfo.find({deleted:false})
-              return location
+              let businessInfo = await models.BusinessInfo.find({deleted:false})
+              return businessInfo
           } catch (error) {
               console.error("Error : ", error)
           }
