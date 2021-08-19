@@ -13,8 +13,8 @@ const appointmentSchema = new mongoose.Schema({
   time_zone: String,
   availability_Mode: {
   type: String,
-  enum: ["INPERSON", "ONCALL", "VIDEO"],
-  default: ["INPERSON"]
+  enum: ['INPERSON', 'ONCALL', 'VIDEO'],
+  default: 'INPERSON',  
   },
 
   appointment_date:String,
@@ -38,7 +38,8 @@ const appointmentSchema = new mongoose.Schema({
   created_at: String,
   updated_at: String,
   deleted_at: String,
-})
+}
+)
 
 const Appointment = mongoose.model('Appointment', appointmentSchema)
 module.exports = Appointment;
