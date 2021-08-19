@@ -39,7 +39,7 @@ export default {
         for (var param in args.input) {
           updateObj.$set[param] = args.input[param];
         }
-        const resultAppointment = await models.Appointment.findOneAndUpdate({ _id: args.AppointmentID }, updateObj, { new: true });
+        const resultAppointment = await models.Appointment.findOneAndUpdate({ _id: args.appointmentID }, updateObj, { new: true });
 
         console.log("resultAppointment created : ", resultAppointment)
 
@@ -51,7 +51,7 @@ export default {
     },
     deleteAppointment: async (parent, args, { models }, info) => {
       try {
-        args = args.AppointmentID;
+        args = args.appointmentID;
         const deleteStatus = true;
         let updateObj = { deleted: deleteStatus }
 
