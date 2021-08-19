@@ -13,9 +13,9 @@ export default {
         }
     },
     Site: {
-        created_by: async (site) => {
-            let resultSite = await site.populate('created_by').execPopulate();
-            return resultSite.created_by
-        }
+        // created_by: async (site) => {
+        //     let resultSite = await site.populate('created_by').execPopulate();
+        //     return resultSite.created_by
+        // }
     }
 }

@@ -10,7 +10,7 @@ export default {
 
       }
   },
-  Locationsetting: {
+  LocationSetting: {
     site_id: async (locsetting, args, {models}) => {      
       const resultLocationSetting =await locsetting.populate('site_id').execPopulate();
       return resultLocationSetting.site_id

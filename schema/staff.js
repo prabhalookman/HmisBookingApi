@@ -5,7 +5,7 @@ export default gql`
 type Staff {
   _id: ID,
   name: String,
-  color_code: Number,
+  color_code: Int,
   avatar_or_icon: String,
   avatar_or_icon_path: String,
   workspace_ids: [Workspace],

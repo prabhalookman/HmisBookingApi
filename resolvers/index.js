@@ -2,7 +2,6 @@ import addonsResolver from './addons'
 import addressResolver  from './address'
 import appointmentResolver  from './appointment'
 import businessResolver from './business'
-import businessInfoResolver from './businessInfo'
 import eventsResolver from './events'
 import locationResolver from './location'
 import locationSettingResolver from './locationsetting'
@@ -18,19 +17,19 @@ import workspaceResolver from './workspace'
 // import timeformatResolver  from './timeformat'
 
 
-const { GraphQLDateTime } = require('graphql-iso-date')
+//const { GraphQLDateTime } = require('graphql-iso-date')
 
 // const customScalarResolver = {
 //     DateTime : GraphQLDateTime
 // };
 //customScalarResolver
 
+
 export default [
   addonsResolver,
   addressResolver,
   appointmentResolver,
-  businessResolver,
-  businessInfoResolver,
+  businessResolver,  
   eventsResolver,
   locationResolver,
   locationSettingResolver,

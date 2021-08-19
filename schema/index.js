@@ -1,4 +1,5 @@
 import { gql } from 'apollo-server-express';
+
 import addOnSchema  from './addons'
 import addressSchema  from './address'
 import appointmentSchema  from './appointment'
