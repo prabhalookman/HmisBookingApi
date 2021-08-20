@@ -1,82 +1,84 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-enum availabilityType {
-  INPERSON
-  ONCALL
-  VIDEO
-}
 
 type Booking {
   _id: ID
-  booking_id: String,
-  customer_id: String,
-  customer_name: String,
-  customer_contact: String,
-  customer_email: String,
-  isTermAgreed: Boolean,
-  isPromoAccepted: Boolean,
+  appointment_booking_time: String,
+  appointment_end_time: String,
+  appointment_start_time: String,
+  is_recurring: Boolean,
+  timezone: String,
+    
+  booked_by: String,
+  cost: Float,
+  
+  customer_ids: [Customer],
+  customer_mood: String,
+  customer_status: String,
+  
+  location_id: String,
+  location_link: String,  
+  integration: String,
 
-  time_zone: String,
-  availability_Mode: availabilityType,
+  note: String,
+  slot: Int,
+  arrival_status: String,
+  
+  type: String,
+  
+  event_id: Event,
+  guest_ids: [Customer],
+  site_id: Site,
+  add_on_ids: [Site],
+  staff_id: Staff,
+  workspace_id: Workspace,
 
-  appointment_date:String,
-  start_time:String,
-  start_time_expected:String,
-  end_time:String,
-  end_time_expected:String,
-  recurring: Boolean,
-  price_expected:Int,
-  price_full: Int,
-  canceled: Boolean,
-  cancellation_reason: String, 
-
-  add_on_ids: [ID],
-  provider: ID,
-  workspace_id: ID,
-  staff_id: ID,
-  location_id: ID,
-
-  created_by: ID,
-  created_at: String,
-  updated_at: String,
+  created_by: Staff,
+  created_at: String,  
+  created_from: String,
+  deleted: Boolean,
   deleted_at: String,
+  updated_at: String
 }
 
 input bookingInput {
-  _id: ID
-  booking_id: String,
-  customer_id: String,
-  customer_name: String,
-  customer_contact: String,
-  customer_email: String,
-  isTermAgreed: Boolean,
-  isPromoAccepted: Boolean,
+  appointment_booking_time: String,
+  appointment_end_time: String,
+  appointment_start_time: String,
+  is_recurring: Boolean,
+  timezone: String,
+    
+  booked_by: String,
+  cost: Float,
+  
+  customer_ids: [ID],
+  customer_mood: String,
+  customer_status: String,
+  
+  location_id: String,
+  location_link: String,  
+  integration: String,
 
-  time_zone: String,
-  availability_Mode: availabilityType,
-
-  appointment_date:String,
-  start_time:String,
-  start_time_expected:String,
-  end_time:String,
-  end_time_expected:String,
-  recurring: Boolean,
-  price_expected:Int,
-  price_full: Int,
-  canceled: Boolean,
-  cancellation_reason: String, 
-
+  note: String,
+  slot: Int,
+  arrival_status: String,
+  
+  type: String,
+  
+  event_id: ID,
+  guest_ids: [ID],
+  site_id: ID,
   add_on_ids: [ID],
-  provider: ID,
-  workspace_id: ID,
   staff_id: ID,
-  location_id: ID,
+  workspace_id: ID,
 
   created_by: ID,
-  created_at: String,
-  updated_at: String,
+  created_at: String,  
+  created_from: String,
+  deleted: Boolean,
   deleted_at: String,
+  updated_at: String
 }
 
 extend type Query {

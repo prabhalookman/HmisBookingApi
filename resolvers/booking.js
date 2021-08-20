@@ -1,67 +1,67 @@
 export default {
   Query: {
-    getAppointment: async (parent, args, { models }, info) => {
+    getBooking: async (parent, args, { models }, info) => {
       try {
-        let appointment = await models.Appointment.find({ deleted: false })
-        return appointment
+        let Booking = await models.Booking.find({ deleted: false })
+        return Booking
       } catch (error) {
         console.error("Error : ", error)
       }
     }
   },
   Mutation: {
-    addAppointment: async (parent, args, { models }, info) => {
+    addBooking: async (parent, args, { models }, info) => {
       try {
-        let newAppointment = new models.Appointment();
+        let newBooking = new models.Booking();
         let clientKeys = Object.keys(args.input);
         if (!clientKeys)
-          console.log("Error Appointment keys")
+          console.log("Error Booking keys")
         let i = 0;
         while (i < clientKeys.length) {
-          if (clientKeys[i] in newAppointment) {
-            newAppointment[clientKeys[i]] = args.input[clientKeys[i]]
+          if (clientKeys[i] in newBooking) {
+            newBooking[clientKeys[i]] = args.input[clientKeys[i]]
           }
           i++
         }
 
-        newAppointment = await newAppointment.save();
-        console.log("newAppointment Created : ", newAppointment)
+        newBooking = await newBooking.save();
+        console.log("newBooking Created : ", newBooking)
 
-        return newAppointment
+        return newBooking
       } catch (error) {
         console.error("Error : ", error)
       }
 
     },
-    updateAppointment: async (parent, args, { models }, info) => {
+    updateBooking: async (parent, args, { models }, info) => {
       try {
         let updateObj = { $set: {} };
         for (var param in args.input) {
           updateObj.$set[param] = args.input[param];
         }
-        const resultAppointment = await models.Appointment.findOneAndUpdate({ _id: args.appointmentID }, updateObj, { new: true });
+        const resultBooking = await models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
 
-        console.log("resultAppointment created : ", resultAppointment)
+        console.log("resultBooking created : ", resultBooking)
 
-        return resultAppointment
+        return resultBooking
       } catch (error) {
         console.error("Error : ", error)
       }
 
     },
-    deleteAppointment: async (parent, args, { models }, info) => {
+    deleteBooking: async (parent, args, { models }, info) => {
       try {
-        args = args.appointmentID;
+        args = args.bookingID;
         const deleteStatus = true;
         let updateObj = { deleted: deleteStatus }
 
-        let resultAppointment = await models.Appointment.findOneAndUpdate({ _id: args }, updateObj, { new: true });
-        if (resultAppointment) {
-          return resultAppointment;
+        let resultBooking = await models.Booking.findOneAndUpdate({ _id: args }, updateObj, { new: true });
+        if (resultBooking) {
+          return resultBooking;
         } else {
-          console.log("Error Delet Appointment")
+          console.log("Error Delet Booking")
         }
-        return resultAppointment
+        return resultBooking
       } catch (error) {
         console.error("Error : ", error)
       }

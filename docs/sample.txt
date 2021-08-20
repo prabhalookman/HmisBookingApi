@@ -1,0 +1,115 @@
+
+mutation {
+  addBooking(
+    input: {
+      appointment_booking_time: "2021-08-20T08:40:53.973+0000"
+      appointment_end_time: "2021-08-20T08:40:53.973+0000"
+      appointment_start_time: "2021-08-20T08:40:53.973+0000"
+      is_recurring: true
+      timezone: "Kolkatta"
+      booked_by: "Ram"
+      cost: 100.10
+      customer_mood: "Normal"
+      customer_status: "Active"
+      location_link: "http://hmis.com"
+      integration: ""
+      note: "best consulting"
+      slot: 2
+      arrival_status: "Arrived"
+      type: "Normal"
+      event_id: "60f136aae66c183a14ad0bdf"
+      site_id: "60ec2ecc1fb0c42560fbf5d2"
+      add_on_ids: ["60f152ad7ff71d359825a6af"]
+      staff_id: "60f7c8e0fe41c636781746c0"
+      workspace_id: "60ed492b4bdef938f022d20d"
+      created_by: "60f7c8e0fe41c636781746c0"
+      created_at: "2021-08-20T08:40:53.973+0000"
+      created_from: "Chennai"
+      deleted: false
+      deleted_at: "2021-08-20T08:40:53.973+0000"
+      updated_at: "2021-08-20T08:40:53.973+0000"
+    }
+  ) {
+    _id
+    timezone
+    booked_by
+  }
+}
+----------
+mutation {
+  updateBooking(
+    bookingID: "611f7e2744662b52c8c4e709"
+    input: {
+      appointment_booking_time: "2021-08-20T08:40:53.973+0000"
+      appointment_end_time: "2021-08-20T08:40:53.973+0000"
+      appointment_start_time: "2021-08-20T08:40:53.973+0000"
+      is_recurring: true
+      timezone: "Kolkatta"
+      booked_by: "Manoj"
+      cost: 100.10
+      customer_mood: "Normal"
+      customer_status: "Active"
+      location_link: "http://hmis.com"
+      integration: ""
+      note: "best consulting"
+      slot: 2
+      arrival_status: "Arrived"
+      type: "Normal"
+      event_id: "60f136aae66c183a14ad0bdf"
+      site_id: "60ec2ecc1fb0c42560fbf5d2"
+      add_on_ids: ["60f152ad7ff71d359825a6af"]
+      staff_id: "60f7c8e0fe41c636781746c0"
+      workspace_id: "60ed492b4bdef938f022d20d"
+      created_by: "60f7c8e0fe41c636781746c0"
+      created_at: "2021-08-20T08:40:53.973+0000"
+      created_from: "Chennai"
+      deleted: false
+      deleted_at: "2021-08-20T08:40:53.973+0000"
+      updated_at: "2021-08-20T08:40:53.973+0000"
+    }
+  ) {
+    _id
+    timezone
+    booked_by
+  }
+}
+---------
+query{
+  getBooking{
+    _id
+    appointment_booking_time
+    booked_by
+    slot
+  }
+}
+--------
+mutation {
+  addCustomer(
+    input: {
+      name: "Raju"
+      email: "Raju@gmail.com"
+      email_verified_date_time: "2021-08-20T09:40:53.973Z"
+      phone: [
+        {
+          country_code: "+91"
+          is_verified: true
+          name: "Home"
+          no: "9884098840"
+          type: "mobile"
+        }
+      ]
+      avatar_or_icon: ""
+      avatar_or_icon_path: ""
+      display_name: "Raju Chand"
+      address_id: "60f7e1ca6041544560555476"
+    }
+  ) {
+    _id
+    name
+    email
+    phone {
+      country_code
+      no
+    }
+  }
+}
