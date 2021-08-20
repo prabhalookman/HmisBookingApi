@@ -1,6 +1,6 @@
 import addonsResolver from './addons'
 import addressResolver  from './address'
-import appointmentResolver  from './appointment'
+import bookingResolver  from './booking'
 import businessResolver from './business'
 import eventsResolver from './events'
 import locationResolver from './location'
@@ -28,7 +28,7 @@ import workspaceResolver from './workspace'
 export default [
   addonsResolver,
   addressResolver,
-  appointmentResolver,
+  bookingResolver,
   businessResolver,  
   eventsResolver,
   locationResolver,

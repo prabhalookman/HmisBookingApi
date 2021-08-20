@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const appointmentSchema = new mongoose.Schema({
+const bookingmentSchema = new mongoose.Schema({
   
   booking_id: String,
   customer_id: String,
@@ -41,5 +41,5 @@ const appointmentSchema = new mongoose.Schema({
 }
 )
 
-const Appointment = mongoose.model('Appointment', appointmentSchema)
-module.exports = Appointment;
+const Booking = mongoose.model('Booking', bookingSchema)
+module.exports = Booking;

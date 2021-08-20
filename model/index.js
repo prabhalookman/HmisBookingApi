@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 import AddOn from "./addons"
 import Address from "./address"
-import Appointment  from './appointment'
+import Booking  from './booking'
 import Business from './business';
 import Customer from './customer';
 import Event  from "./events"
@@ -26,7 +26,7 @@ const connectMongo = () => {
 const models = {
   AddOn,
   Address,
-  Appointment,
+  Booking,
   Business,
   Customer,
   Event,

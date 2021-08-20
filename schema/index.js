@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express';
 
 import addOnSchema  from './addons'
 import addressSchema  from './address'
-import appointmentSchema  from './appointment'
+import bookingSchema  from './booking'
 import businessSchema  from './business'
 import customerSchema  from './customer'
 import eventsSchema  from './events'
@@ -36,7 +36,7 @@ type Subscription {
 export default [baseSchema, 
   addOnSchema,
 addressSchema,
-appointmentSchema,
+bookingSchema,
 businessSchema,
 customerSchema,
 eventsSchema,

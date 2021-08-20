@@ -7,7 +7,7 @@ enum availabilityType {
   VIDEO
 }
 
-type Appointment {
+type Booking {
   _id: ID
   booking_id: String,
   customer_id: String,
@@ -43,7 +43,7 @@ type Appointment {
   deleted_at: String,
 }
 
-input appointmentInput {
+input bookingInput {
   _id: ID
   booking_id: String,
   customer_id: String,
@@ -80,12 +80,12 @@ input appointmentInput {
 }
 
 extend type Query {
-  getAppointment: [Appointment]
+  getBooking: [Booking]
 }
 
 extend type Mutation {
-  addAppointment(input: appointmentInput): Appointment
-  updateAppointment(appointmentID: ID!, input: appointmentInput): Appointment
-  deleteAppointment(appointmentID: ID!): Appointment
+  addBooking(input: bookingInput): Booking
+  updateBooking(bookingID: ID!, input: bookingInput): Booking
+  deleteBooking(bookingID: ID!): Booking
 }
 `
