@@ -28,7 +28,7 @@ const bookingSchema = new mongoose.Schema({
   event_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
   guest_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Customer' }],
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
-  add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
+  add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AddOn' }],
   staff_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
   workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' },
 

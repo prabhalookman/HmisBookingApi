@@ -4,9 +4,9 @@ export default gql`
 type Business {
   _id: ID
   name: String,  
-  site_id: ID,
-  workspace_ids: ID,  
-  address_ids: [ID],
+  site_id: Site,
+  workspace_ids: Workspace,
+  address_ids: [Address],
 }
 
 extend type Query {

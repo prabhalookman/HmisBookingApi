@@ -66,6 +66,40 @@ export default {
         console.error("Error : ", error)
       }
 
+    }
+  },
+  Booking: {
+    event_id: async (booking) => {
+      let resultBooking = await booking.populate('event_id').execPopulate();
+      return resultBooking.event_id
     },
+    guest_ids: async (booking) => {
+      let resultBooking = await booking.populate('guest_ids').execPopulate();
+      return resultBooking.guest_ids
+    },
+    customer_ids: async (booking) => {
+      let resultBooking = await booking.populate('customer_ids').execPopulate();
+      return resultBooking.customer_ids
+    },
+    site_id: async (booking) => {
+      let resultBooking = await booking.populate('site_id').execPopulate();
+      return resultBooking.site_id
+    },
+    add_on_ids: async (booking) => {
+      let resultBooking = await booking.populate('add_on_ids').execPopulate();
+      return resultBooking.add_on_ids
+    },
+    staff_id: async (booking) => {
+      let resultBooking = await booking.populate('staff_id').execPopulate();
+      return resultBooking.staff_id
+    },
+    workspace_id: async (booking) => {
+      let resultBooking = await booking.populate('workspace_id').execPopulate();
+      return resultBooking.workspace_id
+    },
+    created_by: async (booking) => {
+      let resultBooking = await booking.populate('created_by').execPopulate();
+      return resultBooking.created_by
+    }
   }
 }

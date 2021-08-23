@@ -12,9 +12,9 @@ type Address {
   business_branch: Boolean, 
   address_phone: [address_phones], 
   email: String, 
-  customer_id: ID,  
-  workspace_ids: [ID],
-  site_id: ID
+  customer_id: Customer,  
+  workspace_ids: [Workspace],
+  site_id:[Site]
 }
 
 type address_phones {

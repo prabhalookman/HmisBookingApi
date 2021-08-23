@@ -2,7 +2,7 @@ export default {
   Query: {
     getCustomer: async (parent, args, { models }, info) => {
       try {
-        let Customer = await models.Customer.find({ deleted: false })
+        let Customer = await models.Customer.find({ delete: false })
         return Customer
       } catch (error) {
         console.error("Error : ", error)
@@ -32,5 +32,11 @@ export default {
       }
 
     }
-  }
+  },  
+  Customer: {
+    address_id: async (customer) => {
+        let resultAddress = await customer.populate('address_id').execPopulate();
+        return resultAddress.address_id
+    }
+}
 }

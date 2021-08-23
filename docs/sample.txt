@@ -113,3 +113,143 @@ mutation {
     }
   }
 }
+--
+query {
+  getSite {
+    _id
+    name
+  }
+}
+--------
+query {
+  getAddOns {
+    _id
+    name
+    event_ids {
+      _id
+      name
+    }
+    workspace_ids {
+      _id
+      name
+    }
+    site_id {
+      _id
+      name
+    }
+  }
+}
+----
+query {
+  getAddress {
+    _id
+    address1
+    workspace_ids {
+      _id
+      name
+    }
+    site_id {
+      _id
+      name
+    }
+  }
+}
+----
+query {
+  getStaffs {
+    _id
+    name
+  }
+}
+---
+query {
+  getBooking {
+    _id
+    appointment_booking_time
+    event_id {
+      _id
+      name
+    }
+    staff_id {
+      _id
+      name
+    }
+    workspace_id {
+      _id
+      name
+    }
+    site_id {
+      _id
+      name
+    }
+    customer_ids {
+      _id
+      email
+      name
+    }
+    add_on_ids {
+      _id
+      name
+    }
+    guest_ids {
+      _id
+      name
+    }
+  }
+}
+---
+query {
+  getBusiness {
+    _id
+    name
+    site_id {
+      _id
+      name
+    }
+    workspace_ids {
+      _id
+      name
+    }
+    address_ids {
+      _id
+      email
+    }
+  }
+}
+---
+query {
+  getCustomer {
+    _id
+    name
+    address_id {
+      _id
+      address1
+    }
+  }
+}
+---
+query {
+  getEvents {
+    _id
+    name
+    timing_ids {
+      _id
+      name
+    }
+    site_id {
+      _id
+      name
+    }
+    workspace_ids {
+      _id
+      name
+    }
+  }
+}
+---
+query{
+  getLocation{
+    _id
+    name
+  }
+}

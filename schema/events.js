@@ -9,10 +9,10 @@ type Event {
   avatar_or_icon_path: String,
   duration_hours: Int,
   duration_minutes: Int,
-  timing_ids: [ID],
-  location_id: [ID],
-  workspace_ids: [ID],
-  site_id: [ID],
+  timing_ids: [Timings],
+  location_id: [Location],
+  workspace_ids: [Workspace],
+  site_id: [Site],
 }
 
 extend type Query {
