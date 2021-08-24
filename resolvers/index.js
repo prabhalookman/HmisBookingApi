@@ -12,6 +12,8 @@ import staffDetailsResolver  from './staffdetails'
 import timingsResolver  from './timings'
 import workspaceResolver from './workspace'
 
+import datescalar  from '../resolvers/datescalar'
+
 // import eventCategoryResolver from './eventcategory'
 // import roleResolver  from './role'
 // import userResolver  from './user'
@@ -39,5 +41,6 @@ export default [
   staffResolver,
   staffDetailsResolver,
   timingsResolver,
-  workspaceResolver
+  workspaceResolver,
+  datescalar
 ]

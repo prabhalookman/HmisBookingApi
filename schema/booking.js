@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-
+scalar Date
 type Booking {
   _id: ID
   appointment_booking_time: String,
@@ -35,11 +35,11 @@ type Booking {
   workspace_id: Workspace,
 
   created_by: Staff,
-  created_at: String,  
+  created_at: Date,  
   created_from: String,
   deleted: Boolean,
-  deleted_at: String,
-  updated_at: String
+  deleted_at: Date,
+  updated_at: Date
 }
 
 input bookingInput {
@@ -74,11 +74,11 @@ input bookingInput {
   workspace_id: ID,
 
   created_by: ID,
-  created_at: String,  
+  created_at: Date,  
   created_from: String,
   deleted: Boolean,
-  deleted_at: String,
-  updated_at: String
+  deleted_at: Date,
+  updated_at: Date
 }
 
 extend type Query {
