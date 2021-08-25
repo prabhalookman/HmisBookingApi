@@ -1,0 +1,11 @@
+getstaffdetail(workspceid, siteid)
+getstaffdetailbyservice(workspceid, siteid, serviceid)
+
+getservice(workspceid, siteid)
+getservicedetailbystaff(workspceid, siteid, staffid)
+
+getstaffDateDetail() filterby available- leavedetail exclude
+getslotdeatail() - settings
+
+basedon email-> create or link booking
+getbookingdetail(site,bookingid,workspaceid)

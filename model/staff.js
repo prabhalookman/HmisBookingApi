@@ -9,7 +9,8 @@ const staffSchema = new mongoose.Schema({
   workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
   site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
   timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],
-  location_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Location' }]
+  location_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Location' }],
+  staffDetails_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StaffDetails'}]
 })
 
 const Staff = mongoose.model('Staff', staffSchema)

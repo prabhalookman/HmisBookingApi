@@ -8,11 +8,23 @@ const eventSchema = new mongoose.Schema({
   avatar_or_icon_path: String,
   duration_hours: Number,
   duration_minutes: Number,
+
+  workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
+  site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
   timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],
   location_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Location' }],
-  workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
-  site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }]
+  staffDetails_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StaffDetails'}]
+
+  
 })
 
-const Event = mongoose.model('Event', eventSchema)
-module.exports = Event;
+const Events = mongoose.model('Events', eventSchema)
+module.exports = Events;
+
+/*
+timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],
+location_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Location' }],
+workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
+site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
+staff_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Staff' }]
+*/

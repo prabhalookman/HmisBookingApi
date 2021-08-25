@@ -14,7 +14,8 @@ type StaffDetails {
 }
 
 extend type Query {
-  getStaffDetails: [StaffDetails]
+  getStaffDetails(workspace_id: ID, site_id: ID): [StaffDetails]
+  getstaffdetailbyservice(workspace_id: ID, site_id: ID,event_ids: ID):[StaffDetails]
 }
 
 `
