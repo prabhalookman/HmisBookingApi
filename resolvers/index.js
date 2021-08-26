@@ -3,7 +3,7 @@ import addressResolver  from './address'
 import bookingResolver  from './booking'
 import customerResolver  from './customer'
 import businessResolver from './business'
-import eventsResolver from './events'
+import eventResolver from './events'
 import locationResolver from './location'
 import locationSettingResolver from './locationsetting'
 import siteResolver from './site'
@@ -34,7 +34,7 @@ export default [
   bookingResolver,
   customerResolver,
   businessResolver,  
-  eventsResolver,
+  eventResolver,
   locationResolver,
   locationSettingResolver,
   siteResolver,

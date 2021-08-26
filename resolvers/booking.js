@@ -2,7 +2,7 @@ export default {
   Query: {
     getBooking: async (parent, args, { models }, info) => {
       try {
-        let Booking = await models.Booking.find({ deleted: false })
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)

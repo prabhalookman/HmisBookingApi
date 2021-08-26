@@ -2,13 +2,13 @@ import mongoose from 'mongoose'
 
 const staffDetailsSchema = new mongoose.Schema({
   business_timings: Boolean,
+  sorting_id: Number,
   business_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Business' }],
   workspace_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
   address_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
-  timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],
-  sorting_id: Number,
-  event_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Events' }]
+  timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],  
+  event_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }]
 })
 
 const StaffDetails = mongoose.model('StaffDetails', staffDetailsSchema)

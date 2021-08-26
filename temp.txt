@@ -1,11 +1,20 @@
-getstaffdetail(workspceid, siteid)
-getstaffdetailbyservice(workspceid, siteid, serviceid)
+getstaffdetail(workspceid, siteid) - Pass
+getstaffdetailbyservice(workspceid, siteid, serviceid) - Pass
 
-getservice(workspceid, siteid)
-getservicedetailbystaff(workspceid, siteid, staffid)
+getservice(workspceid, siteid) - Pass
+getservicedetailbystaff(workspceid, siteid, staffid) - Pass
+
+getbookingdetail(site,bookingid,workspaceid) - Pass
 
 getstaffDateDetail() filterby available- leavedetail exclude
 getslotdeatail() - settings
 
 basedon email-> create or link booking
-getbookingdetail(site,bookingid,workspaceid)
+
+//Sample
+db.getCollection('events').find({
+  workspace_ids: ObjectId("61261b5ba97d172becfc0988"), 
+  site_id:ObjectId("60ec2ecc1fb0c42560fbf5d2"), 
+  staff_ids:ObjectId("60f7c8e0fe41c636781746c0")
+  })
+

@@ -11,7 +11,9 @@ type Staff {
   workspace_ids: [Workspace],
   site_id: [Site],
   timing_ids: [Timings],
-  location_id: [Location]
+  location_id: [Location],
+  staff_ids: [Staff]
+  
 }
 
 extend type Query {

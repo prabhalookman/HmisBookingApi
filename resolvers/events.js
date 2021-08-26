@@ -3,7 +3,7 @@ export default {
   Query: {
     getEvents: async (parent, args, { models }, info) => {
       try {
-        let event = await models.Event.find({ site_id: args.site_id })
+        let event = await models.Event.find({workspace_ids: args.workspace_id, site_id:args.site_id})
         return event
       } catch (error) {
         console.error("Error : ", error)
@@ -11,7 +11,8 @@ export default {
     },
     getEventsDetailByStaff: async (parent, args, { models }, info) => {
       try {
-        let staffEvent = await models.Event.find({ workspace_id: args.workspace_id, site_id: args.site_id,  staff_ids: args.staff_ids })
+        let staffEvent = await models.Event.find({workspace_ids: args.workspace_id, site_id:args.site_id, staff_ids: args.staff_ids})
+        console.log(`staffEvent Count : `, staffEvent.length)
         return staffEvent
       } catch (error) {
         console.error("Error : ", error)

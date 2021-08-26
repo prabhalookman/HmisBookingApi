@@ -82,7 +82,7 @@ input bookingInput {
 }
 
 extend type Query {
-  getBooking: [Booking]
+  getBooking(workspace_id: ID, site_id: ID): [Booking]
 }
 
 extend type Mutation {

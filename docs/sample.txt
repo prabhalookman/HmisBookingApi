@@ -273,3 +273,40 @@ query {
   }
 }
 -----
+query {
+  getEventsDetailByStaff(
+    workspace_id: "61261b5ba97d172becfc0988"
+    site_id: "60ec2ecc1fb0c42560fbf5d2" 
+    staff_ids: "60f7c8e0fe41c636781746c0"
+  ) {
+    _id
+    name
+  }
+}
+----
+query {
+  getEvents(
+    workspace_id: "61261b5ba97d172becfc0988"
+    site_id: "60ec2ecc1fb0c42560fbf5d2"
+  ) {
+    _id
+    name
+  }
+}
+-----
+query {
+  getBooking(
+    workspace_id: "60ed492b4bdef938f022d20d"
+    site_id: "60ec2ecc1fb0c42560fbf5d2"
+  ) {
+    _id
+    type
+  }
+}
+---
+query {
+  getCustomer {
+    _id
+    name
+  }
+}

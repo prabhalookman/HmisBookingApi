@@ -4,7 +4,7 @@ import Address from "./address"
 import Booking  from './booking'
 import Business from './business';
 import Customer from './customer';
-import Events  from "./events"
+import Event  from "./events"
 import Location from './location';
 import LocationSetting from './locationsetting';
 import Site from './site';
@@ -29,7 +29,7 @@ const models = {
   Booking,
   Business,
   Customer,
-  Events,
+  Event,
   Location,
   LocationSetting,
   Site,
