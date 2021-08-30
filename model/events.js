@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-
 const eventSchema = new mongoose.Schema({  
   name: String,
   color_code: String,
@@ -8,14 +7,12 @@ const eventSchema = new mongoose.Schema({
   duration_hours: Number,
   duration_minutes: Number,
 
-  workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
-  site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }],
+  workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' },
+  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
   timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],
-  location_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Location' }],  
+  location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LocationSetting' }],
   staff_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Staff'}]
-
-  
+ 
 })
-
 const Event = mongoose.model('Event', eventSchema)
 module.exports = Event;

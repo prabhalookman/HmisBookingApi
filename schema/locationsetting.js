@@ -23,11 +23,11 @@ type LocationSettingVideo {
 }
 
 type LocationSettingOncall {
-  client_will_call : Boolean,
-  staff_will_call : Boolean
+  client_will_call: Boolean,
+  staff_will_call: Boolean
 }
 
 extend type Query {
-  getLocationSetting: [LocationSetting]
+  getLocationSetting: [LocationSetting]  
 }
 `

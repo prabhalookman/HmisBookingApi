@@ -9,16 +9,17 @@ type Event {
   avatar_or_icon_path: String,
   duration_hours: Int,
   duration_minutes: Int,
-  
-  timing_ids: [Timings],
-  location_id: [Location],
-  workspace_ids: [Workspace],
+
+  workspace_id: [Workspace],
   site_id: [Site],
-  staff_ids: [Staff],
+  timing_ids: [Timings],
+  location_setting_ids: [LocationSetting],
+  staff_ids: [Staff]
 }
 
 extend type Query {
   getEvents(workspace_id: ID, site_id: ID): [Event]
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [Event]
+  getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Event]
 }
 `

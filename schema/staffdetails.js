@@ -4,13 +4,14 @@ export default gql`
 type StaffDetails {
   _id: ID,  
   business_timings: Boolean,
-  business_ids: [ID],  
-  workspace_id: [ID],  
+  business_id: [Business],  
+  workspace_id: [Workspace],
   site_id: String,
-  address_ids: [ID],
-  timing_ids: [ID],   
+  address_ids: [Address],
+  timing_ids: [Timings],
   sorting_id: Int,
-  event_ids: [ID]
+  event_ids: [Event],
+  location_setting_ids: [LocationSetting]
 }
 
 extend type Query {

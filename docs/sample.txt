@@ -310,3 +310,64 @@ query {
     name
   }
 }
+------
+query {
+  getLocationByStaffId(
+    workspace_id: "60e300635a12d07c2bef0602"
+    site_id: "60ec2ecc1fb0c42560fbf5d2"
+    staff_id: "60f7c8e0fe41c636781746c0"
+  ) {
+    _id
+    location_id {
+      _id
+      name
+    }
+    inperson {
+      buinsess_address
+      buinsess_id
+      client_address
+    }
+  }
+}
+-----
+query {
+  getLocationByServiceId(
+    workspace_id: "60e300635a12d07c2bef0602"
+    site_id: "60ec2ecc1fb0c42560fbf5d2"
+    event_id: "60f136aae66c183a14ad0bdf"
+  ) {
+    _id
+    location_id {
+      _id
+      name
+    }
+    inperson {
+      buinsess_address
+      buinsess_id
+      client_address
+    }
+  }
+}
+------------
+query {
+  _
+  getLocationByStaffId(
+    workspace_ids: "60ed492b4bdef938f022d20d"
+    site_id: "60ec2ecc1fb0c42560fbf5d2"
+    staff_id: "60f7c8e0fe41c636781746c0"
+  ) {
+    _id
+    name
+    staff_detail_id {
+      location_setting_ids {
+        _id
+        oncall {
+          client_will_call
+        }
+        inperson {
+          buinsess_address
+        }
+      }
+    }
+  }
+}

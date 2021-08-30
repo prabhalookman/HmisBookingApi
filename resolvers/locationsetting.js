@@ -13,6 +13,14 @@ export default {
     site_id: async (locsetting, args, { models }) => {
       const resultLocationSetting = await locsetting.populate('site_id').execPopulate();
       return resultLocationSetting.site_id
+    },
+    workspace_id: async (locsetting, args, { models }) => {
+      const resultLocationSetting = await locsetting.populate('workspace_id').execPopulate();
+      return resultLocationSetting.workspace_id
+    },
+    location_id: async (locsetting, args, { models }) => {
+      const resultLocationSetting = await locsetting.populate('location_id').execPopulate();
+      return resultLocationSetting.location_id
     }
   }
 }

@@ -17,6 +17,14 @@ export default {
       } catch (error) {
         console.error("Error : ", error)
       }
+    },
+    getLocationByServiceId: async (parent, args, { models }, info) => {
+      try {
+        let locationEvents = await models.Event.find({  workspace_id: args.workspace_id, site_id:args.site_id, _id:args.event_id })
+        return locationEvents        
+      } catch (error) {
+        console.error("Error : ", error)
+      }
     } 
   },
   Event: {
@@ -24,9 +32,9 @@ export default {
           let resultEvent = await event.populate('timing_ids').execPopulate();
           return resultEvent.timing_ids
       },
-      workspace_ids: async (event) => {
-          let resultEvent = await event.populate('workspace_ids').execPopulate();
-          return resultEvent.workspace_ids
+      workspace_id: async (event) => {
+          let resultEvent = await event.populate('workspace_id').execPopulate();
+          return resultEvent.workspace_id
       },
       site_id: async (event) => {
           let resultEvent = await event.populate('site_id').execPopulate();
@@ -36,9 +44,9 @@ export default {
         let resultEvent = await event.populate('staff_ids').execPopulate();
         return resultEvent.staff_ids
       },
-      location_id: async (event) => {
-        let resultEvent = await event.populate('location_id').execPopulate();
-        return resultEvent.location_id
+      location_setting_ids: async (event) => {
+        let resultEvent = await event.populate('location_setting_ids').execPopulate();
+        return resultEvent.location_setting_ids
     }
   }
 }
