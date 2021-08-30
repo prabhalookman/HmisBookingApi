@@ -6,6 +6,9 @@ getservicedetailbystaff(workspceid, siteid, staffid) - Pass
 
 getbookingdetail(site,bookingid,workspaceid) - Pass
 
+getLocationByStaffId()- (workspceid, siteid, staffid) - Pass
+getLocationByServiceId()- (workspceid, siteid, serviceid) - Pass
+
 getstaffDateDetail() filterby available- leavedetail exclude
 getslotdeatail() - settings
 
