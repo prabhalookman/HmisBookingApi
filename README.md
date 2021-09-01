@@ -37,6 +37,13 @@ token :
   "jwtTokenString":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOiIxMjMiLCJzY29wZSI6InNlbGYsIGFkbWlucyIsImF1ZCI6InNjaGVkdWxlLXNwenV0IiwianRpIjoiYzMyNDRmMmUtOTVkZS00NTYyLTkwOGYtYzMzMWY0OWMxNTlmIiwiaWF0IjoxNjI1NjYwODUyLCJleHAiOjE4NDE2NjA4NTJ9.iR5bmOpMc2Se-sDKADwb5GD3k_uisHUMa7xqvYh1VIY"
 }
 
+mongodb+srv://ananduse:<password>@cluster0.zt0q7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+
+pass : 3CTLbbttBT7wTZw
+db :hmis
+
+mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?authSource=admin&replicaSet=atlas-fyf4l0-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true
+
 # Note 
 Note:
 
