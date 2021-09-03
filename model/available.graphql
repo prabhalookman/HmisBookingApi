@@ -1,0 +1,1647 @@
+type SettingBooking_notificationSm {
+    hour_before_alert_is_sent: Int
+    is_booking_alert_on: Boolean
+    is_booking_notification_enable_for_admin: Boolean
+    is_booking_notification_enable_for_staff: Boolean
+    when: String
+  }
+
+  type SettingBooking_notification {
+    email: SettingBooking_notificationEmail
+    sms: SettingBooking_notificationSm
+  }
+
+  type EventIncluded {
+    extra_price: Boolean
+    name: String
+    price: Float
+    type: String
+  }
+
+  type Timing {
+    _id: ObjectId
+    business_hour: Boolean
+    business_location_setting_ids: [Locationsetting]
+    created_at: DateTime
+    created_by: Staff
+    custom_hour: Boolean
+    deleted_at: DateTime
+    include_weekends: Boolean
+    location_setting_ids: [Locationsetting]
+    site_id: Site
+    time_zone: String
+    timing_order: Float
+    timings: [TimingTiming]
+    type: String
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+
+  type Customer {
+    _id: ObjectId
+    address_id: Address
+    avatar_or_icon: String
+    avatar_or_icon_path: String
+    booking_ids: [Booking]
+    color_code: String
+    date_of_birth: DateTime
+    description: String
+    discount_coupon_ids: [Discountcoupon]
+    display_name: String
+    email: String
+    email_verified_date_time: DateTime
+    first_name: String
+    gender: String
+    gift_card_ids: [Giftcard]
+    is_email_verified: Boolean
+    last_name: String
+    name: String
+    order_ids: [Order]
+    phone: [CustomerPhone]
+    profile: CustomerProfile
+    registeredUsing: String
+    registration_date: DateTime
+    slug: String
+    source: String
+    timezone: String
+  }
+
+  type Permission {
+    _id: ObjectId
+    category: String
+    name: String
+    site_id: Site
+    system_name: String
+    workspace_id: Workspace
+  }
+
+  type Product_category_manufacturer_discount_map {
+    _id: ObjectId
+    applied_discount: Discountcoupon
+    created_at: DateTime
+    created_by: Staff
+    deleted_at: DateTime
+    manufacturer_id: Manufacture
+    product_category_id: Productcategory
+    product_id: ObjectId
+    site_id: ObjectId
+    updated_at: DateTime
+    workspace_ids: [ObjectId]
+  }
+
+  type Location {
+    _id: ObjectId
+    active: Boolean
+    app_integration_need: Boolean
+    created_at: DateTime
+    deleted: Boolean
+    deleted_at: DateTime
+    name: String
+    type: String
+    type_param: Boolean
+    updated_at: DateTime
+  }
+
+  type SettingLocalizationLanguage {
+    id: Int
+    is_default: Boolean
+    is_dnable: Boolean
+  }
+
+  type AddressPhone {
+    Ext: String
+    country_code: String
+    name: String
+    no: String
+    type: String
+  }
+  
+  
+  
+  type CustomerProfile {
+    last_appointment_date: String
+    mood: String
+    note: String
+    total_appointments: Int
+  }
+
+  type SettingClient_login_option {
+    is_enable: Boolean
+    name: String
+  }
+
+  type LocationsettingVideo {
+    integration_id: String
+    type: String
+  }
+
+  type Warehouse {
+    _id: ObjectId
+    address_ids: [Address]
+    city: String
+    company: String
+    country_id: String
+    display_order: Int
+    latitude: Float
+    longitude: Float
+    name: String
+    site_id: Site
+    workspace_ids: [Workspace]
+  }
+
+  type OrderOrder_tax {
+    _id: String
+    amount: Decimal
+    percent: Decimal
+  }
+
+  type Manufacture {
+    PictureId: String
+    _id: ObjectId
+    active: Boolean
+    created_at: DateTime
+    created_by: Staff
+    default_sort: Int
+    deleted: Boolean
+    deleted_at: DateTime
+    description: String
+    discounts_ids: [ObjectId]
+    display_order: Int
+    featured_products_on_homa_page: Boolean
+    hide_on_catalog: Boolean
+    name: String
+    picture_name: String
+    picture_path: String
+    price_ranges: String
+    published: Boolean
+    se_name: String
+    show_on_home_page: Boolean
+    site_id: Site
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+
+  type EventAvailability_rangeDate_range {
+    from: DateTime
+    to: DateTime
+  }
+
+  type Businesscategory {
+    _id: ObjectId
+    accessible: Boolean
+    active: Boolean
+    category_name: String
+    created_at: DateTime
+    created_by: Staff
+    deleted: Boolean
+    deleted_at: DateTime
+    parant_category_id: Businesscategory
+    site_id: ObjectId
+    type: String
+    updated_at: DateTime
+  }
+
+  type Timeformat {
+    _id: ObjectId
+    business_hour_end: Int
+    business_hour_start: Int
+    date_format: String
+    first_day: Int
+    site_id: ObjectId
+    timeFormat: Int
+    time_zone: String
+    workspace_id: ObjectId
+  }
+
+  type Businessinfo {
+    _id: ObjectId
+    accessible: Boolean
+    active: Boolean
+    address_ids: [Address]
+    bookingLinks: String
+    business_category: [Businesscategory]
+    business_hour_end: Int
+    business_hour_start: Int
+    business_sub_category: [Businesscategory]
+    created_at: DateTime
+    created_by: Staff
+    date_format: String
+    delete: Boolean
+    deleted_at: DateTime
+    first_day: Int
+    is_tax: Boolean
+    policy: BusinessinfoPolicy
+    restrictedDays: [DateTime]
+    site_id: Site
+    tax_no: String
+    tax_percentage: Int
+    time_format_id: Timeformat
+    time_zone: String
+    timing_ids: [Timing]
+    updated_at: DateTime
+    workspace_id: [Workspace]
+  }
+  
+  type StaffPhone {
+    country_code: String
+    is_verified: Boolean
+    name: String
+    no: String
+    type: String
+  }
+
+  type Product {
+    Interval: Int
+    _id: ObjectId
+    additional_shipping_charge: Decimal
+    allow_back_in_stock_subscriptions: Boolean
+    allow_customer_reviews: Boolean
+    approved_rating_sum: Int
+    approved_total_reviews: Int
+    automatically_add_required_products: Boolean
+    available_end_date_time: DateTime
+    available_for_pre_order: Boolean
+    available_start_date_time: DateTime
+    backorder_mode: String
+    base_price_amount: Decimal
+    base_price_base_amount: Decimal
+    base_price_base_unit_id: Measureweight
+    base_price_enabled: Boolean
+    base_price_unit_id: Measureweight
+    bundle_products_ids: [Product]
+    call_for_price: Boolean
+    catalog_price: Decimal
+    created_at: DateTime
+    created_by: Staff
+    currency_code: String
+    deleted_at: DateTime
+    disable_buy_button: Boolean
+    discounts_ids: [Discountcoupon]
+    discounts_map_ids: [ObjectId]
+    display_order: Int
+    display_order_category: Int
+    display_order_manufacturer: Int
+    display_stock_availability: Boolean
+    display_stock_quantity: Boolean
+    download_activation_type_id: Int
+    full_description: String
+    gift_card_type: String
+    has_sample_download: Boolean
+    has_user_agreement: Boolean
+    height: Decimal
+    inc_both_date: Boolean
+    interval_unit_id: Int
+    is_free_shipping: Boolean
+    is_gift_card: Boolean
+    is_recurring: Boolean
+    is_ship_enabled: Boolean
+    is_tax_exempt: Boolean
+    is_tele: Boolean
+    length: Decimal
+    low_stock: Boolean
+    low_stock_activity: String
+    manage_inventory_mmethod: String
+    manufacture_ids: [Manufacture]
+    manufacture_product_map_ids: [ObjectId]
+    manufacturerp_part_number: String
+    mark_as_new: Boolean
+    max_number_of_downloads: Int
+    min_stock_quantity: Int
+    name: String
+    not_approved_rating_sum: Int
+    not_approved_total_rviews: Int
+    not_returnable: Boolean
+    notify_admin_for_quantity_below: Int
+    old_price: Decimal
+    order_maximum_quantity: Int
+    order_minimum_quantity: Int
+    overridden_gift_card_amount: Decimal
+    price: Decimal
+    product_cost: Decimal
+    product_pictures: [ProductProduct_picture]
+    productcategory_ids: [Productcategory]
+    published: Boolean
+    recurring_cycle_length: Int
+    recurring_cycle_period: String
+    recurring_total_cycles: Int
+    related_products_ids: [Product]
+    require_other_products: Boolean
+    required_product_ids: [Product]
+    se_name: String
+    ship_separately: Boolean
+    short_description: String
+    similar_products_ids: [Product]
+    site_id: Site
+    sku: String
+    ss_download: Boolean
+    start_price: Decimal
+    stock_quantity: Int
+    tax_id: ObjectId
+    unit_id: Measureweight
+    unlimited_downloads: Boolean
+    updated_at: DateTime
+    use_multiple_warehouses: Boolean
+    warehouse_ids: [Warehouse]
+    weight: Decimal
+    width: Decimal
+    workspace_ids: [Workspace]
+  }
+
+  type Staffdetail {
+    _id: ObjectId
+    active: Boolean
+    address_ids: [Address]
+    booking_url: String
+    business_id: [Business]
+    business_timings: Boolean
+    created_at: DateTime
+    created_by: Staff
+    deafult_calendar_view: String
+    delete: Boolean
+    deleted_at: DateTime
+    events_ids: [Event]
+    invitationStatus: String
+    invitation_status_accept: Boolean
+    is_login: Boolean
+    is_service_provider: Boolean
+    is_sync_enabled: Boolean
+    location_setting_ids: [Locationsetting]
+    paid_plan_commission: Boolean
+    product_commission: Float
+    service_commission: Float
+    site_id: Site
+    sortingId: Int
+    sorting_id: Int
+    staff_commission: Boolean
+    staff_group_id: Staffgroup
+    sync: [StaffdetailSync]
+    timing_ids: [Timing]
+    timings: [ObjectId]
+    updated_at: DateTime
+    voucher_commission: Float
+    workspace_ids: [Workspace]
+  }
+
+  type SettingBooking_option {
+    is_auto_fill_intake_form_enable: Boolean
+    is_intake_form_enable: Boolean
+    is_multiple_service_selection_enable: Boolean
+    is_postal_code_enable: Boolean
+    is_quantity_booking_enable: Boolean
+    is_recurring_booking_for_admin_enable: Boolean
+    is_recurring_booking_for_client_enable: Boolean
+  }
+
+  type StaffSocial_network {
+    link: String
+    network: String
+  }
+
+  type LocationsettingInperson {
+    buinsess_address: Boolean
+    buinsess_id: Business
+    client_address: Boolean
+  }
+
+  type User {
+    _id: ObjectId
+    active: Boolean
+    delete: Boolean
+    is_owener: Boolean
+    paccess: ObjectId
+    role_ids: [Role]
+    site_id: Site
+    workspace_ids: [Workspace]
+  }
+
+  type Giftcard {
+    _id: ObjectId
+    amount: Decimal
+    created_at: DateTime
+    created_by: Staff
+    currency_code: String
+    deleted_at: DateTime
+    description: String
+    gift_card_coupon_code: String
+    gift_card_type: String
+    is_gift_card_activated: Boolean
+    product_ids: [Product]
+    site_id: Site
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+
+  type CustomerPhone {
+    country_code: String
+    is_verified: Boolean
+    name: String
+    no: String
+    type: String
+  }
+
+  type AddonVariant {
+    name: String
+    price: Float
+  }
+
+  type Role {
+    _id: ObjectId
+    active: Boolean
+    createdOn_utc: DateTime
+    delete: Boolean
+    is_system_role: Boolean
+    name: String
+    permission_ids: [Permission]
+    site_id: Site
+    system_name: String
+    workspace_id: Workspace
+  }
+
+  type EventAvailability_range {
+    Indefinitely: Boolean
+    advance: EventAvailability_rangeAdvance
+    date_range: EventAvailability_rangeDate_range
+  }
+
+  type SettingCircle_criterium {
+    inActive: Int
+    new: Int
+  }
+
+  type Setting {
+    _id: ObjectId
+    admin_time_slot: Int
+    advance_Booking_Period: SettingAdvance_Booking_Period
+    appointment_allocation_type: String
+    bookingLimit: SettingBookingLimit
+    booking_access: SettingBooking_access
+    booking_flow: String
+    booking_notification: SettingBooking_notification
+    booking_option: SettingBooking_option
+    buffer_time_for_booking: SettingBuffer_time_for_booking
+    circle_criteria: SettingCircle_criterium
+    client_login_option: [SettingClient_login_option]
+    client_slot_type: String
+    client_time_slot: Int
+    display_setting: SettingDisplay_setting
+    is_GDPR_enable_for_client: Boolean
+    is_account_ready: Boolean
+    is_category_selection_required: Boolean
+    is_promotion_enable_for_booking: Boolean
+    is_staff_selection_required: Boolean
+    localization: SettingLocalization
+    notice_period_for_booking: SettingNotice_period_for_booking
+    notice_period_for_cancellation: SettingNotice_period_for_cancellation
+    notice_period_for_rescheduling: SettingNotice_period_for_rescheduling
+    payment_option: SettingPayment_option
+    show_reviewer_name: Boolean
+    sign_up_form_data: [SettingSign_up_form_datum]
+    site_id: Site
+    workspace_id: Workspace
+  }
+  type SettingAdvance_Booking_Period {
+    format: String
+    value: Int
+  }
+
+  type Addon {
+    _id: ObjectId
+    active: Boolean
+    delete: Boolean
+    event_ids: [Event]
+    name: String
+    once_per_order: Boolean
+    price: Float
+    show_multiple_time: Boolean
+    site_id: Site
+    variant: [AddonVariant]
+    workspace_ids: [Workspace]
+  }
+  
+  type Category_product_map {
+    _id: ObjectId
+    created_at: DateTime
+    created_by: Staff
+    deleted_at: DateTime
+    product_category_id: Productcategory
+    product_id: Product
+    site_id: Site
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+
+  type Measuredimention {
+    _id: ObjectId
+    display_order: Int
+    name: String
+    ratio: Decimal
+    site_id: Site
+    system_keyword: String
+    workspace_ids: [Workspace]
+  }
+  
+  type SettingNotice_period_for_booking {
+    format: String
+    value: Int
+  }
+
+  type Staff {
+    _id: ObjectId
+    avatar_or_icon: String
+    avatar_or_icon_path: String
+    color_code: String
+    created_at: DateTime
+    created_by: Staff
+    deleted: Boolean
+    deleted_at: DateTime
+    description: String
+    display_name: String
+    email: String
+    email_verified_date_time: DateTime
+    employement_from: DateTime
+    employement_to: DateTime
+    event_staff_mapping_ids: [Events_satff_mapping]
+    experience_month: Int
+    experience_year: Int
+    first_name: String
+    gender: String
+    is_email_verified: Boolean
+    last_name: String
+    name: String
+    phone: [StaffPhone]
+    showSocialShare: Boolean
+    site_id: Site
+    site_owener: Boolean
+    slug: String
+    social_network: [StaffSocial_network]
+    sortingId: Int
+    staff_detail_id: [Staffdetail]
+    title: String
+    updated_at: DateTime
+    user_id: User
+    workspace_ids: [Workspace]
+  }
+
+  type SettingBuffer_time_for_booking {
+    format: String
+    value: Int
+  }
+
+  type Eventcategory {
+    _id: ObjectId
+    accessible: Boolean
+    active: Boolean
+    category_name: String
+    color_code: String
+    created_at: DateTime
+    created_by: Staff
+    deleted: Boolean
+    deleted_at: DateTime
+    icon: String
+    icon_path: String
+    parant_category_id: ObjectId
+    site_id: Site
+    type: String
+    updated_at: DateTime
+    workspace_id: Workspace
+  }
+
+  type Event {
+    _id: ObjectId
+    accept_deposits: Boolean
+    active: Boolean
+    add_on_ids: [Addon]
+    advance_pricing_ids: [Advancepricing]
+    advanced_appointment: Int
+    advanced_pricing: Boolean
+    allow_multiple_appointment: Boolean
+    allow_waitlist: Boolean
+    availability_range: EventAvailability_range
+    avatar_or_icon: String
+    avatar_or_icon_path: String
+    booking_limit: Int
+    booking_url: String
+    buffer_after_min: Int
+    buffer_before_min: Int
+    business_id: [Business]
+    business_timings: Boolean
+    color_code: String
+    commissionEnabled: Boolean
+    created_at: DateTime
+    created_by: Staff
+    currency: String
+    date_range_enable: Boolean
+    delete: Boolean
+    deleted_at: DateTime
+    deposit: Float
+    description: String
+    display_booking_page: Boolean
+    display_name: String
+    display_order: Int
+    duration_hours: Int
+    duration_minutes: Int
+    enable_accept_payments: Boolean
+    enable_appointment_at_fixed_time: Boolean
+    event_category_id: [Eventcategory]
+    event_collective: Boolean
+    event_group: Boolean
+    event_one_on_one: Boolean
+    event_round_robin: Boolean
+    event_staff_mapping_ids: [Events_satff_mapping]
+    excluded: [EventExcluded]
+    extra_time_in_seconds: Int
+    extra_time_type: String
+    hide_duration_on_booking_page: Boolean
+    included: [EventIncluded]
+    is_recurring: Boolean
+    latest_appointment: Int
+    limit_booking: Boolean
+    location_setting_ids: [Locationsetting]
+    maxDurationInSeconds: Int
+    minDurationInSeconds: Int
+    multiple_duration: Boolean
+    multiple_pricing_enabled: Boolean
+    name: String
+    no_of_multiple_appointment: Int
+    occupancy: Int
+    payment_show_in_booking_page: Boolean
+    payment_type: String
+    prefered_gender: String
+    priceType: String
+    require_payment_for_events: Boolean
+    resourceRequired: Boolean
+    retailPrice: Float
+    roomId: ObjectId
+    roomRequired: Boolean
+    rosource_id: ObjectId
+    running_status: Boolean
+    scheduling_notice: EventScheduling_notice
+    servicePricing_by_staff_enabled: Boolean
+    site_id: Site
+    sortingId: Int
+    special_price: Float
+    staff: [Staff]
+    staff_commission: Boolean
+    staff_commission_percentage: Float
+    staff_conformation: Boolean
+    tax_percentage: Float
+    taxable: Boolean
+    time_zone: String
+    timing_ids: [Timing]
+    type: String
+    updated_at: DateTime
+    voucherEnabled: Boolean
+    voucherExpirationPeriod: String
+    voucher_enabled: Boolean
+    voucher_id: ObjectId
+    workspace_id: Workspace
+  }
+
+  type SettingBookingLimit {
+    booking_allowed: Int
+    date_from: Int
+    day_from: String
+    end_date: DateTime
+    frquency: String
+    month_from: String
+    start_date: DateTime
+    type: String
+  }
+
+  type Workspace {
+    _id: ObjectId
+    accessible: Boolean
+    active: Boolean
+    color_code: String
+    created_at: DateTime
+    created_by: ObjectId
+    default_language: String
+    delete: Boolean
+    deleted_at: DateTime
+    display_name: String
+    display_order: Int
+    is_owner: Boolean
+    name: String
+    new_business: Boolean
+    site_id: Site
+    time_zone: String
+    type: String
+    updated_at: DateTime
+  }
+  
+  type BusinessSocial_network {
+    link: String
+    network: String
+  }
+
+  type SettingSign_up_form_datum {
+    isVisible: Boolean
+    name: String
+  }
+
+  type Measureunit {
+    _id: ObjectId
+    display_order: Int
+    name: String
+    site_id: Site
+    workspace_ids: [Workspace]
+  }
+
+  type SettingNotice_period_for_cancellation {
+    format: String
+    value: Int
+  }
+
+  type InsertManyPayload {
+    insertedIds: [ObjectId]!
+  }
+
+  type Advancepricing {
+    _id: ObjectId
+    buffer_after_min: Int
+    buffer_before_min: Int
+    created_at: DateTime
+    created_by: Staff
+    currency: String
+    deleted_at: DateTime
+    duration_hours: Int
+    duration_minutes: Int
+    name: String
+    nonDiscountedPrice: Float
+    priceType: String
+    price_type: String
+    retailPrice: Float
+    servicePricingByStaff: Boolean
+    site_id: Site
+    special_price: Float
+    staff_id: Staff
+    updated_at: DateTime
+    workspace_id: Workspace
+  }
+
+  type StaffdetailSync {
+    key: String
+    type: String
+  }
+  
+  type ProductProduct_picture {
+    picture_name: String
+    picture_path: String
+  }
+
+  type Productcategory {
+    _id: ObjectId
+    active: Boolean
+    created_at: DateTime
+    created_by: Staff
+    default_sort: Int
+    deleted: Boolean
+    deleted_at: DateTime
+    description: String
+    discounts_ids: [Discountcoupon]
+    display_order: Int
+    featured_products_on_homa_page: Boolean
+    hide_on_catalog: Boolean
+    name: String
+    parent_category_id: Productcategory
+    picture_name: String
+    picture_path: String
+    price_ranges: String
+    published: Boolean
+    se_name: String
+    show_on_home_page: Boolean
+    site_id: Site
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+  type EventAvailability_rangeAdvance {
+    no: Int
+    type: String
+  }
+  type Business {
+    _id: ObjectId
+    accessible: Boolean
+    active: Boolean
+    avatar_or_icon: String
+    avatar_or_icon_path: String
+    business_branch: String
+    business_info_ids: [Businessinfo]
+    color_code: String
+    created_at: DateTime
+    created_by: Staff
+    delete: Boolean
+    deleted_at: DateTime
+    description: String
+    display_name: String
+    email_signature: String
+    name: String
+    showSocialShare: Boolean
+    site_id: Site
+    social_network: [BusinessSocial_network]
+    staff_size: Int
+    type: String
+    updated_at: DateTime
+    web_url: String
+    workspace_id: [Workspace]
+  }
+  type Orderitem {
+    Sku: String
+    _id: ObjectId
+    commission: Decimal
+    created_at: DateTime
+    created_by: Staff
+    deleted_at: DateTime
+    discount_amount_excl_tax: Decimal
+    discount_amount_incl_tax: Decimal
+    download_count: Int
+    is_download_activated: Boolean
+    license_download_id: String
+    original_product_cost: Decimal
+    price_excl_tax: Decimal
+    price_incl_tax: Decimal
+    product_id: Product
+    quantity: Int
+    site_id: Site
+    unit_price_excl_tax: Decimal
+    unit_price_incl_tax: Decimal
+    unit_price_without_disc_Incl_tax: Decimal
+    unit_price_without_disc_excl_tax: Decimal
+    updated_at: DateTime
+    warehouse_id: Warehouse
+    workspace_id: Workspace
+  }
+  type EventExcluded {
+    extra_price: Boolean
+    name: String
+    price: Float
+    type: String
+  }
+  type SettingLocalizationTimezone {
+    description: String
+    id: Int
+    name: String
+    timezone_offset: Int
+    windows_time_zone_Id: String
+  } 
+  type Site {
+    _id: ObjectId
+    accessible: Boolean
+    account_status: String
+    active: Boolean
+    created_at: DateTime
+    created_by: ObjectId
+    default_language: String
+    delete: Boolean
+    deleted_at: DateTime
+    googleAnalyticsCode: String
+    name: String
+    payment_status: String
+    payment_status_id: String
+    subcription_id: ObjectId
+    suspended: Boolean
+    updated_at: DateTime
+  }
+
+  type Measureweight {
+    _id: ObjectId
+    display_order: Int
+    name: String
+    ratio: Decimal
+    site_id: Site
+    system_keyword: String
+    workspace_ids: [Workspace]
+  }
+
+  type SettingBooking_access {
+    is_Pre_paying_approved: Boolean
+    is_blocked: Boolean
+    is_email_verified_allowed: Boolean
+    is_email_verified_approved: Boolean
+    is_international_client_allowed: Boolean
+    is_non_email_verified_approved: Boolean
+    is_phone_verified_allowed: Boolean
+    is_phone_verified_approved: Boolean
+    is_pre_paying_allowed: Boolean
+  }
+
+  type Locationsetting {
+    _id: ObjectId
+    active: Boolean
+    created_at: DateTime
+    created_by: Staff
+    deleted: Boolean
+    deleted_at: DateTime
+    inperson: LocationsettingInperson
+    location_id: Location
+    oncall: LocationsettingOncall
+    site_id: Site
+    updated_at: DateTime
+    video: LocationsettingVideo
+    workspace_id: Workspace
+  }
+  
+  type SettingLocalization {
+    currency_culture: String
+    currency_format: String
+    currency_id: Int
+    currency_symbol: String
+    date_format: String
+    detect_client_timezone: Boolean
+    is_military_time: Boolean
+    language: SettingLocalizationLanguage
+    timezone: SettingLocalizationTimezone
+  }
+
+  type Acpwinfo {
+    _id: ObjectId
+    created_at: DateTime
+    created_from: String
+    default: Boolean
+    password: String
+    password_change_dateUtc: DateTime
+    password_expire_dateUtc: DateTime
+    password_expired: Boolean
+    password_format_id: Float
+    password_salt: String
+    updated_at: DateTime
+  }
+
+  type SettingDisplay_setting {
+    calendar_end_time: DateTime
+    calendar_start_time: DateTime
+    custom_css: String
+    default_calendar_view: String
+    is_appointy_branding_hidden: Boolean
+    is_block_time_strike_out: Boolean
+    is_custom_css_enable: Boolean
+    is_gift_certificate_visible: Boolean
+    is_service_cost_visible: Boolean
+    is_service_time_visible: Boolean
+    is_staff_visible: Boolean
+    is_unavailable_time_strike_out: Boolean
+    location_name: String
+    start_date: DateTime
+    start_day: String
+  }
+  type OrderBillingAddress {
+    _id: Address
+    first_name: String
+    last_name: String
+  }
+
+  type TimingTiming {
+    breaktime: [TimingTimingBreaktime]
+    end_time: String
+    is_override_block: Boolean
+    name: String
+    recurringRule: TimingTimingRecurringRule
+    service_ids: [ObjectId]
+    start_time: String
+    work_day_duration: Float
+    work_day_id: Float
+    work_day_name: String
+  }
+  type LocationsettingOncall {
+    client_will_call: Boolean
+    staff_will_call: Boolean
+  }
+  type Address {
+    _id: ObjectId
+    accessible: Boolean
+    account_status: String
+    active: Boolean
+    address1: String
+    address2: String
+    business_branch: Boolean
+    business_head_office: Boolean
+    city: String
+    country: String
+    created_at: DateTime
+    created_by: Staff
+    default_address: Boolean
+    delete: Boolean
+    deleted_at: DateTime
+    email: String
+    latitude: String
+    longitude: String
+    phone: [AddressPhone]
+    site_id: Site
+    state: String
+    type: String
+    updated_at: DateTime
+    workspace_id: [Workspace]
+    zipCode: String
+  }
+  type BusinessinfoPolicy {
+    appointment: String
+    cancellation: String
+    terms_and_condition: String
+  }
+  type SettingBooking_notificationEmail {
+    hour_before_alert_is_sent: Int
+    is_booking_alert_on: Boolean
+  }
+  
+  type SettingNotice_period_for_rescheduling {
+    format: String
+    value: Int
+  }
+  type SettingPayment_option {
+    charge_type: String
+    charge_value: Int
+  }
+  type EventScheduling_notice {
+    limit: Int
+    type: String
+  }
+  type Order {
+    BillingAddress: OrderBillingAddress
+    Ccrd_number: String
+    Code: String
+    OrderItems: [Orderitem]
+    OrderNumber: Int
+    _id: ObjectId
+    allow_storing_credit_card_number: Boolean
+    calc_reward_points: Int
+    card_cvv2: String
+    card_expiration_month: String
+    card_expiration_year: String
+    card_name: String
+    card_type: String
+    checkout_status: String
+    created_at: DateTime
+    created_by: Staff
+    currency_rate: Decimal
+    customer_currency_code: String
+    customer_id: String
+    customer_ip: String
+    customer_tax_display_type_id: Int
+    deleted_at: DateTime
+    masked_credit_card_number: String
+    order_discount: Decimal
+    order_shipping_excl_tax: Decimal
+    order_shipping_incl_tax: Decimal
+    order_status: String
+    order_subTotal_discount_excl_tax: Decimal
+    order_subTotal_discount_incl_tax: Decimal
+    order_subtotal_excl_tax: Decimal
+    order_subtotal_incl_tax: Decimal
+    order_tax: Decimal
+    order_taxes: OrderOrder_tax
+    order_total: Decimal
+    payment_method_additional_fee_excl_tax: Decimal
+    payment_method_additional_fee_incl_tax: Decimal
+    payment_method_system_name: String
+    payment_status_Id: ObjectId
+    primary_currency_code: String
+    rate: Decimal
+    refunded_amount: Decimal
+    reward_points_were_added: Boolean
+    shipping_address: Address
+    shipping_status: String
+    site_id: Site
+    updated_at: DateTime
+    vat_number_status_id: Int
+    workspace_id: Workspace
+  }
+  type Booking {
+    _id: ObjectId
+    add_on_ids: [Addon]
+    amount_paid: Float
+    appointment_booking_time: DateTime
+    appointment_end_time: DateTime
+    appointment_start_time: DateTime
+    appointment_time_before_reschedule: [DateTime]
+    arrival_status: String
+    assignee_id: [Staff]
+    booked_by: String
+    booking_id: Float
+    cost: Float
+    created_at: DateTime
+    created_by: Staff
+    created_from: String
+    customer_ids: [Customer]
+    customer_mood: String
+    customer_status: String
+    deleted: Boolean
+    deleted_at: DateTime
+    discount_amount: Float
+    discount_applied: Boolean
+    discount_available: Boolean
+    discount_code: String
+    discount_id: Discountcoupon
+    duration_minutes: Int
+    event_id: Event
+    extra_time_is_blocking: Boolean
+    gift_card_amount: Float
+    gift_card_applied: Boolean
+    gift_card_available: Boolean
+    gift_card_id: Giftcard
+    guest_ids: [Customer]
+    integration: String
+    is_approved: Boolean
+    is_asked_for_review: Boolean
+    is_cancelled: Boolean
+    is_failed: Boolean
+    is_multi_service: Boolean
+    is_offer_applied: Boolean
+    is_offer_available: Boolean
+    is_paid: Boolean
+    is_recurring: Boolean
+    is_rescheduled: Boolean
+    is_review_given: Boolean
+    location_link: String
+    location_setting_id: Locationsetting
+    note: String
+    offer_amount: Float
+    order_id: Order
+    payment_mode_id: Int
+    platform: String
+    price_type: String
+    progress: [BookingProgress]
+    reference: String
+    resource_id: Int
+    room_id: String
+    site_id: Site
+    slot: Int
+    staff_id: Staff
+    timezone: String
+    transfered_id: [Staff]
+    type: String
+    updated_at: DateTime
+    workspace_id: Workspace
+  }
+  type Manufacturer_product_map {
+    _id: ObjectId
+    created_at: DateTime
+    created_by: Staff
+    deleted_at: DateTime
+    manufacturer_id: Manufacture
+    product_id: Product
+    site_id: Site
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+  type Discountcoupon {
+    _id: ObjectId
+    coupon_code: String
+    created_at: DateTime
+    created_by: Staff
+    deleted_at: DateTime
+    discount_amount: Decimal
+    discount_limitation: String
+    discount_percentage: Decimal
+    discount_type: String
+    end_date: DateTime
+    is_cumulative: Boolean
+    is_enabled: Boolean
+    limitation_times: Int
+    maximum_discount_amount: Decimal
+    maximum_discounted_quantity: Int
+    name: String
+    requires_coupon_code: Boolean
+    reused: Boolean
+    site_id: Site
+    start_date: DateTime
+    updated_at: DateTime
+    use_percentage: Boolean
+    workspace_ids: [Workspace]
+  }
+
+  type TimingTimingBreaktime {
+    end_time: String
+    start_time: String
+  }
+  
+  type TimingTimingRecurringRule {
+    freq: String
+    repeatEvery: Float
+    until: DateTime
+  }
+  
+  type Staffgroup {
+    _id: ObjectId
+    active: Boolean
+    color_code: String
+    created_at: DateTime
+    created_by: Staff
+    deleted: Boolean
+    deleted_at: DateTime
+    group_name: String
+    icon: String
+    icon_path: String
+    site_id: Site
+    updated_at: DateTime
+    workspace_ids: [Workspace]
+  }
+  
+  type BookingProgress {
+    date_time: DateTime
+    status: String
+  }
+  type EventScheduling_notice {
+    limit: Int
+    type: String
+  }
+  
+  type DeleteManyPayload {
+    deletedCount: Int!
+  }
+type UpdateManyPayload {
+    matchedCount: Int!
+    modifiedCount: Int!
+  }
+  type Query {
+    acpwinfo(query: AcpwinfoQueryInput): Acpwinfo
+    acpwinfos(query: AcpwinfoQueryInput, limit: Int = 100, sortBy: AcpwinfoSortByInput): [Acpwinfo]!
+    addon(query: AddonQueryInput): Addon
+    addons(sortBy: AddonSortByInput, query: AddonQueryInput, limit: Int = 100): [Addon]!
+    address(query: AddressQueryInput): Address
+    addresses(query: AddressQueryInput, limit: Int = 100, sortBy: AddressSortByInput): [Address]!
+    advancepricing(query: AdvancepricingQueryInput): Advancepricing
+    advancepricings(query: AdvancepricingQueryInput, limit: Int = 100, sortBy: AdvancepricingSortByInput): [Advancepricing]!
+    booking(query: BookingQueryInput): Booking
+    bookings(query: BookingQueryInput, limit: Int = 100, sortBy: BookingSortByInput): [Booking]!
+    business(query: BusinessQueryInput): Business
+    businesscategories(query: BusinesscategoryQueryInput, limit: Int = 100, sortBy: BusinesscategorySortByInput): [Businesscategory]!
+    businesscategory(query: BusinesscategoryQueryInput): Businesscategory
+    businesses(sortBy: BusinessSortByInput, query: BusinessQueryInput, limit: Int = 100): [Business]!
+    businessinfo(query: BusinessinfoQueryInput): Businessinfo
+    businessinfos(sortBy: BusinessinfoSortByInput, query: BusinessinfoQueryInput, limit: Int = 100): [Businessinfo]!
+    category_product_map(query: Category_product_mapQueryInput): Category_product_map
+    category_product_maps(limit: Int = 100, sortBy: Category_product_mapSortByInput, query: Category_product_mapQueryInput): [Category_product_map]!
+    customer(query: CustomerQueryInput): Customer
+    customers(query: CustomerQueryInput, limit: Int = 100, sortBy: CustomerSortByInput): [Customer]!
+    discountcoupon(query: DiscountcouponQueryInput): Discountcoupon
+    discountcoupons(sortBy: DiscountcouponSortByInput, query: DiscountcouponQueryInput, limit: Int = 100): [Discountcoupon]!
+    event(query: EventQueryInput): Event
+    eventcategories(query: EventcategoryQueryInput, limit: Int = 100, sortBy: EventcategorySortByInput): [Eventcategory]!
+    eventcategory(query: EventcategoryQueryInput): Eventcategory
+    events(limit: Int = 100, sortBy: EventSortByInput, query: EventQueryInput): [Event]!
+    events_satff_mapping(query: Events_satff_mappingQueryInput): Events_satff_mapping
+    events_satff_mappings(query: Events_satff_mappingQueryInput, limit: Int = 100, sortBy: Events_satff_mappingSortByInput): [Events_satff_mapping]!
+    giftcard(query: GiftcardQueryInput): Giftcard
+    giftcards(sortBy: GiftcardSortByInput, query: GiftcardQueryInput, limit: Int = 100): [Giftcard]!
+    location(query: LocationQueryInput): Location
+    locations(limit: Int = 100, sortBy: LocationSortByInput, query: LocationQueryInput): [Location]!
+    locationsetting(query: LocationsettingQueryInput): Locationsetting
+    locationsettings(query: LocationsettingQueryInput, limit: Int = 100, sortBy: LocationsettingSortByInput): [Locationsetting]!
+    manufacture(query: ManufactureQueryInput): Manufacture
+    manufacturer_product_map(query: Manufacturer_product_mapQueryInput): Manufacturer_product_map
+    manufacturer_product_maps(query: Manufacturer_product_mapQueryInput, limit: Int = 100, sortBy: Manufacturer_product_mapSortByInput): [Manufacturer_product_map]!
+    manufactures(query: ManufactureQueryInput, limit: Int = 100, sortBy: ManufactureSortByInput): [Manufacture]!
+    measuredimention(query: MeasuredimentionQueryInput): Measuredimention
+    measuredimentions(query: MeasuredimentionQueryInput, limit: Int = 100, sortBy: MeasuredimentionSortByInput): [Measuredimention]!
+    measureunit(query: MeasureunitQueryInput): Measureunit
+    measureunits(query: MeasureunitQueryInput, limit: Int = 100, sortBy: MeasureunitSortByInput): [Measureunit]!
+    measureweight(query: MeasureweightQueryInput): Measureweight
+    measureweights(query: MeasureweightQueryInput, limit: Int = 100, sortBy: MeasureweightSortByInput): [Measureweight]!
+    order(query: OrderQueryInput): Order
+    orderitem(query: OrderitemQueryInput): Orderitem
+    orderitems(query: OrderitemQueryInput, limit: Int = 100, sortBy: OrderitemSortByInput): [Orderitem]!
+    orders(query: OrderQueryInput, limit: Int = 100, sortBy: OrderSortByInput): [Order]!
+    permission(query: PermissionQueryInput): Permission
+    permissions(query: PermissionQueryInput, limit: Int = 100, sortBy: PermissionSortByInput): [Permission]!
+    product(query: ProductQueryInput): Product
+    product_category_manufacturer_discount_map(query: Product_category_manufacturer_discount_mapQueryInput): Product_category_manufacturer_discount_map
+    product_category_manufacturer_discount_maps(limit: Int = 100, sortBy: Product_category_manufacturer_discount_mapSortByInput, query: Product_category_manufacturer_discount_mapQueryInput): [Product_category_manufacturer_discount_map]!
+    productcategories(query: ProductcategoryQueryInput, limit: Int = 100, sortBy: ProductcategorySortByInput): [Productcategory]!
+    productcategory(query: ProductcategoryQueryInput): Productcategory
+    products(query: ProductQueryInput, limit: Int = 100, sortBy: ProductSortByInput): [Product]!
+    role(query: RoleQueryInput): Role
+    roles(limit: Int = 100, sortBy: RoleSortByInput, query: RoleQueryInput): [Role]!
+    setting(query: SettingQueryInput): Setting
+    settings(query: SettingQueryInput, limit: Int = 100, sortBy: SettingSortByInput): [Setting]!
+    site(query: SiteQueryInput): Site
+    sites(query: SiteQueryInput, limit: Int = 100, sortBy: SiteSortByInput): [Site]!
+    staff(query: StaffQueryInput): Staff
+    staffdetail(query: StaffdetailQueryInput): Staffdetail
+    staffdetails(query: StaffdetailQueryInput, limit: Int = 100, sortBy: StaffdetailSortByInput): [Staffdetail]!
+    staffgroup(query: StaffgroupQueryInput): Staffgroup
+    staffgroups(query: StaffgroupQueryInput, limit: Int = 100, sortBy: StaffgroupSortByInput): [Staffgroup]!
+    staffs(query: StaffQueryInput, limit: Int = 100, sortBy: StaffSortByInput): [Staff]!
+    timeformat(query: TimeformatQueryInput): Timeformat
+    timeformats(limit: Int = 100, sortBy: TimeformatSortByInput, query: TimeformatQueryInput): [Timeformat]!
+    timing(query: TimingQueryInput): Timing
+    timings(query: TimingQueryInput, limit: Int = 100, sortBy: TimingSortByInput): [Timing]!
+    user(query: UserQueryInput): User
+    users(limit: Int = 100, sortBy: UserSortByInput, query: UserQueryInput): [User]!
+    warehouse(query: WarehouseQueryInput): Warehouse
+    warehouses(query: WarehouseQueryInput, limit: Int = 100, sortBy: WarehouseSortByInput): [Warehouse]!
+    workspace(query: WorkspaceQueryInput): Workspace
+    workspaces(query: WorkspaceQueryInput, limit: Int = 100, sortBy: WorkspaceSortByInput): [Workspace]!
+  }
+  type Mutation {
+    deleteManyAcpwinfos(query: AcpwinfoQueryInput): DeleteManyPayload
+    deleteManyAddons(query: AddonQueryInput): DeleteManyPayload
+    deleteManyAddresses(query: AddressQueryInput): DeleteManyPayload
+    deleteManyAdvancepricings(query: AdvancepricingQueryInput): DeleteManyPayload
+    deleteManyBookings(query: BookingQueryInput): DeleteManyPayload
+    deleteManyBusinesscategories(query: BusinesscategoryQueryInput): DeleteManyPayload
+    deleteManyBusinesses(query: BusinessQueryInput): DeleteManyPayload
+    deleteManyBusinessinfos(query: BusinessinfoQueryInput): DeleteManyPayload
+    deleteManyCategory_product_maps(query: Category_product_mapQueryInput): DeleteManyPayload
+    deleteManyCustomers(query: CustomerQueryInput): DeleteManyPayload
+    deleteManyDiscountcoupons(query: DiscountcouponQueryInput): DeleteManyPayload
+    deleteManyEventcategories(query: EventcategoryQueryInput): DeleteManyPayload
+    deleteManyEvents(query: EventQueryInput): DeleteManyPayload
+    deleteManyEvents_satff_mappings(query: Events_satff_mappingQueryInput): DeleteManyPayload
+    deleteManyGiftcards(query: GiftcardQueryInput): DeleteManyPayload
+    deleteManyLocations(query: LocationQueryInput): DeleteManyPayload
+    deleteManyLocationsettings(query: LocationsettingQueryInput): DeleteManyPayload
+    deleteManyManufacturer_product_maps(query: Manufacturer_product_mapQueryInput): DeleteManyPayload
+    deleteManyManufactures(query: ManufactureQueryInput): DeleteManyPayload
+    deleteManyMeasuredimentions(query: MeasuredimentionQueryInput): DeleteManyPayload
+    deleteManyMeasureunits(query: MeasureunitQueryInput): DeleteManyPayload
+    deleteManyMeasureweights(query: MeasureweightQueryInput): DeleteManyPayload
+    deleteManyOrderitems(query: OrderitemQueryInput): DeleteManyPayload
+    deleteManyOrders(query: OrderQueryInput): DeleteManyPayload
+    deleteManyPermissions(query: PermissionQueryInput): DeleteManyPayload
+    deleteManyProduct_category_manufacturer_discount_maps(query: Product_category_manufacturer_discount_mapQueryInput): DeleteManyPayload
+    deleteManyProductcategories(query: ProductcategoryQueryInput): DeleteManyPayload
+    deleteManyProducts(query: ProductQueryInput): DeleteManyPayload
+    deleteManyRoles(query: RoleQueryInput): DeleteManyPayload
+    deleteManySettings(query: SettingQueryInput): DeleteManyPayload
+    deleteManySites(query: SiteQueryInput): DeleteManyPayload
+    deleteManyStaffdetails(query: StaffdetailQueryInput): DeleteManyPayload
+    deleteManyStaffgroups(query: StaffgroupQueryInput): DeleteManyPayload
+    deleteManyStaffs(query: StaffQueryInput): DeleteManyPayload
+    deleteManyTimeformats(query: TimeformatQueryInput): DeleteManyPayload
+    deleteManyTimings(query: TimingQueryInput): DeleteManyPayload
+    deleteManyUsers(query: UserQueryInput): DeleteManyPayload
+    deleteManyWarehouses(query: WarehouseQueryInput): DeleteManyPayload
+    deleteManyWorkspaces(query: WorkspaceQueryInput): DeleteManyPayload
+    deleteOneAcpwinfo(query: AcpwinfoQueryInput!): Acpwinfo
+    deleteOneAddon(query: AddonQueryInput!): Addon
+    deleteOneAddress(query: AddressQueryInput!): Address
+    deleteOneAdvancepricing(query: AdvancepricingQueryInput!): Advancepricing
+    deleteOneBooking(query: BookingQueryInput!): Booking
+    deleteOneBusiness(query: BusinessQueryInput!): Business
+    deleteOneBusinesscategory(query: BusinesscategoryQueryInput!): Businesscategory
+    deleteOneBusinessinfo(query: BusinessinfoQueryInput!): Businessinfo
+    deleteOneCategory_product_map(query: Category_product_mapQueryInput!): Category_product_map
+    deleteOneCustomer(query: CustomerQueryInput!): Customer
+    deleteOneDiscountcoupon(query: DiscountcouponQueryInput!): Discountcoupon
+    deleteOneEvent(query: EventQueryInput!): Event
+    deleteOneEventcategory(query: EventcategoryQueryInput!): Eventcategory
+    deleteOneEvents_satff_mapping(query: Events_satff_mappingQueryInput!): Events_satff_mapping
+    deleteOneGiftcard(query: GiftcardQueryInput!): Giftcard
+    deleteOneLocation(query: LocationQueryInput!): Location
+    deleteOneLocationsetting(query: LocationsettingQueryInput!): Locationsetting
+    deleteOneManufacture(query: ManufactureQueryInput!): Manufacture
+    deleteOneManufacturer_product_map(query: Manufacturer_product_mapQueryInput!): Manufacturer_product_map
+    deleteOneMeasuredimention(query: MeasuredimentionQueryInput!): Measuredimention
+    deleteOneMeasureunit(query: MeasureunitQueryInput!): Measureunit
+    deleteOneMeasureweight(query: MeasureweightQueryInput!): Measureweight
+    deleteOneOrder(query: OrderQueryInput!): Order
+    deleteOneOrderitem(query: OrderitemQueryInput!): Orderitem
+    deleteOnePermission(query: PermissionQueryInput!): Permission
+    deleteOneProduct(query: ProductQueryInput!): Product
+    deleteOneProduct_category_manufacturer_discount_map(query: Product_category_manufacturer_discount_mapQueryInput!): Product_category_manufacturer_discount_map
+    deleteOneProductcategory(query: ProductcategoryQueryInput!): Productcategory
+    deleteOneRole(query: RoleQueryInput!): Role
+    deleteOneSetting(query: SettingQueryInput!): Setting
+    deleteOneSite(query: SiteQueryInput!): Site
+    deleteOneStaff(query: StaffQueryInput!): Staff
+    deleteOneStaffdetail(query: StaffdetailQueryInput!): Staffdetail
+    deleteOneStaffgroup(query: StaffgroupQueryInput!): Staffgroup
+    deleteOneTimeformat(query: TimeformatQueryInput!): Timeformat
+    deleteOneTiming(query: TimingQueryInput!): Timing
+    deleteOneUser(query: UserQueryInput!): User
+    deleteOneWarehouse(query: WarehouseQueryInput!): Warehouse
+    deleteOneWorkspace(query: WorkspaceQueryInput!): Workspace
+    insertManyAcpwinfos(data: [AcpwinfoInsertInput!]!): InsertManyPayload
+    insertManyAddons(data: [AddonInsertInput!]!): InsertManyPayload
+    insertManyAddresses(data: [AddressInsertInput!]!): InsertManyPayload
+    insertManyAdvancepricings(data: [AdvancepricingInsertInput!]!): InsertManyPayload
+    insertManyBookings(data: [BookingInsertInput!]!): InsertManyPayload
+    insertManyBusinesscategories(data: [BusinesscategoryInsertInput!]!): InsertManyPayload
+    insertManyBusinesses(data: [BusinessInsertInput!]!): InsertManyPayload
+    insertManyBusinessinfos(data: [BusinessinfoInsertInput!]!): InsertManyPayload
+    insertManyCategory_product_maps(data: [Category_product_mapInsertInput!]!): InsertManyPayload
+    insertManyCustomers(data: [CustomerInsertInput!]!): InsertManyPayload
+    insertManyDiscountcoupons(data: [DiscountcouponInsertInput!]!): InsertManyPayload
+    insertManyEventcategories(data: [EventcategoryInsertInput!]!): InsertManyPayload
+    insertManyEvents(data: [EventInsertInput!]!): InsertManyPayload
+    insertManyEvents_satff_mappings(data: [Events_satff_mappingInsertInput!]!): InsertManyPayload
+    insertManyGiftcards(data: [GiftcardInsertInput!]!): InsertManyPayload
+    insertManyLocations(data: [LocationInsertInput!]!): InsertManyPayload
+    insertManyLocationsettings(data: [LocationsettingInsertInput!]!): InsertManyPayload
+    insertManyManufacturer_product_maps(data: [Manufacturer_product_mapInsertInput!]!): InsertManyPayload
+    insertManyManufactures(data: [ManufactureInsertInput!]!): InsertManyPayload
+    insertManyMeasuredimentions(data: [MeasuredimentionInsertInput!]!): InsertManyPayload
+    insertManyMeasureunits(data: [MeasureunitInsertInput!]!): InsertManyPayload
+    insertManyMeasureweights(data: [MeasureweightInsertInput!]!): InsertManyPayload
+    insertManyOrderitems(data: [OrderitemInsertInput!]!): InsertManyPayload
+    insertManyOrders(data: [OrderInsertInput!]!): InsertManyPayload
+    insertManyPermissions(data: [PermissionInsertInput!]!): InsertManyPayload
+    insertManyProduct_category_manufacturer_discount_maps(data: [Product_category_manufacturer_discount_mapInsertInput!]!): InsertManyPayload
+    insertManyProductcategories(data: [ProductcategoryInsertInput!]!): InsertManyPayload
+    insertManyProducts(data: [ProductInsertInput!]!): InsertManyPayload
+    insertManyRoles(data: [RoleInsertInput!]!): InsertManyPayload
+    insertManySettings(data: [SettingInsertInput!]!): InsertManyPayload
+    insertManySites(data: [SiteInsertInput!]!): InsertManyPayload
+    insertManyStaffdetails(data: [StaffdetailInsertInput!]!): InsertManyPayload
+    insertManyStaffgroups(data: [StaffgroupInsertInput!]!): InsertManyPayload
+    insertManyStaffs(data: [StaffInsertInput!]!): InsertManyPayload
+    insertManyTimeformats(data: [TimeformatInsertInput!]!): InsertManyPayload
+    insertManyTimings(data: [TimingInsertInput!]!): InsertManyPayload
+    insertManyUsers(data: [UserInsertInput!]!): InsertManyPayload
+    insertManyWarehouses(data: [WarehouseInsertInput!]!): InsertManyPayload
+    insertManyWorkspaces(data: [WorkspaceInsertInput!]!): InsertManyPayload
+    insertOneAcpwinfo(data: AcpwinfoInsertInput!): Acpwinfo
+    insertOneAddon(data: AddonInsertInput!): Addon
+    insertOneAddress(data: AddressInsertInput!): Address
+    insertOneAdvancepricing(data: AdvancepricingInsertInput!): Advancepricing
+    insertOneBooking(data: BookingInsertInput!): Booking
+    insertOneBusiness(data: BusinessInsertInput!): Business
+    insertOneBusinesscategory(data: BusinesscategoryInsertInput!): Businesscategory
+    insertOneBusinessinfo(data: BusinessinfoInsertInput!): Businessinfo
+    insertOneCategory_product_map(data: Category_product_mapInsertInput!): Category_product_map
+    insertOneCustomer(data: CustomerInsertInput!): Customer
+    insertOneDiscountcoupon(data: DiscountcouponInsertInput!): Discountcoupon
+    insertOneEvent(data: EventInsertInput!): Event
+    insertOneEventcategory(data: EventcategoryInsertInput!): Eventcategory
+    insertOneEvents_satff_mapping(data: Events_satff_mappingInsertInput!): Events_satff_mapping
+    insertOneGiftcard(data: GiftcardInsertInput!): Giftcard
+    insertOneLocation(data: LocationInsertInput!): Location
+    insertOneLocationsetting(data: LocationsettingInsertInput!): Locationsetting
+    insertOneManufacture(data: ManufactureInsertInput!): Manufacture
+    insertOneManufacturer_product_map(data: Manufacturer_product_mapInsertInput!): Manufacturer_product_map
+    insertOneMeasuredimention(data: MeasuredimentionInsertInput!): Measuredimention
+    insertOneMeasureunit(data: MeasureunitInsertInput!): Measureunit
+    insertOneMeasureweight(data: MeasureweightInsertInput!): Measureweight
+    insertOneOrder(data: OrderInsertInput!): Order
+    insertOneOrderitem(data: OrderitemInsertInput!): Orderitem
+    insertOnePermission(data: PermissionInsertInput!): Permission
+    insertOneProduct(data: ProductInsertInput!): Product
+    insertOneProduct_category_manufacturer_discount_map(data: Product_category_manufacturer_discount_mapInsertInput!): Product_category_manufacturer_discount_map
+    insertOneProductcategory(data: ProductcategoryInsertInput!): Productcategory
+    insertOneRole(data: RoleInsertInput!): Role
+    insertOneSetting(data: SettingInsertInput!): Setting
+    insertOneSite(data: SiteInsertInput!): Site
+    insertOneStaff(data: StaffInsertInput!): Staff
+    insertOneStaffdetail(data: StaffdetailInsertInput!): Staffdetail
+    insertOneStaffgroup(data: StaffgroupInsertInput!): Staffgroup
+    insertOneTimeformat(data: TimeformatInsertInput!): Timeformat
+    insertOneTiming(data: TimingInsertInput!): Timing
+    insertOneUser(data: UserInsertInput!): User
+    insertOneWarehouse(data: WarehouseInsertInput!): Warehouse
+    insertOneWorkspace(data: WorkspaceInsertInput!): Workspace
+    replaceOneAcpwinfo(query: AcpwinfoQueryInput, data: AcpwinfoInsertInput!): Acpwinfo
+    replaceOneAddon(query: AddonQueryInput, data: AddonInsertInput!): Addon
+    replaceOneAddress(data: AddressInsertInput!, query: AddressQueryInput): Address
+    replaceOneAdvancepricing(query: AdvancepricingQueryInput, data: AdvancepricingInsertInput!): Advancepricing
+    replaceOneBooking(query: BookingQueryInput, data: BookingInsertInput!): Booking
+    replaceOneBusiness(query: BusinessQueryInput, data: BusinessInsertInput!): Business
+    replaceOneBusinesscategory(query: BusinesscategoryQueryInput, data: BusinesscategoryInsertInput!): Businesscategory
+    replaceOneBusinessinfo(query: BusinessinfoQueryInput, data: BusinessinfoInsertInput!): Businessinfo
+    replaceOneCategory_product_map(query: Category_product_mapQueryInput, data: Category_product_mapInsertInput!): Category_product_map
+    replaceOneCustomer(query: CustomerQueryInput, data: CustomerInsertInput!): Customer
+    replaceOneDiscountcoupon(data: DiscountcouponInsertInput!, query: DiscountcouponQueryInput): Discountcoupon
+    replaceOneEvent(query: EventQueryInput, data: EventInsertInput!): Event
+    replaceOneEventcategory(query: EventcategoryQueryInput, data: EventcategoryInsertInput!): Eventcategory
+    replaceOneEvents_satff_mapping(query: Events_satff_mappingQueryInput, data: Events_satff_mappingInsertInput!): Events_satff_mapping
+    replaceOneGiftcard(query: GiftcardQueryInput, data: GiftcardInsertInput!): Giftcard
+    replaceOneLocation(query: LocationQueryInput, data: LocationInsertInput!): Location
+    replaceOneLocationsetting(query: LocationsettingQueryInput, data: LocationsettingInsertInput!): Locationsetting
+    replaceOneManufacture(query: ManufactureQueryInput, data: ManufactureInsertInput!): Manufacture
+    replaceOneManufacturer_product_map(query: Manufacturer_product_mapQueryInput, data: Manufacturer_product_mapInsertInput!): Manufacturer_product_map
+    replaceOneMeasuredimention(query: MeasuredimentionQueryInput, data: MeasuredimentionInsertInput!): Measuredimention
+    replaceOneMeasureunit(query: MeasureunitQueryInput, data: MeasureunitInsertInput!): Measureunit
+    replaceOneMeasureweight(query: MeasureweightQueryInput, data: MeasureweightInsertInput!): Measureweight
+    replaceOneOrder(query: OrderQueryInput, data: OrderInsertInput!): Order
+    replaceOneOrderitem(data: OrderitemInsertInput!, query: OrderitemQueryInput): Orderitem
+    replaceOnePermission(query: PermissionQueryInput, data: PermissionInsertInput!): Permission
+    replaceOneProduct(data: ProductInsertInput!, query: ProductQueryInput): Product
+    replaceOneProduct_category_manufacturer_discount_map(query: Product_category_manufacturer_discount_mapQueryInput, data: Product_category_manufacturer_discount_mapInsertInput!): Product_category_manufacturer_discount_map
+    replaceOneProductcategory(query: ProductcategoryQueryInput, data: ProductcategoryInsertInput!): Productcategory
+    replaceOneRole(query: RoleQueryInput, data: RoleInsertInput!): Role
+    replaceOneSetting(query: SettingQueryInput, data: SettingInsertInput!): Setting
+    replaceOneSite(query: SiteQueryInput, data: SiteInsertInput!): Site
+    replaceOneStaff(query: StaffQueryInput, data: StaffInsertInput!): Staff
+    replaceOneStaffdetail(query: StaffdetailQueryInput, data: StaffdetailInsertInput!): Staffdetail
+    replaceOneStaffgroup(query: StaffgroupQueryInput, data: StaffgroupInsertInput!): Staffgroup
+    replaceOneTimeformat(query: TimeformatQueryInput, data: TimeformatInsertInput!): Timeformat
+    replaceOneTiming(query: TimingQueryInput, data: TimingInsertInput!): Timing
+    replaceOneUser(data: UserInsertInput!, query: UserQueryInput): User
+    replaceOneWarehouse(query: WarehouseQueryInput, data: WarehouseInsertInput!): Warehouse
+    replaceOneWorkspace(query: WorkspaceQueryInput, data: WorkspaceInsertInput!): Workspace
+    updateManyAcpwinfos(set: AcpwinfoUpdateInput!, query: AcpwinfoQueryInput): UpdateManyPayload
+    updateManyAddons(query: AddonQueryInput, set: AddonUpdateInput!): UpdateManyPayload
+    updateManyAddresses(query: AddressQueryInput, set: AddressUpdateInput!): UpdateManyPayload
+    updateManyAdvancepricings(query: AdvancepricingQueryInput, set: AdvancepricingUpdateInput!): UpdateManyPayload
+    updateManyBookings(query: BookingQueryInput, set: BookingUpdateInput!): UpdateManyPayload
+    updateManyBusinesscategories(query: BusinesscategoryQueryInput, set: BusinesscategoryUpdateInput!): UpdateManyPayload
+    updateManyBusinesses(query: BusinessQueryInput, set: BusinessUpdateInput!): UpdateManyPayload
+    updateManyBusinessinfos(query: BusinessinfoQueryInput, set: BusinessinfoUpdateInput!): UpdateManyPayload
+    updateManyCategory_product_maps(query: Category_product_mapQueryInput, set: Category_product_mapUpdateInput!): UpdateManyPayload
+    updateManyCustomers(query: CustomerQueryInput, set: CustomerUpdateInput!): UpdateManyPayload
+    updateManyDiscountcoupons(query: DiscountcouponQueryInput, set: DiscountcouponUpdateInput!): UpdateManyPayload
+    updateManyEventcategories(query: EventcategoryQueryInput, set: EventcategoryUpdateInput!): UpdateManyPayload
+    updateManyEvents(query: EventQueryInput, set: EventUpdateInput!): UpdateManyPayload
+    updateManyEvents_satff_mappings(query: Events_satff_mappingQueryInput, set: Events_satff_mappingUpdateInput!): UpdateManyPayload
+    updateManyGiftcards(set: GiftcardUpdateInput!, query: GiftcardQueryInput): UpdateManyPayload
+    updateManyLocations(query: LocationQueryInput, set: LocationUpdateInput!): UpdateManyPayload
+    updateManyLocationsettings(query: LocationsettingQueryInput, set: LocationsettingUpdateInput!): UpdateManyPayload
+    updateManyManufacturer_product_maps(query: Manufacturer_product_mapQueryInput, set: Manufacturer_product_mapUpdateInput!): UpdateManyPayload
+    updateManyManufactures(query: ManufactureQueryInput, set: ManufactureUpdateInput!): UpdateManyPayload
+    updateManyMeasuredimentions(query: MeasuredimentionQueryInput, set: MeasuredimentionUpdateInput!): UpdateManyPayload
+    updateManyMeasureunits(query: MeasureunitQueryInput, set: MeasureunitUpdateInput!): UpdateManyPayload
+    updateManyMeasureweights(set: MeasureweightUpdateInput!, query: MeasureweightQueryInput): UpdateManyPayload
+    updateManyOrderitems(set: OrderitemUpdateInput!, query: OrderitemQueryInput): UpdateManyPayload
+    updateManyOrders(query: OrderQueryInput, set: OrderUpdateInput!): UpdateManyPayload
+    updateManyPermissions(query: PermissionQueryInput, set: PermissionUpdateInput!): UpdateManyPayload
+    updateManyProduct_category_manufacturer_discount_maps(query: Product_category_manufacturer_discount_mapQueryInput, set: Product_category_manufacturer_discount_mapUpdateInput!): UpdateManyPayload
+    updateManyProductcategories(query: ProductcategoryQueryInput, set: ProductcategoryUpdateInput!): UpdateManyPayload
+    updateManyProducts(query: ProductQueryInput, set: ProductUpdateInput!): UpdateManyPayload
+    updateManyRoles(query: RoleQueryInput, set: RoleUpdateInput!): UpdateManyPayload
+    updateManySettings(query: SettingQueryInput, set: SettingUpdateInput!): UpdateManyPayload
+    updateManySites(query: SiteQueryInput, set: SiteUpdateInput!): UpdateManyPayload
+    updateManyStaffdetails(query: StaffdetailQueryInput, set: StaffdetailUpdateInput!): UpdateManyPayload
+    updateManyStaffgroups(query: StaffgroupQueryInput, set: StaffgroupUpdateInput!): UpdateManyPayload
+    updateManyStaffs(query: StaffQueryInput, set: StaffUpdateInput!): UpdateManyPayload
+    updateManyTimeformats(query: TimeformatQueryInput, set: TimeformatUpdateInput!): UpdateManyPayload
+    updateManyTimings(query: TimingQueryInput, set: TimingUpdateInput!): UpdateManyPayload
+    updateManyUsers(query: UserQueryInput, set: UserUpdateInput!): UpdateManyPayload
+    updateManyWarehouses(query: WarehouseQueryInput, set: WarehouseUpdateInput!): UpdateManyPayload
+    updateManyWorkspaces(query: WorkspaceQueryInput, set: WorkspaceUpdateInput!): UpdateManyPayload
+    updateOneAcpwinfo(query: AcpwinfoQueryInput, set: AcpwinfoUpdateInput!): Acpwinfo
+    updateOneAddon(query: AddonQueryInput, set: AddonUpdateInput!): Addon
+    updateOneAddress(set: AddressUpdateInput!, query: AddressQueryInput): Address
+    updateOneAdvancepricing(query: AdvancepricingQueryInput, set: AdvancepricingUpdateInput!): Advancepricing
+    updateOneBooking(set: BookingUpdateInput!, query: BookingQueryInput): Booking
+    updateOneBusiness(query: BusinessQueryInput, set: BusinessUpdateInput!): Business
+    updateOneBusinesscategory(query: BusinesscategoryQueryInput, set: BusinesscategoryUpdateInput!): Businesscategory
+    updateOneBusinessinfo(set: BusinessinfoUpdateInput!, query: BusinessinfoQueryInput): Businessinfo
+    updateOneCategory_product_map(query: Category_product_mapQueryInput, set: Category_product_mapUpdateInput!): Category_product_map
+    updateOneCustomer(query: CustomerQueryInput, set: CustomerUpdateInput!): Customer
+    updateOneDiscountcoupon(query: DiscountcouponQueryInput, set: DiscountcouponUpdateInput!): Discountcoupon
+    updateOneEvent(query: EventQueryInput, set: EventUpdateInput!): Event
+    updateOneEventcategory(query: EventcategoryQueryInput, set: EventcategoryUpdateInput!): Eventcategory
+    updateOneEvents_satff_mapping(query: Events_satff_mappingQueryInput, set: Events_satff_mappingUpdateInput!): Events_satff_mapping
+    updateOneGiftcard(query: GiftcardQueryInput, set: GiftcardUpdateInput!): Giftcard
+    updateOneLocation(query: LocationQueryInput, set: LocationUpdateInput!): Location
+    updateOneLocationsetting(query: LocationsettingQueryInput, set: LocationsettingUpdateInput!): Locationsetting
+    updateOneManufacture(query: ManufactureQueryInput, set: ManufactureUpdateInput!): Manufacture
+    updateOneManufacturer_product_map(query: Manufacturer_product_mapQueryInput, set: Manufacturer_product_mapUpdateInput!): Manufacturer_product_map
+    updateOneMeasuredimention(query: MeasuredimentionQueryInput, set: MeasuredimentionUpdateInput!): Measuredimention
+    updateOneMeasureunit(query: MeasureunitQueryInput, set: MeasureunitUpdateInput!): Measureunit
+    updateOneMeasureweight(query: MeasureweightQueryInput, set: MeasureweightUpdateInput!): Measureweight
+    updateOneOrder(query: OrderQueryInput, set: OrderUpdateInput!): Order
+    updateOneOrderitem(query: OrderitemQueryInput, set: OrderitemUpdateInput!): Orderitem
+    updateOnePermission(query: PermissionQueryInput, set: PermissionUpdateInput!): Permission
+    updateOneProduct(query: ProductQueryInput, set: ProductUpdateInput!): Product
+    updateOneProduct_category_manufacturer_discount_map(query: Product_category_manufacturer_discount_mapQueryInput, set: Product_category_manufacturer_discount_mapUpdateInput!): Product_category_manufacturer_discount_map
+    updateOneProductcategory(query: ProductcategoryQueryInput, set: ProductcategoryUpdateInput!): Productcategory
+    updateOneRole(query: RoleQueryInput, set: RoleUpdateInput!): Role
+    updateOneSetting(query: SettingQueryInput, set: SettingUpdateInput!): Setting
+    updateOneSite(query: SiteQueryInput, set: SiteUpdateInput!): Site
+    updateOneStaff(set: StaffUpdateInput!, query: StaffQueryInput): Staff
+    updateOneStaffdetail(query: StaffdetailQueryInput, set: StaffdetailUpdateInput!): Staffdetail
+    updateOneStaffgroup(query: StaffgroupQueryInput, set: StaffgroupUpdateInput!): Staffgroup
+    updateOneTimeformat(query: TimeformatQueryInput, set: TimeformatUpdateInput!): Timeformat
+    updateOneTiming(query: TimingQueryInput, set: TimingUpdateInput!): Timing
+    updateOneUser(query: UserQueryInput, set: UserUpdateInput!): User
+    updateOneWarehouse(query: WarehouseQueryInput, set: WarehouseUpdateInput!): Warehouse
+    updateOneWorkspace(query: WorkspaceQueryInput, set: WorkspaceUpdateInput!): Workspace
+    upsertOneAcpwinfo(query: AcpwinfoQueryInput, data: AcpwinfoInsertInput!): Acpwinfo
+    upsertOneAddon(query: AddonQueryInput, data: AddonInsertInput!): Addon
+    upsertOneAddress(data: AddressInsertInput!, query: AddressQueryInput): Address
+    upsertOneAdvancepricing(query: AdvancepricingQueryInput, data: AdvancepricingInsertInput!): Advancepricing
+    upsertOneBooking(query: BookingQueryInput, data: BookingInsertInput!): Booking
+    upsertOneBusiness(query: BusinessQueryInput, data: BusinessInsertInput!): Business
+    upsertOneBusinesscategory(data: BusinesscategoryInsertInput!, query: BusinesscategoryQueryInput): Businesscategory
+    upsertOneBusinessinfo(query: BusinessinfoQueryInput, data: BusinessinfoInsertInput!): Businessinfo
+    upsertOneCategory_product_map(query: Category_product_mapQueryInput, data: Category_product_mapInsertInput!): Category_product_map
+    upsertOneCustomer(data: CustomerInsertInput!, query: CustomerQueryInput): Customer
+    upsertOneDiscountcoupon(query: DiscountcouponQueryInput, data: DiscountcouponInsertInput!): Discountcoupon
+    upsertOneEvent(query: EventQueryInput, data: EventInsertInput!): Event
+    upsertOneEventcategory(query: EventcategoryQueryInput, data: EventcategoryInsertInput!): Eventcategory
+    upsertOneEvents_satff_mapping(query: Events_satff_mappingQueryInput, data: Events_satff_mappingInsertInput!): Events_satff_mapping
+    upsertOneGiftcard(query: GiftcardQueryInput, data: GiftcardInsertInput!): Giftcard
+    upsertOneLocation(query: LocationQueryInput, data: LocationInsertInput!): Location
+    upsertOneLocationsetting(query: LocationsettingQueryInput, data: LocationsettingInsertInput!): Locationsetting
+    upsertOneManufacture(query: ManufactureQueryInput, data: ManufactureInsertInput!): Manufacture
+    upsertOneManufacturer_product_map(data: Manufacturer_product_mapInsertInput!, query: Manufacturer_product_mapQueryInput): Manufacturer_product_map
+    upsertOneMeasuredimention(query: MeasuredimentionQueryInput, data: MeasuredimentionInsertInput!): Measuredimention
+    upsertOneMeasureunit(query: MeasureunitQueryInput, data: MeasureunitInsertInput!): Measureunit
+    upsertOneMeasureweight(query: MeasureweightQueryInput, data: MeasureweightInsertInput!): Measureweight
+    upsertOneOrder(query: OrderQueryInput, data: OrderInsertInput!): Order
+    upsertOneOrderitem(query: OrderitemQueryInput, data: OrderitemInsertInput!): Orderitem
+    upsertOnePermission(query: PermissionQueryInput, data: PermissionInsertInput!): Permission
+    upsertOneProduct(data: ProductInsertInput!, query: ProductQueryInput): Product
+    upsertOneProduct_category_manufacturer_discount_map(query: Product_category_manufacturer_discount_mapQueryInput, data: Product_category_manufacturer_discount_mapInsertInput!): Product_category_manufacturer_discount_map
+    upsertOneProductcategory(query: ProductcategoryQueryInput, data: ProductcategoryInsertInput!): Productcategory
+    upsertOneRole(data: RoleInsertInput!, query: RoleQueryInput): Role
+    upsertOneSetting(query: SettingQueryInput, data: SettingInsertInput!): Setting
+    upsertOneSite(query: SiteQueryInput, data: SiteInsertInput!): Site
+    upsertOneStaff(query: StaffQueryInput, data: StaffInsertInput!): Staff
+    upsertOneStaffdetail(data: StaffdetailInsertInput!, query: StaffdetailQueryInput): Staffdetail
+    upsertOneStaffgroup(query: StaffgroupQueryInput, data: StaffgroupInsertInput!): Staffgroup
+    upsertOneTimeformat(query: TimeformatQueryInput, data: TimeformatInsertInput!): Timeformat
+    upsertOneTiming(query: TimingQueryInput, data: TimingInsertInput!): Timing
+    upsertOneUser(query: UserQueryInput, data: UserInsertInput!): User
+    upsertOneWarehouse(data: WarehouseInsertInput!, query: WarehouseQueryInput): Warehouse
+    upsertOneWorkspace(data: WorkspaceInsertInput!, query: WorkspaceQueryInput): Workspace
+  }
