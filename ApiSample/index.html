@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <title>Document</title>
+    <style>
+        table, tr{
+            border: 1px solid #0f0f0f;            
+        }
+    </style>
+</head>
+<body>
+    <h2>Booking API - Samples</h2>
+    <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1</th>
+            <td>Booking</td>
+            <td><a href="./booking.txt" target="_blank">Booking API</a></td>
+          </tr>
+          <tr>
+            <th scope="row">2</th>
+            <td>Customer</td>
+            <td><a href="./customer.txt" target="_blank">Customer API</a></td>
+          </tr>
+          <tr>
+            <th scope="row">3</th>
+            <td>Events</td>
+            <td><a href="./events.txt" target="_blank">Events API</a></td>
+          </tr>
+          <tr>
+            <th scope="row">4</th>
+            <td>Staff</td>
+            <td><a href="./staff.txt" target="_blank">Staff API</a></td>
+          </tr>
+          <tr>
+            <th scope="row">5</th>
+            <td>Staffdetails</td>
+            <td><a href="./staffdetails.txt" target="_blank">Staffdetails API</a></td>
+          </tr>
+          <tr>
+            <th scope="row">5</th>
+            <td>Location</td>
+            <td><a href="./location.txt" target="_blank">Location API</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Query</h3>
+      <pre>
+        getBooking(workspace_id: ID, site_id: ID): [Booking]
+        getCustomer(workspace_ids: ID, site_id: ID, staff_id: ID): [Customer]
+        getEvents(workspace_id: ID, site_id: ID): [Event]
+        getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [Event]
+        getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Event]
+        getLocation(workspace_id: ID, site_id: ID): [Location]
+        getLocationSetting(workspace_id: ID, site_id: ID): [LocationSetting]  
+        getStaffs(workspace_ids: ID, site_id: ID, staff_id: ID): [Staff]
+        getLocationByStaffId(workspace_ids: ID, site_id: ID, staff_id: ID):[Staff]  
+        getStaffDetails(workspace_id: ID, site_id: ID): [StaffDetails]
+        getstaffdetailbyservice(workspace_id: ID, site_id: ID,event_ids: ID):[StaffDetails]
+      </pre>
+
+      <h3>Mutations</h3>
+      <pre>
+        addBooking(input: bookingInput): Booking
+        updateBooking(bookingID: ID!, input: bookingInput): Booking
+        deleteBooking(bookingID: ID!): Booking
+        addCustomer(input: customerInput): Customer
+    </pre>
+</body>
+</html>

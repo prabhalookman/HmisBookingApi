@@ -1,0 +1,30 @@
+mutation {
+  addCustomer(
+    input: {
+      name: "Raju"
+      email: "Raju@gmail.com"
+      email_verified_date_time: "2021-08-20T09:40:53.973Z"
+      phone: [
+        {
+          country_code: "+91"
+          is_verified: true
+          name: "Home"
+          no: "9884098840"
+          type: "mobile"
+        }
+      ]
+      avatar_or_icon: ""
+      avatar_or_icon_path: ""
+      display_name: "Raju Chand"
+      address_id: "60f7e1ca6041544560555476"
+    }
+  ) {
+    _id
+    name
+    email
+    phone {
+      country_code
+      no
+    }
+  }
+}

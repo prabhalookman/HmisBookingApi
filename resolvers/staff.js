@@ -2,7 +2,7 @@ export default {
     Query: {
         getStaffs: async (parent, args, { models }, info) => {
             try {
-                let staff = await models.Staff.find({ delete: false })
+                let staff = await models.Staff.find({  workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id })
                 return staff
             } catch (error) {
                 console.error("Error : ", error)

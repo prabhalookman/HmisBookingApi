@@ -32,12 +32,14 @@ const app = express();
     }
   })
 
+  app.use("/ApiSample", express.static(path.join(__dirname, './ApiSample')));
+
   await server.start();
   server.applyMiddleware({ app });
 
-  app.all('*', (req, res, next) => {
-    next(new AppError(`Can't Find URL${req.originalUrl} on the server`, 404));
-  })
+  // app.all('*', (req, res, next) => {
+  //   next(new AppError(`Can't Find URL${req.originalUrl} on the server`, 404));
+  // })
   
   connectMongo().then(() => {
     console.log("Connected To The MongoDB.")

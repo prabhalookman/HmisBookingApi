@@ -1,0 +1,9 @@
+query {
+  getStaffs(
+    workspace_id: "61261b5ba97d172becfc0988"
+    site_id: "60ec2ecc1fb0c42560fbf5d2"
+  ) {
+    _id
+    name
+  }
+}

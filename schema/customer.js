@@ -42,7 +42,7 @@ input customerPhoneInput {
 }
 
 extend type Query {
-    getCustomer: [Customer]
+    getCustomer(workspace_ids: ID, site_id: ID, staff_id: ID): [Customer]
 }
 
 extend type Mutation {

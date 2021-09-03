@@ -2,7 +2,7 @@ export default {
   Query: {
     getCustomer: async (parent, args, { models }, info) => {
       try {
-        let Customer = await models.Customer.find({ delete: false })
+        let Customer = await models.Customer.find({  workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id })
         return Customer
       } catch (error) {
         console.error("Error : ", error)

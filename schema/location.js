@@ -11,7 +11,7 @@ type Location {
 }
 
 extend type Query {
-  getLocation: [Location]
+  getLocation(workspace_id: ID, site_id: ID): [Location]
 }
 
 `

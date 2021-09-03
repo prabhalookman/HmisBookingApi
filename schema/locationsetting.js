@@ -28,6 +28,6 @@ type LocationSettingOncall {
 }
 
 extend type Query {
-  getLocationSetting: [LocationSetting]  
+  getLocationSetting(workspace_id: ID, site_id: ID): [LocationSetting]  
 }
 `
