@@ -6,7 +6,6 @@ import businessResolver from './business'
 import eventResolver from './events'
 import locationResolver from './location'
 import locationSettingResolver from './locationsetting'
-import siteResolver from './site'
 import staffResolver  from './staff'
 import staffDetailsResolver  from './staffdetails'
 import timingsResolver  from './timings'
@@ -37,7 +36,6 @@ export default [
   eventResolver,
   locationResolver,
   locationSettingResolver,
-  siteResolver,
   staffResolver,
   staffDetailsResolver,
   timingsResolver,

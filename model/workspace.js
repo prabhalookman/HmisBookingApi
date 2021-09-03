@@ -5,5 +5,5 @@ const workspaceSchema = new mongoose.Schema({
     site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' }
 })
 
-const Workspace = mongoose.model('Workspace', workspaceSchema)
+const Workspace = mongoose.model('workspace', workspaceSchema,'workspace')
 module.exports = Workspace;

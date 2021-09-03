@@ -18,5 +18,5 @@ const locationsettingSchema = new mongoose.Schema({
   }
 })
 
-const LocationSetting = mongoose.model('LocationSetting', locationsettingSchema)
+const LocationSetting = mongoose.model('locationsetting', locationsettingSchema, 'locationsetting')
 module.exports = LocationSetting;

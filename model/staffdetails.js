@@ -12,5 +12,5 @@ const staffDetailsSchema = new mongoose.Schema({
   location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LocationSetting' }],
 })
 
-const StaffDetails = mongoose.model('StaffDetails', staffDetailsSchema)
+const StaffDetails = mongoose.model('staffdetails', staffDetailsSchema, 'staffdetails')
 module.exports = StaffDetails;

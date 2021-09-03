@@ -8,5 +8,5 @@ const locationSchema = new mongoose.Schema({
   name: String 
 })
 
-const Location = mongoose.model('Location', locationSchema)
+const Location = mongoose.model('location', locationSchema, 'location')
 module.exports = Location;

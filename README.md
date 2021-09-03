@@ -47,3 +47,7 @@ so we need simple api which is provided only needed data
 3.Business- Name and address and logo -- only query
 4.Customer - name,ph,phone - insert
 4.Booking -- insert , update
+# HmisBookingApi
+
+Git Token Auth : 
+https://stackoverflow.com/questions/68775869/support-for-password-authentication-was-removed-please-use-a-personal-access-to

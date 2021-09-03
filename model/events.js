@@ -14,5 +14,5 @@ const eventSchema = new mongoose.Schema({
   staff_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Staff'}]
  
 })
-const Event = mongoose.model('Event', eventSchema)
+const Event = mongoose.model('events', eventSchema, 'events')
 module.exports = Event;

@@ -18,5 +18,5 @@ const customerSchema = new mongoose.Schema({
   address_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Address' }
 })
 
-const Customer = mongoose.model('Customer', customerSchema)
+const Customer = mongoose.model('customer', customerSchema, 'customer')
 module.exports = Customer;

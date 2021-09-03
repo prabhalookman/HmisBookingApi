@@ -23,5 +23,5 @@ const addressSchema = new mongoose.Schema({
   site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }]  
 })
 
-const Address = mongoose.model('Address', addressSchema)
+const Address = mongoose.model('address', addressSchema, 'address')
 module.exports = Address;

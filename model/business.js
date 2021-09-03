@@ -8,5 +8,5 @@ const businessSchema = new mongoose.Schema({
   address_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
 })
 
-const Business = mongoose.model('Business', businessSchema)
+const Business = mongoose.model('business', businessSchema, 'business')
 module.exports = Business;

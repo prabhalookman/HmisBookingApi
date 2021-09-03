@@ -28,5 +28,5 @@ const timingsSchema = new mongoose.Schema({
     location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LocationSetting' }]
 })
 
-const Timings = mongoose.model('Timings', timingsSchema)
+const Timings = mongoose.model('timings', timingsSchema, 'timings')
 module.exports = Timings;

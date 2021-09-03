@@ -11,5 +11,5 @@ const staffSchema = new mongoose.Schema({
   staff_detail_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'StaffDetails'}]
 })
 
-const Staff = mongoose.model('Staff', staffSchema)
+const Staff = mongoose.model('staff', staffSchema, 'staff')
 module.exports = Staff;
