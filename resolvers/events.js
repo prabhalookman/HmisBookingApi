@@ -4,6 +4,7 @@ export default {
     getEvents: async (parent, args, { models }, info) => {
       try {
         let event = await models.Event.find({workspace_ids: args.workspace_id, site_id:args.site_id})
+        //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
       } catch (error) {
         console.error("Error : ", error)

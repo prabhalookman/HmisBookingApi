@@ -32,40 +32,6 @@ export default {
         console.error("Error : ", error)
       }
 
-    },
-    updateBooking: async (parent, args, { models }, info) => {
-      try {
-        let updateObj = { $set: {} };
-        for (var param in args.input) {
-          updateObj.$set[param] = args.input[param];
-        }
-        const resultBooking = await models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
-
-        console.log("resultBooking created : ", resultBooking)
-
-        return resultBooking
-      } catch (error) {
-        console.error("Error : ", error)
-      }
-
-    },
-    deleteBooking: async (parent, args, { models }, info) => {
-      try {
-        args = args.bookingID;
-        const deleteStatus = true;
-        let updateObj = { deleted: deleteStatus }
-
-        let resultBooking = await models.Booking.findOneAndUpdate({ _id: args }, updateObj, { new: true });
-        if (resultBooking) {
-          return resultBooking;
-        } else {
-          console.log("Error Delet Booking")
-        }
-        return resultBooking
-      } catch (error) {
-        console.error("Error : ", error)
-      }
-
     }
   },
   Booking: {
@@ -103,3 +69,40 @@ export default {
     }
   }
 }
+/*
+,
+    updateBooking: async (parent, args, { models }, info) => {
+      try {
+        let updateObj = { $set: {} };
+        for (var param in args.input) {
+          updateObj.$set[param] = args.input[param];
+        }
+        const resultBooking = await models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
+
+        console.log("resultBooking created : ", resultBooking)
+
+        return resultBooking
+      } catch (error) {
+        console.error("Error : ", error)
+      }
+
+    },
+    deleteBooking: async (parent, args, { models }, info) => {
+      try {
+        args = args.bookingID;
+        const deleteStatus = true;
+        let updateObj = { deleted: deleteStatus }
+
+        let resultBooking = await models.Booking.findOneAndUpdate({ _id: args }, updateObj, { new: true });
+        if (resultBooking) {
+          return resultBooking;
+        } else {
+          console.log("Error Delet Booking")
+        }
+        return resultBooking
+      } catch (error) {
+        console.error("Error : ", error)
+      }
+
+    }
+    */
