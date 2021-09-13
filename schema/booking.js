@@ -86,8 +86,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  addBooking(input: bookingInput): Booking
-  updateBooking(bookingID: ID!, input: bookingInput): Booking
-  deleteBooking(bookingID: ID!): Booking
+  addBooking(input: bookingInput): Booking  
 }
 `

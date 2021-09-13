@@ -7,10 +7,10 @@ type Site {
     name: String,
     workspace_ids: [Workspace]
 }
-`
-
-/*
 extend type Query {
     getSite: [Site]    
 }
-*/
+
+`
+
+
