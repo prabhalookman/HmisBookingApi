@@ -21,3 +21,24 @@ db.getCollection('events').find({
   staff_ids:ObjectId("60f7c8e0fe41c636781746c0")
   })
 
+# date logic should be , 3 different function , 
+
+getDate(siteid,workspaceid,staffid,service id),
+getDate(siteid,workspaceid,service id),
+getDate(siteid,workspaceid,staffid) 
+
+based on that slot would be generate
+
+#
+slot please check in setting collection  "client_time_slot" : 30,
+
+slot you have to provide like this "booking_date":
+
+"slot":[
+{
+     "no":1,
+	 "start_time":"",
+	 "end_time":"",
+	 "available":true,
+	 }
+	 }
