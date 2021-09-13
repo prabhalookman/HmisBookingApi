@@ -3,8 +3,9 @@
 
 ## ----- Staff --
 Navaneeth - Custom Hours - StaffId : 60ed2287d8dfc8966f547ade, staff_detail_id : 60f04f3e70da4e9694f41765
-Navaneeth_BH - Business Hours - StaffId : 612ee8133b64c2a30642557a, staff_detail_id : 612ee8133b64c2a30642557b
+William_BHF - Business Hours - StaffId : 612ee8133b64c2a30642557a, staff_detail_id : 612ee8133b64c2a30642557b 
 Navaneeth_EM - Default - Business Hours - StaffId : 612f37313b64c2a3064c4215, staff_detail_id: 612f37313b64c2a3064c4216
+William_BHT - Default (True) - StaffId : 6137ef7a95abd02acaf6dcfa - staff_detail_id: 6137ef7a95abd02acaf6dcfb - Businessid: 611ea7c0203fab40501bd0eb
 ## ----- Events --
 Neurologist - Custom Hours -  event_id: 612f326c3b64c2a3064b99a6
 Paediatrician - Business Hours -  event_id: 612f172efdc2af72f52703bf
@@ -15,6 +16,20 @@ Anand - Business_id : 60e423e35a12d07c2bef0689
 # events(query: { location_setting_ids_exists: true, name: "Cardiology" }) 
 # businessinfos(query:{_id:"6116970b67159cfbcf383b39"}) {
 
+https://realm.mongodb.com/api/client/v2.0/app/schedule-spzut/graphql
+workspace_id : 61371329d1e928fce074c397 - Navan
+site_id: 61371329d1e928fce074c398 - Navaneeth
+
+
+staff : Navaneeth_BH, Navaneeth_EM
+services: Neurologist, Paediatrician
+
+-------
+end_time: "Wed Sep 08 2021 19:21:40 GMT+0530 (India Standard Time)"
+name: "Monday"
+start_time: "Wed Sep 08 2021 09:15:40 GMT+0530 (India Standard Time)"
+
+-----
 
 
 /* Sftaff */
@@ -27,7 +42,6 @@ query{
     }
   }
 }
-
 60ed2287d8dfc8966f547ade
 
 query{
