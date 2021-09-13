@@ -3,7 +3,7 @@ export default {
   Query: {
     getStaffDetails: async (parent, args, { models }, info) => {
       try {
-        let staffDetails = await models.StaffDetails.find({ site_id: args.site_id, workspace_id: args.workspace_id })
+        let staffDetails = await models.StaffDetails.find({ site_id: args.site_id, workspace_ids: args.workspace_id })
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
@@ -12,8 +12,10 @@ export default {
     getAvailabilityByStaff: async (parent, args, { models }, info) => {
       try {
         let result = {}
+        
         let staff = await models.Staff.find({ site_id: args.site_id, workspace_ids: args.workspace_id, _id: args.staff_ids })
         console.log("Staff  id : ", staff[0].staff_detail_id)
+        
         let staffdetail = await models.StaffDetails.find({site_id: ObjectId(args.site_id), workspace_ids:ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
         console.log("Staff Details id : ", staffdetail[0]._id)
         if(staffdetail[0].business_timings == false){
@@ -21,7 +23,7 @@ export default {
         let timingsIds = await models.Timings.find({ _id: staffdetail[0].timing_ids })
         console.log("timingsIds id : ", timingsIds[0]._id)
 
-        timingsIds.
+        //timingsIds.
 
         //Locationsettings
         // let locationSettingIds = await models.LocationSetting.find({site_id: ObjectId(args.site_id), workspace_ids:ObjectId(args.workspace_id), _id: staffdetail[0].timing_ids })

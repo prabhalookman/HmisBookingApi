@@ -58,3 +58,41 @@ so we need simple api which is provided only needed data
 
 Git Token Auth : 
 https://stackoverflow.com/questions/68775869/support-for-password-authentication-was-removed-please-use-a-personal-access-to
+
+site_id : 60e2eead5a12d07c2bef058c
+workspace_id : 611ba08d7dbdecf4c47091db
+
+## Availability Logic
+
+1. Business will be registered from the registration page with business basic informations and Business Timings
+2. While adding a STAFF it will use BusinessId, SiteId, WorkspaceId
+3. There are two type of Timings in the application 1) Business Hours, 2) Custom Hours
+4. Business Hours timing details available in “Business_info” schema in ‘timing_id’ properties
+5. While adding a STAFF/Event by default Business Hours will be selected
+
+  a. ‘business_id’, ‘business_timings’, ‘location_settings_id’ and ‘timing_ids’ are available in “StaffDetails” schema
+
+  b. If ‘business_timings’ is “true” we take the availability from ‘location_settings_id’ in staff details schema and timings from the business_info’s “timings_id”
+
+  c. If ‘business_timings’ is “false” taken the timing_ids in staff details schema, timing array contain multiple location_setting_ids and timings array also
+
+6. If the user selected “Custom Hours” , ‘business_id’ & ‘business_timings’ will  be ignored and the availability(location_settings_id) and timings will be taken from StaffDetails’s ‘timing_ids’
+
+# 3 different function , 
+getDate(siteid,workspaceid,staffid,service id),
+getDate(siteid,workspaceid,service id),
+getDate(siteid,workspaceid,staffid) 
+based on that slot would be generate
+
+# Slot
+slot please check in setting collection  "client_time_slot" : 30,
+
+slot you have to provide like this "booking_date":
+"slot":[
+{
+     "no":1,
+	 "start_time":"",
+	 "end_time":"",
+	 "available":true,
+	 }
+	 }

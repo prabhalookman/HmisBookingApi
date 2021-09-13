@@ -18,9 +18,9 @@ const addressSchema = new mongoose.Schema({
     }
   ], 
   email: String, 
-  customer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },     
-  workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
-  site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Site' }]  
+  customer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'customer' },     
+  workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'workspace' }],
+  site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'site' }]  
 })
 
 const Address = mongoose.model('address', addressSchema, 'address')

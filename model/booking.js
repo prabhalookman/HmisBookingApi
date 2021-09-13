@@ -11,7 +11,7 @@ const bookingSchema = new mongoose.Schema({
   booked_by: String,
   cost: mongoose.Types.Decimal128,
   
-  customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Customer' }],
+  customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer' }],
   customer_mood: String,
   customer_status: String,
   
@@ -25,14 +25,14 @@ const bookingSchema = new mongoose.Schema({
   
   type: String,
   
-  event_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' },
-  guest_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Customer' }],
-  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
+  event_id: { type: mongoose.Schema.Types.ObjectId, ref: 'events' },
+  guest_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer' }],
+  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
   add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AddOn' }],
-  staff_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
-  workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' },
+  staff_id: { type: mongoose.Schema.Types.ObjectId, ref: 'staff' },
+  workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace' },
 
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
+  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'staff' },
   created_at: Date,  
   created_from: String,
   deleted: Boolean,

@@ -15,7 +15,7 @@ const customerSchema = new mongoose.Schema({
   avatar_or_icon: String,
   avatar_or_icon_path: String,
   display_name: String,
-  address_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Address' }
+  address_id: { type: mongoose.Schema.Types.ObjectId, ref: 'address'}
 })
 
 const Customer = mongoose.model('customer', customerSchema, 'customer')

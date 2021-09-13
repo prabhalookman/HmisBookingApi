@@ -22,10 +22,10 @@ const timingsSchema = new mongoose.Schema({
     },    
     include_weekends: Boolean,
     timing_order: Number,
-    site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
-    workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
-    service_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],    
-    location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LocationSetting' }]
+    site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
+    workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'workspace' }],
+    service_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'events' }],    
+    location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'locationsetting' }]
 })
 
 const Timings = mongoose.model('timings', timingsSchema, 'timings')

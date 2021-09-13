@@ -3,13 +3,13 @@ import mongoose from 'mongoose'
 const staffDetailsSchema = new mongoose.Schema({
   business_timings: Boolean,
   sorting_id: Number,
-  business_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Business' }],
-  workspace_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
-  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
-  address_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }],
-  timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Timings' }],  
-  event_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Event' }],
-  location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LocationSetting' }],
+  business_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'business' }],
+  workspace_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'workspace' }],
+  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
+  address_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'address'}],
+  timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'timings' }],  
+  event_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'events' }],
+  location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'locationsetting' }],
 })
 
 const StaffDetails = mongoose.model('staffdetails', staffDetailsSchema, 'staffdetails')

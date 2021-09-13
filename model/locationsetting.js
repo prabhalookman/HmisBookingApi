@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
 const locationsettingSchema = new mongoose.Schema({
-  workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' },
-  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Site' },
-  location_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Location' },
+  workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace' },
+  site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
+  location_id: { type: mongoose.Schema.Types.ObjectId, ref: 'location' },
   inperson: { 
     buinsess_address: Boolean,
-    buinsess_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Business' },
+    buinsess_id: { type: mongoose.Schema.Types.ObjectId, ref: 'business' },
     client_address: Boolean
   },
   oncall: {
@@ -13,7 +13,7 @@ const locationsettingSchema = new mongoose.Schema({
     staff_will_call : Boolean
   },
   video: { 
-    integration_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Integration' },
+    integration_id: { type: mongoose.Schema.Types.ObjectId, ref: 'integration' },
     type: String
   }
 })
