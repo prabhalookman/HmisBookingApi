@@ -10,11 +10,11 @@ type Event {
   duration_hours: Int,
   duration_minutes: Int,
 
-  workspace_id: [Workspace],
-  site_id: [Site],
-  timing_ids: [Timings],
+  workspace_id: Workspace,
+  site_id: Site,
+  timing_ids: [Timing],
   location_setting_ids: [LocationSetting],
-  staff_ids: [Staff]
+  staff: [Staff]
 }
 
 extend type Query {

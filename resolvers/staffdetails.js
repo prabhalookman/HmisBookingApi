@@ -1,4 +1,5 @@
 import { ObjectId } from 'bson';
+import moment from 'moment';
 export default {
   Query: {
     getStaffDetails: async (parent, args, { models }, info) => {
@@ -19,9 +20,48 @@ export default {
         let staffdetail = await models.StaffDetails.find({site_id: ObjectId(args.site_id), workspace_ids:ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
         console.log("Staff Details id : ", staffdetail[0]._id)
         if(staffdetail[0].business_timings == false){
-        //Timings
-        let timingsIds = await models.Timings.find({ _id: staffdetail[0].timing_ids })
-        console.log("timingsIds id : ", timingsIds[0]._id)
+        //Timing
+        let timingsIds = await models.Timing.find({ _id: staffdetail[0].timing_ids })
+        console.log("timingsIds id: ", timingsIds[0]._id)
+        console.log("timingsIds id stringify: ", JSON.stringify(timingsIds[0]))
+        
+        var availTimes = [];
+        let type = "HH:mm:ss";
+        timingsIds[0].timings.forEach((elem)=>{
+          //let new_end_time = moment( new_enddate).format(type);
+
+          const startTime = moment(elem.startTime) //.utc().set({hour:11,minute:00})
+          const endTime = moment(elem.endTime); //.utc().set({hour:23,minute:59})
+
+          const startSeconds = moment.duration(elem.startTime).asSeconds();
+          const endSeconds = moment.duration(elem.endTime).asSeconds();
+          
+          var timeStops = [];
+
+          while(startTime <= endTime){
+            timeStops.push(new moment(startTime).format('HH:mm'));
+            settings[0].client_time_slot
+            startTime.add(15, 'minutes');
+          }
+
+        })
+
+        let currentDate = new Date()
+        
+        let settings = await models.Setting.find({site_id: args.site_id, workspace_id: args.workspace_id}) //site_id: args.site_id, workspace_id: args.workspace_id
+        console.log("settings-advance_Booking_Period : ", settings[0].advance_Booking_Period.value)
+
+        
+        //default moment date and time timezone(local mode)+
+        const fromDates = moment();
+        const toDates =today.add(settings[0].advance_Booking_Period.value, 'days');
+        
+        // while(startTime <= endTime){
+        //   timeStops.push(new moment(startTime).format('HH:mm'));
+        //   startTime.add(15, 'minutes');
+        // }
+        // let type = "HH:mm:ss";
+        // let start_time = moment(startdate).format(type);
 
         //timingsIds.
 
@@ -36,7 +76,7 @@ export default {
           end_time: String,
           acvailable: Boolean,
           locations: [LocationSetting]
-          timings: Timings
+          timings: Timing
         }
         */
         

@@ -10,8 +10,9 @@ import LocationSetting from './locationsetting';
 import Site from './site';
 import Staff from "./staff"
 import StaffDetails from "./staffdetails"
-import Timings  from './timings'
+import Timing  from './timings'
 import Workspace from './workspace';
+import Setting from './settings';
 
 // import BusinessInfo from './businessInfo';
 // import EventCategory  from "./eventcategory"
@@ -35,8 +36,9 @@ const models = {
   Site,
   Staff,
   StaffDetails,
-  Timings,
-  Workspace
+  Timing,
+  Workspace,
+  Setting
 }
 
 export {connectMongo};

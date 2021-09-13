@@ -64,9 +64,9 @@ workspace_id : 611ba08d7dbdecf4c47091db
 
 ## Availability Logic
 
-1. Business will be registered from the registration page with business basic informations and Business Timings
+1. Business will be registered from the registration page with business basic informations and Business Timing
 2. While adding a STAFF it will use BusinessId, SiteId, WorkspaceId
-3. There are two type of Timings in the application 1) Business Hours, 2) Custom Hours
+3. There are two type of Timing in the application 1) Business Hours, 2) Custom Hours
 4. Business Hours timing details available in “Business_info” schema in ‘timing_id’ properties
 5. While adding a STAFF/Event by default Business Hours will be selected
 

@@ -1,39 +1,47 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-type Timings {
+type Timing {
     _id: ID
-    name: String,
-    time_zone: String,
-    timings_type: String,    
-    work_day_id: Int,
-    work_day_name: String,
-    start_time: String,
-    end_time: String,
-    breaktime: [timings_BreakTime],
-    work_day_duration: Int,    
-    recurringRule: timings_recurringRule,    
-    include_weekends: Boolean,
-    timing_order: Int,    
-    site_id: Site,
-    workspace_ids: [Workspace],
-    service_ids: [Event],
+    business_hour: Boolean
+    business_location_setting_ids: [LocationSetting]    
+    custom_hour: Boolean    
+    include_weekends: Boolean
     location_setting_ids: [LocationSetting]
+    time_zone: String
+    timing_order: Int    
+    timings: [TimingTiming]
+    timing_type: String    
+    site_id: Site
+    workspace_ids: [Workspace]
 }
 
-type timings_BreakTime {
-    start_time: String,
-    end_time: String
+type TimingTiming {
+  breaktime: [TimingTimingBreaktime]
+  end_time: String
+  is_override_block: Boolean
+  name: String
+  recurringRule: TimingTimingRecurringRule
+  service_ids: [ID]
+  start_time: String
+  work_day_duration: Int
+  work_day_id: Int
+  work_day_name: String
 }
 
-type timings_recurringRule {
-    freq: String,
-    repeatEvery: Int,
-    until: String
+type TimingTimingBreaktime {
+  end_time: String
+  start_time: String
+}
+
+type TimingTimingRecurringRule {
+  freq: String
+  repeatEvery: Int
+  until: Timing
 }
 
 extend type Query {
-    getTimings: [Timings]
+    getTimings: [Timing]
 }
 
 `

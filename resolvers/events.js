@@ -3,7 +3,7 @@ export default {
   Query: {
     getEvents: async (parent, args, { models }, info) => {
       try {
-        let event = await models.Event.find({workspace_ids: args.workspace_id, site_id:args.site_id})
+        let event = await models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id})
         //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
       } catch (error) {
@@ -12,7 +12,7 @@ export default {
     },
     getEventsDetailByStaff: async (parent, args, { models }, info) => {
       try {
-        let staffEvent = await models.Event.find({workspace_ids: args.workspace_id, site_id:args.site_id, staff_ids: args.staff_ids})
+        let staffEvent = await models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff})
         console.log(`staffEvent Count : `, staffEvent.length)
         return staffEvent
       } catch (error) {
@@ -41,9 +41,9 @@ export default {
           let resultEvent = await event.populate('site_id').execPopulate();
           return resultEvent.site_id
       },
-      staff_ids: async (event) => {
-        let resultEvent = await event.populate('staff_ids').execPopulate();
-        return resultEvent.staff_ids
+      staff: async (event) => {
+        let resultEvent = await event.populate('staff').execPopulate();
+        return resultEvent.staff
       },
       location_setting_ids: async (event) => {
         let resultEvent = await event.populate('location_setting_ids').execPopulate();

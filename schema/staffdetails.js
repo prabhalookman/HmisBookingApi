@@ -8,7 +8,7 @@ type StaffDetails {
   workspace_id: [Workspace],
   site_id: String,
   address_ids: [Address],
-  timing_ids: [Timings],
+  timing_ids: [Timing],
   sorting_id: Int,
   event_ids: [Event],
   location_setting_ids: [LocationSetting]
@@ -18,7 +18,11 @@ type GetDate {
 	 end_time: String,
 	 acvailable: Boolean,
    locations: [LocationSetting]
-   timings: Timings
+   timings: Timing
+}
+
+type LocationAvailable {
+  _id: ID  
 }
 
 extend type Query {

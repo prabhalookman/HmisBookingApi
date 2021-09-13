@@ -11,7 +11,7 @@ const eventSchema = new mongoose.Schema({
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
   timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'timings' }],
   location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'locationsetting' }],
-  staff_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}]
+  staff: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}]
  
 })
 const Event = mongoose.model('events', eventSchema, 'events')

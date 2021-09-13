@@ -419,3 +419,32 @@ query {
     is_tax
   }
 }
+
+----
+query{
+  timings(query:{_id:"612f6bc03b64c2a30658496a"}){
+    _id    
+    timings{
+      start_time
+      end_time
+      work_day_id
+      work_day_name
+    }
+   location_setting_ids {
+      _id
+      video {
+        type
+      }
+      inperson {
+        buinsess_address
+      }
+      oncall {
+        client_will_call
+      }
+      location_id {
+        _id
+        name
+      }
+    }
+  }
+}
