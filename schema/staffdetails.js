@@ -13,22 +13,29 @@ type StaffDetails {
   event_ids: [Event],
   location_setting_ids: [LocationSetting]
 }
-type GetDate {
-  start_time: String,
-	 end_time: String,
-	 acvailable: Boolean,
-   locations: [LocationSetting]
-   timings: Timing
+
+type Availablilities {
+	 availableTimes: [availTimes],
+   locationAvailable: [availLocations]
 }
 
-type LocationAvailable {
-  _id: ID  
+type availTimes {
+  no: String,
+  start_time: String,
+  end_time: String,
+  available: Boolean
 }
+
+type availLocations {
+  _id: String, 
+  type: String
+}
+
 
 extend type Query {
   getStaffDetails(workspace_id: ID, site_id: ID): [StaffDetails]
   getstaffdetailbyservice(workspace_id: ID, site_id: ID,event_ids: ID):[StaffDetails]
-  getAvailabilityByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [GetDate]
+  getAvailabilityByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): Availablilities
 }
 
 `
