@@ -6,6 +6,8 @@ const staffSchema = new mongoose.Schema({
   color_code: String,
   avatar_or_icon: String,
   avatar_or_icon_path: String,
+  description: String,
+  price: String,
   workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'workspace' }],
   site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'site' }],
   staff_detail_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staffdetails'}]

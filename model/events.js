@@ -6,6 +6,8 @@ const eventSchema = new mongoose.Schema({
   avatar_or_icon_path: String,
   duration_hours: Number,
   duration_minutes: Number,
+  description: String,
+  price: String,
 
   workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace' },
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
