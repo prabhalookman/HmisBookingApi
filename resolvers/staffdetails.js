@@ -27,29 +27,47 @@ export default {
         
         var availTimes = [];
         let type = "HH:mm:ss";
+        const dateFormat = "YYYY-MM-DD HH:mm:ss";
+        let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
+        const advanceBooking = settings[0].advance_Booking_Period.value
+        const clientSlot = settings[0].client_time_slot
+        console.log("settings-advance_Booking_Period : ", settings[0].advance_Booking_Period.value)
+
+        const minDate = moment() 
+        const maxDate = minDate.add(settings[0].advance_Booking_Period.value, 'days');
+
+        console.log('minDate : ', minDate);
+          console.log('maxDate : ', maxDate);
+
+        // while(minDate <= maxDate){
+            
+        // }
+        
         timingsIds[0].timings.forEach((elem)=>{
-          //let new_end_time = moment( new_enddate).format(type);
-
-          const startTime = moment(elem.startTime) //.utc().set({hour:11,minute:00})
-          const endTime = moment(elem.endTime); //.utc().set({hour:23,minute:59})
-
-          const startSeconds = moment.duration(elem.startTime).asSeconds();
-          const endSeconds = moment.duration(elem.endTime).asSeconds();
           
-          var timeStops = [];
+          //let new_end_time = moment( new_enddate).format(type);
+          const startTime = moment(elem.start_time).format(dateFormat) //.utc().set({hour:11,minute:00})
+          const endTime = moment(elem.end_time).format(dateFormat); //.utc().set({hour:23,minute:59})
+
+          console.log('startTime : ', startTime);
+          console.log('endTime : ', endTime);
+
+          const dayStartTime = moment(elem.start_time);
+          const dayEndTime = moment(elem.end_time);
+          console.log('dayStartTime : ', dayStartTime);
+          console.log('dayEndTime : ', dayEndTime);
+
+          console.log('Minutes Diff : ', dayStartTime.diff(dayEndTime, 'minutes'))
+          const noOfSlots = dayStartTime.diff(dayEndTime, 'minutes') / clientSlot
 
           while(startTime <= endTime){
             timeStops.push(new moment(startTime).format('HH:mm'));
-            settings[0].client_time_slot
             startTime.add(15, 'minutes');
           }
+          
+          var timeStops = [];
 
         })
-
-        let currentDate = new Date()
-        
-        let settings = await models.Setting.find({site_id: args.site_id, workspace_id: args.workspace_id}) //site_id: args.site_id, workspace_id: args.workspace_id
-        console.log("settings-advance_Booking_Period : ", settings[0].advance_Booking_Period.value)
 
         
         //default moment date and time timezone(local mode)+
