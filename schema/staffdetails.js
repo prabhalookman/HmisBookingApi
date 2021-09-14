@@ -15,15 +15,19 @@ type StaffDetails {
 }
 
 type Availablilities {
-	 availableTimes: [availTimes],
-   locationAvailable: [availLocations]
+  start_date: String,
+  end_date: String,
+  pre_booking_day: Int,
+  available_date: [String],
+  disable_date: [String],
+	availableTimes: [availTimes],
+  locationAvailable: [availLocations]
 }
 
 type availTimes {
-  no: String,
-  start_time: String,
-  end_time: String,
-  available: Boolean
+  _id: String,
+  time: String,
+  isBooking: Boolean
 }
 
 type availLocations {

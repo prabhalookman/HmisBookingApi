@@ -15,6 +15,8 @@ export default {
         let result = {}
         let availTimes = [];
         let availLocations = [];
+        let available_date = [];
+        let disable_date = [];
         
         //Staff
         let staff = await models.Staff.find({ site_id: args.site_id, workspace_ids: args.workspace_id, _id: args.staff_ids })
@@ -33,71 +35,78 @@ export default {
         //console.log("timingsResult id stringify: ", JSON.stringify(timingsResult[0]))
 
         //Locationsettings
-        let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids })
-        console.log("locationSettingsResult id : ", locationSettingsResult[0]._id)
+        let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }) //
+        console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
         
-        
-
-        let type = "HH:mm:ss";
-        const dateFormat = "YYYY/MM/DD HH:mm:ss";
+        let minutesFormat = "HH:mm";
+        const dateFormat = "YYYY-MM-DDTHH:mm:ss";
         let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
-        const advanceBooking = settings[0].advance_Booking_Period.value
+        const pre_booking_day = settings[0].advance_Booking_Period.value
         const clientSlot = settings[0].client_time_slot
-        console.log("settings-advance_Booking_Period : ", settings[0].advance_Booking_Period.value)
+        console.log("settings-advance_Booking_Period : ", pre_booking_day)
 
-        // let minDate = new moment()
-        // let maxDate = minDate.add(settings[0].advance_Booking_Period.value, 'days');
+        let minDate = moment(new Date(), dateFormat)        
+        let maxDate = moment(minDate).add(pre_booking_day, 'days');
 
-        // console.log('minDate : ', minDate.format(dateFormat));
-        //   console.log('maxDate : ', maxDate.format(dateFormat));
+        //console.log('minDate : ', minDate.format(dateFormat));
+        //console.log('maxDate : ', maxDate.format(dateFormat));
 
-        var contractMoment = moment('29/06/2017', 'DD/MM/YYYY');
-        var start = moment(contractMoment).add(19, 'days');
-        var end = moment(contractMoment).add(51, 'days');
+        // var contractMoment = moment(new Date(), dateFormat);
+        // var start = moment(contractMoment).add(19, 'days');
+        // var end = moment(contractMoment).add(51, 'days');
+
+        
+        // console.log('contractMoment : ', contractMoment)
+        // console.log('start : ', start.format(dateFormat))
+        // console.log('end : ', end.format(dateFormat))
 
         // while(minDate <= maxDate){
             
         // }
         
         locationSettingsResult.forEach((elem)=>{
-          if(elem.inperson) { availLocations.push({_id:elem._id, type:"inperson"}) }
-          if(elem.oncall) { availLocations.push({_id:elem._id, type:"oncall"}) }
+          if(elem.inperson.business_address) { availLocations.push({_id:elem._id, type:"inperson"}) }
+          if(elem.oncall.client_will_call) { availLocations.push({_id:elem._id, type:"oncall"}) }
           if(elem.video) { availLocations.push({_id:elem._id, type:"video"}) }          
         })
 
         timingsResult[0].timings.forEach((elem)=>{
           
           //let new_end_time = moment( new_enddate).format(type);
-          const startTime = moment(elem.start_time).format(dateFormat) //.utc().set({hour:11,minute:00})
-          const endTime = moment(elem.end_time).format(dateFormat); //.utc().set({hour:23,minute:59})
+          // const startTime = moment(elem.start_time, dateFormat) //.utc().set({hour:11,minute:00})
+          // const endTime = moment(elem.end_time, dateFormat); //.utc().set({hour:23,minute:59})
 
-          console.log('startTime : ', startTime);
-          console.log('endTime : ', endTime);
+          // console.log('startTime : ', startTime);
+          // console.log('endTime : ', endTime);
 
           const dayStartTime = moment(elem.start_time);
           const dayEndTime = moment(elem.end_time);
           console.log('dayStartTime : ', dayStartTime);
           console.log('dayEndTime : ', dayEndTime);
 
-          console.log('Minutes Diff : ', dayStartTime.diff(dayEndTime, 'minutes'))
-          const slotDuration = 15 //(dayStartTime.diff(dayEndTime, 'minutes')) / clientSlot
+          const startEndDiff = moment(elem.end_time).diff(moment(elem.start_time), 'minutes')
+
+          console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
+          const slotDuration = (startEndDiff) / clientSlot
           
           let slotCount = 0;
           while(dayStartTime <= dayEndTime){
-            let startTm = new moment(dayStartTime).format(dateFormat)
-            let endTm = dayStartTime.add((slotDuration-1), 'minutes').format(dateFormat)    
             slotCount++;        
             availTimes.push({
-              no:slotCount,
-              start_time : startTm, 
-              end_time : endTm,
-              available: true
-            }); //'HH:mm'
-            dayStartTime.add(slotDuration, 'minutes');
+              _id:timingsResult[0]._id,
+              time: dayStartTime.format(minutesFormat),
+              isBooking: true
+            });            
+            dayStartTime.add(slotDuration, 'minutes');            
           }
           //console.log('availLocations : ', availLocations);
           //console.log('availTimes : ', availTimes);
         })
+          result["start_date"] = minDate.format('YYYY-MM-DD')
+          result["end_date"] = maxDate.format('YYYY-MM-DD')
+          result["pre_booking_day"] = pre_booking_day
+          result["available_date"] = available_date
+          result["disable_date"] = disable_date
           result["locationAvailable"] = availLocations
           result["availableTimes"] = availTimes
         }

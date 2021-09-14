@@ -98,33 +98,6 @@ slot you have to provide like this "booking_date":
 	 }
 
 //
-query {
-  getAvailabilityByStaff(
-    workspace_id: "611ba08d7dbdecf4c47091db"
-    site_id: "60e2eead5a12d07c2bef058c"
-    staff_ids: "612ee8133b64c2a30642557a"
-  ) {
-    availableTimes {
-      no
-      start_time
-      end_time
-      available
-    }
-    locationAvailable {
-      _id
-      type
-    }
-  }
-}
----
-query {
-  getAvailabilityByStaff(
-    workspace_id: "611ba08d7dbdecf4c47091db"
-    site_id: "60e2eead5a12d07c2bef058c"
-    staff_ids: "612ee8133b64c2a30642557a"
-  ) {
-    no
-    start_time
-    end_time
-  }
-}
+
+http://52.172.97.26:4000/graphql
+http://52.172.97.26:4000/ApiSample/index.html (edited) 
