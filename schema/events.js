@@ -4,6 +4,8 @@ export default gql`
 type Event {
   _id: ID
   name: String,
+  description: String,
+  price: String,
   color_code: String,
   avatar_or_icon: String,
   avatar_or_icon_path: String,

@@ -3,6 +3,8 @@ import { gql } from 'apollo-server-express';
 export default gql`
 type StaffDetails {
   _id: ID,  
+  description: String,
+  price: String,
   business_timings: Boolean,
   business_id: [Business],  
   workspace_id: [Workspace],
