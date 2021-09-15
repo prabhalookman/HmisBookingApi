@@ -20,7 +20,7 @@ type Event {
 }
 
 extend type Query {
-  getEvents(workspace_id: ID, site_id: ID): [Event]
+  getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Event]
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [Event]
   getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Event]
 }

@@ -24,6 +24,7 @@ type Availablilities {
   disable_date: [String],
 	availableTimes: [availTimes],
   locationAvailable: [availLocations]
+  selectedDate: String
 }
 
 type availTimes {
@@ -41,7 +42,7 @@ type availLocations {
 extend type Query {
   getStaffDetails(workspace_id: ID, site_id: ID): [StaffDetails]
   getstaffdetailbyservice(workspace_id: ID, site_id: ID,event_ids: ID):[StaffDetails]
-  getAvailabilityByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): Availablilities
+  getAvailabilityByStaff(workspace_id: ID, site_id: ID, staff_ids: ID, event: [ID], date: String): Availablilities
 }
 
 `

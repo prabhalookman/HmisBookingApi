@@ -26,7 +26,7 @@ export default {
         let staffdetail = await models.StaffDetails.find({site_id: ObjectId(args.site_id), workspace_ids:ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
         console.log("Staff Details id : ", staffdetail[0]._id)
         
-        //Business Hours => False
+        //2. Business Hours => False
         
         if(staffdetail[0].business_timings == false){
         //Timing
@@ -35,18 +35,23 @@ export default {
         //console.log("timingsResult id stringify: ", JSON.stringify(timingsResult[0]))
 
         //Locationsettings
-        let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }) //
-        console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
+        console.log("location_settings id : ", timingsResult[0].location_setting_ids)
         
+        let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids })
+        console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
+       
+        let displaySettings = '12'
         let minutesFormat = "HH:mm";
         const dateFormat = "YYYY-MM-DDTHH:mm:ss";
+        let selectedDate = moment(new Date(), "YYYY-MM-DDT");
         let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
         const pre_booking_day = settings[0].advance_Booking_Period.value
         const clientSlot = settings[0].client_time_slot
         console.log("settings-advance_Booking_Period : ", pre_booking_day)
 
-        let minDate = moment(new Date(), dateFormat)        
-        let maxDate = moment(minDate).add(pre_booking_day, 'days');
+        let minDate = moment(new Date(), dateFormat)
+        let bookingStartDate = moment(new Date(), dateFormat)
+        let maxDate = moment(new Date(), dateFormat).add(pre_booking_day, 'days');
 
         //console.log('minDate : ', minDate.format(dateFormat));
         //console.log('maxDate : ', maxDate.format(dateFormat));
@@ -59,13 +64,19 @@ export default {
         // console.log('contractMoment : ', contractMoment)
         // console.log('start : ', start.format(dateFormat))
         // console.log('end : ', end.format(dateFormat))
-
-        // while(minDate <= maxDate){
-            
-        // }
+        //available_date.push(bookingStartDate.format('YYYY-MM-DD'));
+        while(bookingStartDate <= maxDate){
+          if(bookingStartDate.isoWeekday()==6 || bookingStartDate.isoWeekday()==7){
+            disable_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))  
+          } else {
+            available_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
+          }
+          
+          bookingStartDate.add(1, 'days'); 
+        }
         
         locationSettingsResult.forEach((elem)=>{
-          if(elem.inperson.business_address) { availLocations.push({_id:elem._id, type:"inperson"}) }
+          if(elem.inperson.buinsess_address) { availLocations.push({_id:elem._id, type:"inperson"}) }
           if(elem.oncall.client_will_call) { availLocations.push({_id:elem._id, type:"oncall"}) }
           if(elem.video) { availLocations.push({_id:elem._id, type:"video"}) }          
         })
@@ -78,6 +89,11 @@ export default {
 
           // console.log('startTime : ', startTime);
           // console.log('endTime : ', endTime);
+          if(selectedDate == moment(elem.start_time,"YYYY-MM-DDT")){
+            console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${moment(elem.start_time,"YYYY-MM-DDT")}`)
+          } else {
+            console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${moment(elem.start_time,"YYYY-MM-DDT")}`)
+          }
 
           const dayStartTime = moment(elem.start_time);
           const dayEndTime = moment(elem.end_time);
@@ -90,13 +106,16 @@ export default {
           const slotDuration = (startEndDiff) / clientSlot
           
           let slotCount = 0;
+          let time = '';
           while(dayStartTime <= dayEndTime){
-            slotCount++;        
+            slotCount++;
+            displaySettings =='12' ? time = moment(dayStartTime, ["HH.mm"]).format("hh:mm A") : time = dayStartTime.format(minutesFormat)
             availTimes.push({
               _id:timingsResult[0]._id,
-              time: dayStartTime.format(minutesFormat),
+              time: time,
               isBooking: true
-            });            
+            });
+            
             dayStartTime.add(slotDuration, 'minutes');            
           }
           //console.log('availLocations : ', availLocations);
@@ -109,6 +128,7 @@ export default {
           result["disable_date"] = disable_date
           result["locationAvailable"] = availLocations
           result["availableTimes"] = availTimes
+          result["selectedDate"] = selectedDate.format('YYYY-MM-DD')
         }
         //console.log('result : ', result)
         return result

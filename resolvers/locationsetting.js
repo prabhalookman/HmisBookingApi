@@ -2,12 +2,12 @@ export default {
   Query: {
     getLocationSetting: async (parent, args, { models }, info) => {
       try {
-        let locationsetting = await models.LocationSetting.find({  workspace_id: args.workspace_id, site_id:args.site_id, _id:args.event_id })
+        let locationsetting = await models.LocationSetting.find({})
         return locationsetting
       } catch (error) {
         console.error("Error : ", error)
       }
-    }
+    }    
   },
   LocationSetting: {
     site_id: async (locsetting, args, { models }) => {

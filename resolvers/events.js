@@ -3,7 +3,7 @@ export default {
   Query: {
     getEvents: async (parent, args, { models }, info) => {
       try {
-        let event = await models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id})
+        let event = await models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff_id})
         //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
       } catch (error) {
