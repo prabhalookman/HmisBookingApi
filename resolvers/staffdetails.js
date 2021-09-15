@@ -43,28 +43,40 @@ export default {
         let displaySettings = '12'
         let minutesFormat = "HH:mm";
         const dateFormat = "YYYY-MM-DDTHH:mm:ss";
-        let selectedDate = moment(new Date(), "YYYY-MM-DDT");
+        let selectedDate = moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");        
+        
         let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
         const pre_booking_day = settings[0].advance_Booking_Period.value
         const clientSlot = settings[0].client_time_slot
-        console.log("settings-advance_Booking_Period : ", pre_booking_day)
+        //console.log("settings-advance_Booking_Period : ", pre_booking_day)
 
         let minDate = moment(new Date(), dateFormat)
         let bookingStartDate = moment(new Date(), dateFormat)
         let maxDate = moment(new Date(), dateFormat).add(pre_booking_day, 'days');
+        /**************** */
+        //Test Date address
+        // console.log(`moment().toISOString() Default UTC: ${moment().toISOString()}`)
+        // console.log(`moment().toISOString(true) : ${moment().toISOString(true)}`)
+        // console.log(`moment().format() ISO 8601, no fractional seconds : ${moment().format()}`)
+        // console.log(`moment().toObject() : ${moment().toObject()}`)
+        // console.log(`moment().toString() : ${moment().toString()}`)
 
-        //console.log('minDate : ', minDate.format(dateFormat));
-        //console.log('maxDate : ', maxDate.format(dateFormat));
+        // moment().toISOString() Default UTC : 2021-09-15T11:05:12.077Z
+        // moment().toISOString(true) : 2021-09-15T16:35:12.374+05:30
+        // moment().format() : 2021-09-15T16:35:12+05:30
+        // moment().toObject() : [object Object]
+        // moment().toString() : Wed Sep 15 2021 16:35:13 GMT+0530
+
+        //moment('2010-10-20').isSame('2010-10-20'); // true
+
+        console.log('minDate : ', minDate.format(dateFormat));
+        console.log('maxDate : ', maxDate.format(dateFormat));
 
         // var contractMoment = moment(new Date(), dateFormat);
         // var start = moment(contractMoment).add(19, 'days');
         // var end = moment(contractMoment).add(51, 'days');
 
         
-        // console.log('contractMoment : ', contractMoment)
-        // console.log('start : ', start.format(dateFormat))
-        // console.log('end : ', end.format(dateFormat))
-        //available_date.push(bookingStartDate.format('YYYY-MM-DD'));
         while(bookingStartDate <= maxDate){
           if(bookingStartDate.isoWeekday()==6 || bookingStartDate.isoWeekday()==7){
             disable_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))  
@@ -82,27 +94,27 @@ export default {
         })
 
         timingsResult[0].timings.forEach((elem)=>{
+        console.log(`elem.start_time - ${elem.start_time}`)  
+        console.log(`new Date(elem.start_time) - ${new Date(elem.start_time)}`)
+        let timingsDay = moment(new Date(elem.start_time),"YYYY-MM-DD").format("YYYY-MM-DD")
+        console.log(`moment(new Date(elem.start_time),"YYYY-MM-DD") - ${timingsDay}`)
+        console.log(`selectedDate - ${selectedDate}`)
+        console.log(`new Date() - ${new Date()}`)
           
-          //let new_end_time = moment( new_enddate).format(type);
-          // const startTime = moment(elem.start_time, dateFormat) //.utc().set({hour:11,minute:00})
-          // const endTime = moment(elem.end_time, dateFormat); //.utc().set({hour:23,minute:59})
-
-          // console.log('startTime : ', startTime);
-          // console.log('endTime : ', endTime);
-          if(selectedDate == moment(elem.start_time,"YYYY-MM-DDT")){
-            console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${moment(elem.start_time,"YYYY-MM-DDT")}`)
+          if(selectedDate == timingsDay){
+            console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${timingsDay}`)
           } else {
-            console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${moment(elem.start_time,"YYYY-MM-DDT")}`)
+            console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${timingsDay}`)
           }
 
-          const dayStartTime = moment(elem.start_time);
-          const dayEndTime = moment(elem.end_time);
+          const dayStartTime = moment(new Date(elem.start_time),"YYYY-MM-DDTHH:mm:ss")
+          const dayEndTime = moment(new Date(elem.end_time),"YYYY-MM-DDTHH:mm:ss")
           console.log('dayStartTime : ', dayStartTime);
           console.log('dayEndTime : ', dayEndTime);
 
-          const startEndDiff = moment(elem.end_time).diff(moment(elem.start_time), 'minutes')
+          const startEndDiff = dayEndTime.diff(dayStartTime, 'minutes')
 
-          console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
+          //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
           const slotDuration = (startEndDiff) / clientSlot
           
           let slotCount = 0;
@@ -128,10 +140,10 @@ export default {
           result["disable_date"] = disable_date
           result["locationAvailable"] = availLocations
           result["availableTimes"] = availTimes
-          result["selectedDate"] = selectedDate.format('YYYY-MM-DD')
+          result["selectedDate"] = selectedDate
         }
         //console.log('result : ', result)
-        return result
+        return result        
       } catch (error) {
         console.error("Error : ", error)
       }
