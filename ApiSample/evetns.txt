@@ -30,3 +30,30 @@ query {
     name
   }
 }
+---
+query{
+  getAvailabilityByEvents(
+    workspace_id: "611ba08d7dbdecf4c47091db"
+    site_id: "60e2eead5a12d07c2bef058c"
+    staff_ids: "612ee8133b64c2a30642557a"
+    event_id: "6141b35902909b25fac46570", date: "2021-09-16"){
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date   
+    selectedDate
+    dayStartTime
+    dayEndTime
+    locationAvailable {
+      _id
+      type
+    }
+    availableTimes {
+      _id
+      time
+      isBooking
+    }
+  }
+}

@@ -11,6 +11,8 @@ type Event {
   avatar_or_icon_path: String,
   duration_hours: Int,
   duration_minutes: Int,
+  business_id: [Business],
+  business_timings: Boolean,
 
   workspace_id: Workspace,
   site_id: Site,
@@ -21,6 +23,7 @@ type Event {
 
 extend type Query {
   getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Event]
+  getAvailabilityByEvents(workspace_id: ID, site_id: ID, staff_ids: ID, event_id: [ID], date: String): Availablilities
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [Event]
   getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Event]
 }

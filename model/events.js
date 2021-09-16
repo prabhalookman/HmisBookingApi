@@ -8,7 +8,8 @@ const eventSchema = new mongoose.Schema({
   duration_minutes: Number,
   description: String,
   price: String,
-
+  business_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'business' }],
+  business_timings: Boolean,
   workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace' },
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
   timing_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'timings' }],
