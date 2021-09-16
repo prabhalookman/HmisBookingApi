@@ -38,11 +38,7 @@ export default {
     event_id: async (booking) => {
       let resultBooking = await booking.populate('event_id').execPopulate();
       return resultBooking.event_id
-    },
-    guest_ids: async (booking) => {
-      let resultBooking = await booking.populate('guest_ids').execPopulate();
-      return resultBooking.guest_ids
-    },
+    },    
     customer_ids: async (booking) => {
       let resultBooking = await booking.populate('customer_ids').execPopulate();
       return resultBooking.customer_ids
@@ -69,6 +65,12 @@ export default {
     }
   }
 }
+/*
+guest_ids: async (booking) => {
+      let resultBooking = await booking.populate('guest_ids').execPopulate();
+      return resultBooking.guest_ids
+    },
+ */
 /*
 ,
     updateBooking: async (parent, args, { models }, info) => {

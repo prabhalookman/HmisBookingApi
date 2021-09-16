@@ -38,6 +38,35 @@ query {
   }
 }
 ----------
+addBooking :
+mutation {
+  addBooking(
+    input: {
+      availablity: {
+        event_id: "6141b35902909b25fac46570"
+        site_id: "60e2eead5a12d07c2bef058c"
+        staff_id: "612ee8133b64c2a30642557a"
+        location_setting_id: "612ef2760a711a5659350018"
+        timezone: "Asia/kolkatta"
+        appointment_booking_time: ""
+        appointment_end_time: "Wed Sep 16 2021 10:44:07 GMT+0530 (India Standard Time)"
+        appointment_start_time: "Wed Sep 16 2021 10:26:07 GMT+0530 (India Standard Time)"
+        is_recurring: false
+        slot: 2
+      }
+      customer: {
+        name: "Ram"
+        phone: { no: "98745612300" }
+        email: "ram@gmail.com"
+      }
+    }
+  ) {
+    _id
+    appointment_start_time
+  }
+}
+
+------------
 mutation {
   addBooking(
     input: {
@@ -111,4 +140,60 @@ mutation {
     timezone
     booked_by
   }
+}
+------
+REQUEST
+{
+staff:"612f37313b64c2a3064c4215",
+event:["612f37313b64c2a3064c4215","612f37313b64c2a3064c4215"],
+site: "60e2eead5a12d07c2bef058c",
+workspace:"611ba08d7dbdecf4c47091db",
+availablity:{
+"location":"611ba08d7dbdecf4c47091db",
+"time_zone":"",
+"booking_date":"",
+"slot":"611ba08d7dbdecf4c47091db",
+"isRepeted":true,
+"cycle_format":"Week",
+"till_date":"date"
+}
+customer:{
+ "name":"Ram",
+ "phone_no":"98745612300",
+ "email":"ram@gmail.com",
+ "isTermsAndConditions":true,
+ "isShareInfo":false
+}
+}
+RESPONSE
+{
+    _id:"",
+booking_date:"",
+amount:"200",
+status:"Confirmed",
+"time_zone":"",
+"isRepeted":true,
+"cycle_format":"Week",
+"till_date":"date",
+customer:{
+ "name":"Ram",
+ "phone_no":"98745612300",
+ "email":"ram@gmail.com",
+ "isTermsAndConditions":true,
+ "isShareInfo":false
+}
+locationAvailable:{
+_id
+type
+}
+availableTimes:{
+_id
+time
+}
+staff:{
+_id
+name
+}
+event:{
+}
 }
