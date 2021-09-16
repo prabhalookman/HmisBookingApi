@@ -25,6 +25,8 @@ type Availablilities {
 	availableTimes: [availTimes],
   locationAvailable: [availLocations]
   selectedDate: String
+  dayStartTime: String
+  dayEndTime: String
 }
 
 type availTimes {
