@@ -1,3 +1,4 @@
+import moment from 'moment';
 export default {
   Query: {
     getBooking: async (parent, args, { models }, info) => {
@@ -13,20 +14,58 @@ export default {
     addBooking: async (parent, args, { models }, info) => {
       try {
         let newBooking = new models.Booking();
-        let clientKeys = Object.keys(args.input);
-        if (!clientKeys)
+        let newCustomer = new models.Customer();
+        
+        let bookingInput = args.input.availablity
+        let bookingInputKeys = Object.keys(bookingInput)
+
+        let customer = args.input.customer
+        let customerKeys = Object.keys(customer);
+
+        //Customer
+        if (!bookingInputKeys)
           console.log("Error Booking keys")
         let i = 0;
-        while (i < clientKeys.length) {
-          if (clientKeys[i] in newBooking) {
-            newBooking[clientKeys[i]] = args.input[clientKeys[i]]
+        while (i < customerKeys.length) {
+          if (customerKeys[i] in newCustomer) {
+            newCustomer[customerKeys[i]] = args.input["customer"][customerKeys[i]]
           }
           i++
+        }        
+        let customerResult = await models.Customer.find({email: customer.email})
+        
+        if(customerResult.length > 0 && customerResult[0].email){
+          console.log("Customer already exist")
+        } else {
+          newCustomer = await newCustomer.save();
         }
 
-        newBooking = await newBooking.save();
-        console.log("newBooking Created : ", newBooking)
+        //console.log(`newCustomer : ${JSON.stringify(newCustomer)}`)
+        let customer_ids = []
+        customer_ids.push(newCustomer._id)
+        // console.log(`Customer ID : ${newCustomer._id}`)
+        // console.log(`Customer ID 2 : ${customer_ids}`)
+        
 
+        //Booking
+        if (!bookingInputKeys)
+          console.log("Error Booking keys")
+        let j = 0;
+        while (j < bookingInputKeys.length) {
+          if (bookingInputKeys[j] in newBooking) {
+            newBooking[bookingInputKeys[j]] = args.input["availablity"][bookingInputKeys[j]]
+          }
+          j++
+        }
+        newBooking.customer_ids = customer_ids
+
+        //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
+        newBooking = await newBooking.save();
+        
+        newBooking.appointment_start_time = moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
+        newBooking.appointment_end_time = moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
+        newBooking.appointment_booking_time = newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
+        
         return newBooking
       } catch (error) {
         console.error("Error : ", error)

@@ -34,7 +34,7 @@ type CustomerPhone {
     is_verified: Boolean
     name: String
     no: String
-    type: String
+    
   }
 
 input customerInput {
@@ -69,7 +69,7 @@ input customerPhoneInput {
   is_verified: Boolean
   name: String
   no: String
-  type: String
+  
 }
 
 
@@ -83,5 +83,5 @@ extend type Mutation {
 `
 /*
 
-
+type: String
 */

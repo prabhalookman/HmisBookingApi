@@ -14,7 +14,7 @@ const customerSchema = new mongoose.Schema({
     is_verified: Boolean,
     name: String,
     no: String,
-    type: String }],
+     }],
 
   display_name: String,
   email: String,
@@ -39,10 +39,15 @@ module.exports = Customer;
 
 /*
 
+
+
 discount_coupon_ids: [Discountcoupon],
 gift_card_ids: [Giftcard],
 order_ids: [Order],
-,
+
 profile: CustomerProfile,
 
+
+phone - type: String
 */
+
