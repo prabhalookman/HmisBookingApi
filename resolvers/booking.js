@@ -1,3 +1,4 @@
+import { MyError }  from '../helpers/helper'
 import moment from 'moment';
 export default {
   Query: {
@@ -36,6 +37,7 @@ export default {
         
         if(customerResult.length > 0 && customerResult[0].email){
           console.log("Customer already exist")
+          throw new Error("Customer already exist")          
         } else {
           newCustomer = await newCustomer.save();
         }

@@ -131,17 +131,22 @@ export default {
               const slotDuration = (startEndDiff) / clientSlot
 
               let slotCount = 0;
-              let time = '';
+              let slotStartTime = '';
+              let slotEndTime = '';
               while (timingsStartTime <= timingsEndTime) {
                 slotCount++;
-                displaySettings == '12' ? time = moment(timingsStartTime, ["HH.mm"]).format("hh:mm A") : time = timingsStartTime.format(minutesFormat)
+                displaySettings == '12' ? slotStartTime = moment(timingsStartTime, ["YYYY-MM-DD HH.mm"]).format("YYYY-MM-DD hh:mm A") : slotStartTime = timingsStartTime.format(minutesFormat)
+                timingsStartTime.add(slotDuration, 'minutes');
+                displaySettings == '12' ? slotEndTime = moment(timingsStartTime, ["YYYY-MM-DD HH.mm"]).format("YYYY-MM-DD hh:mm A") : slotEndTime = timingsStartTime.format(minutesFormat)
                 availTimes.push({
                   _id: timingsResult[0]._id,
-                  time: time,
-                  isBooking: true
+                  slotStartTime: slotStartTime,
+                  slotEndTime: slotEndTime,
+                  isBooking: true,
+                  slot : slotCount
                 });
 
-                timingsStartTime.add(slotDuration, 'minutes');
+                
               }
               //console.log('availLocations : ', availLocations);
               //console.log('availTimes : ', availTimes);
