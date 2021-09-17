@@ -133,11 +133,11 @@ export default {
               let slotCount = 0;
               let slotStartTime = '';
               let slotEndTime = '';
-              while (timingsStartTime <= timingsEndTime) {
+              while (timingsStartTime  <= timingsEndTime ) { //timingsStartTime.format('dddd') <= timingsEndTime.format('dddd')
                 slotCount++;
-                displaySettings == '12' ? slotStartTime = moment(timingsStartTime, ["YYYY-MM-DD HH.mm"]).format("YYYY-MM-DD hh:mm A") : slotStartTime = timingsStartTime.format(minutesFormat)
+                displaySettings == '12' ? slotStartTime = moment(timingsStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDThh:mm A") : slotStartTime = timingsStartTime.format(minutesFormat)
                 timingsStartTime.add(slotDuration, 'minutes');
-                displaySettings == '12' ? slotEndTime = moment(timingsStartTime, ["YYYY-MM-DD HH.mm"]).format("YYYY-MM-DD hh:mm A") : slotEndTime = timingsStartTime.format(minutesFormat)
+                displaySettings == '12' ? slotEndTime = moment(timingsStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDThh:mm A") : slotEndTime = timingsStartTime.format(minutesFormat)
                 availTimes.push({
                   _id: timingsResult[0]._id,
                   slotStartTime: slotStartTime,

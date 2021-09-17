@@ -46,3 +46,32 @@ query {
     }
   }
 }
+
+--------------------------------------------------------------------------------query {
+  getAvailabilityByStaff(
+    workspace_id: "611ba08d7dbdecf4c47091db"
+    site_id: "60e2eead5a12d07c2bef058c"
+    staff_ids: "612ee8133b64c2a30642557a"
+    event: [""], date: "2021-09-16"
+  ) {
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date   
+    selectedDate
+    dayStartTime
+    dayEndTime
+    locationAvailable {
+      _id
+      type
+    }
+    availableTimes {      
+      slot
+      slotStartTime
+      slotEndTime
+      isBooking
+    }
+  }
+}
