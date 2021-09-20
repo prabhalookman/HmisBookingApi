@@ -104,11 +104,12 @@ export default {
           // var end = moment(contractMoment).add(51, 'days');        
 
           timingsResult[0].timings.forEach((elem) => {
-            let timingsDay = moment(new Date(elem.start_time), "YYYY-MM-DD").format("YYYY-MM-DD")
-              console.log(`moment(new Date(elem.start_time),"YYYY-MM-DD") - ${timingsDay}`)
+            let selectedDayName = moment(new Date(args.date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
+            let timingsStartTimeDay = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
+              console.log(`Timings Day - ${timingsStartTimeDay}`)
 
-            if (selectedDate == timingsDay) {
-              console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${timingsDay}`)
+            if (selectedDayName == timingsStartTimeDay) {
+              console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${timingsStartTimeDay}`)
 
               console.log(`elem.start_time - ${elem.start_time}`)
               console.log(`new Date(elem.start_time) - ${new Date(elem.start_time)}`)
@@ -119,16 +120,23 @@ export default {
               dayStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
               dayEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
 
+              const startSeconds = moment.duration(dayStartTime).asSeconds() //
+              const endSeconds = moment.duration(dayEndTime).asSeconds() //
+              console.log('startSeconds : ', startSeconds);
+              console.log('endSeconds : ', endSeconds);
+              
               const timingsStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
               const timingsEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
 
               console.log('timingsStartTime : ', timingsStartTime);
               console.log('timingsEndTime : ', timingsEndTime);
 
-              const startEndDiff = timingsEndTime.diff(timingsStartTime, 'minutes')
+              //const startEndDiff = timingsEndTime.diff(timingsStartTime, 'seconds')
+              const startEndDiff = endSeconds - startSeconds
+              var myMinutes = Math.floor(startEndDiff / 60);
 
               //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
-              const slotDuration = (startEndDiff) / clientSlot
+              const slotDuration = (myMinutes) / clientSlot
 
               let slotCount = 0;
               let slotStartTime = '';
@@ -156,7 +164,7 @@ export default {
           result.dayEndTime = dayEndTime.format(dateFormat)
 
             } else {
-              console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${timingsDay}`)
+              console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${timingsStartTimeDay}`)
             }
 
           }) //Timings ForEach End
