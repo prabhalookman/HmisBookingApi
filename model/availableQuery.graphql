@@ -42,7 +42,7 @@ query{
     }
   }
 }
-60ed2287d8dfc8966f547ade
+
 
 query{
   staff(query:{_id:"60ed2287d8dfc8966f547ade"}){

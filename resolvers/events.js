@@ -209,6 +209,10 @@ export default {
       location_setting_ids: async (event) => {
         let resultEvent = await event.populate('location_setting_ids').execPopulate();
         return resultEvent.location_setting_ids
-    }
+    },
+    add_on_ids: async (event) => {
+      let resultEvent = await event.populate('add_on_ids').execPopulate();
+      return resultEvent.add_on_ids
+  },
   }
 }

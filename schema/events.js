@@ -5,7 +5,9 @@ type Event {
   _id: ID
   name: String,
   description: String,
-  price: String,
+  price: String,  
+  special_price: String,
+  retailPrice: String,
   color_code: String,
   avatar_or_icon: String,
   avatar_or_icon_path: String,
@@ -19,6 +21,7 @@ type Event {
   timing_ids: [Timing],
   location_setting_ids: [LocationSetting],
   staff: [Staff]
+  add_on_ids: [AddOn]
 }
 
 extend type Query {
