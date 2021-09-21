@@ -67,6 +67,8 @@ export default {
         newBooking.appointment_start_time = moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
         newBooking.appointment_end_time = moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
         newBooking.appointment_booking_time = newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
+        newCustomer.booki = await newCustomer.save();
+        newCustomer = await newCustomer.save();
         
         return newBooking
       } catch (error) {
@@ -103,7 +105,12 @@ export default {
     created_by: async (booking) => {
       let resultBooking = await booking.populate('created_by').execPopulate();
       return resultBooking.created_by
-    }
+    },
+    location_setting_id: async (booking) => {
+      let resultBooking = await booking.populate('location_setting_id').execPopulate();
+      return resultBooking.location_setting_id
+    },
+    
   }
 }
 /*

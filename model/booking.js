@@ -34,6 +34,7 @@ const bookingSchema = new mongoose.Schema({
   transfered_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}],
   type: String,
   updated_at: String,
+  workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace'}
 })
 
 const Booking = mongoose.model('booking', bookingSchema, 'booking')
