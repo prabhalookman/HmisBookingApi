@@ -13,8 +13,8 @@ const locationsettingSchema = new mongoose.Schema({
     staff_will_call : Boolean
   },
   video: { 
-    integration_id: { type: mongoose.Schema.Types.ObjectId, ref: 'integration' },
-    type: String
+    integration_id: String,
+    video_type: String
   }
 })
 

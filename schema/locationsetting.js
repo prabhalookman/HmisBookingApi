@@ -18,8 +18,8 @@ type LocationSettingInperson {
 }
 
 type LocationSettingVideo {
-  integration_id: ID
-  type: String
+  integration_id: String
+  video_type: String
 }
 
 type LocationSettingOncall {

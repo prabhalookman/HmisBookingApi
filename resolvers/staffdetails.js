@@ -66,7 +66,7 @@ export default {
           //Locationsettings
           console.log("location_settings id : ", timingsResult[0].location_setting_ids)
 
-          let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids })
+          let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video":1})
           //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
           locationSettingsResult.forEach((elem) => {
             if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
@@ -105,7 +105,7 @@ export default {
 
           timingsResult[0].timings.forEach((elem) => {
             let selectedDayName = moment(new Date(args.date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
-            let timingsStartTimeDay = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
+            let timingsStartTimeDay = elem.work_day_name  //moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
               console.log(`Timings Day - ${timingsStartTimeDay}`)
 
             if (selectedDayName == timingsStartTimeDay) {
