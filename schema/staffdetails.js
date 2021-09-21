@@ -1,6 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
+scalar Date
 type StaffDetails {
   _id: ID,  
   description: String,
@@ -27,6 +28,7 @@ type Availablilities {
   selectedDate: String
   dayStartTime: String
   dayEndTime: String
+  displaySettings:String
 }
 
 type availTimes {

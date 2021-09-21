@@ -42,3 +42,68 @@ slot you have to provide like this "booking_date":
 	 "available":true,
 	 }
 	 }
+
+----------------------------------------------------------------
+Prabha - Data : 
+query {
+  getAvailabilityByStaff(
+    workspace_id: "611ba08d7dbdecf4c47091db"
+    site_id: "60e2eead5a12d07c2bef058c"
+    staff_ids: "612ee8133b64c2a30642557a"
+    event: [""]
+    date: "2021-09-17"
+  ) {
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date
+    selectedDate
+    dayStartTime
+    dayEndTime
+    locationAvailable {
+      _id
+      type
+    }
+    availableTimes {
+      slot
+      slotStartTime
+      slotEndTime
+      isBooking
+    }
+  }
+}
+------
+
+Basheer - Data : 
+query {
+  getAvailabilityByStaff(
+    workspace_id: "61409a3502909b25faa6c3b2"
+    site_id: "613a462aa3a6447e678a40d8"
+    staff_ids: "613a462aa3a6447e678a40d7"
+    event: [""]
+    date: "2021-09-20"
+  ) {
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date
+    selectedDate
+    dayStartTime
+    dayEndTime
+    locationAvailable {
+      _id
+      type
+    }
+    availableTimes {
+      slot
+      slotStartTime
+      slotEndTime
+      isBooking
+    }
+  }
+}
+
