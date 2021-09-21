@@ -49,10 +49,11 @@ mutation {
         location_setting_id: "612ef2760a711a5659350018"
         timezone: "Asia/kolkatta"
         appointment_booking_time: ""
-        appointment_end_time: "Wed Sep 16 2021 10:44:07 GMT+0530 (India Standard Time)"
-        appointment_start_time: "Wed Sep 16 2021 10:26:07 GMT+0530 (India Standard Time)"
+        appointment_end_time: "2021-09-17 11:06:59"
+        appointment_start_time: "2021-09-17 12:06:59"
         is_recurring: false
-        slot: 2
+        slot: 2,
+        workspace_id:"611ba08d7dbdecf4c47091db"
       }
       customer: {
         name: "Ram"
@@ -63,6 +64,66 @@ mutation {
   ) {
     _id
     appointment_start_time
+    site_id {
+      _id
+      name
+    }
+    event_id {
+      _id
+      name
+    }
+    staff_id {
+      _id
+      name
+    }
+    location_setting_id {
+      _id
+      video {
+        video_type
+      }
+      inperson {
+        buinsess_address
+      }
+      oncall {
+        client_will_call
+      }
+    }
+  }
+}
+---
+query {
+  getBookingByEvent(
+    workspace_id: "611ba08d7dbdecf4c47091db"
+    site_id: "60e2eead5a12d07c2bef058c"
+    event_id:"6141b35902909b25fac46570"
+  ) {
+    _id
+    appointment_start_time
+    appointment_end_time
+    site_id {
+      _id
+      name
+    }
+    event_id {
+      _id
+      name
+    }
+    staff_id {
+      _id
+      name
+    }
+    location_setting_id {
+      _id
+      video {
+        video_type
+      }
+      inperson {
+        buinsess_address
+      }
+      oncall {
+        client_will_call
+      }
+    }
   }
 }
 

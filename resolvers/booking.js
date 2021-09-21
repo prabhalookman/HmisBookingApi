@@ -9,6 +9,22 @@ export default {
       } catch (error) {
         console.error("Error : ", error)
       }
+    },
+    getBookingByStaff: async (parent, args, { models }, info) => {
+      try {
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id, staff_id:args.staff_id })
+        return Booking
+      } catch (error) {
+        console.error("Error : ", error)
+      }
+    },
+    getBookingByEvent: async (parent, args, { models }, info) => {
+      try {
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id, event_id: args.event_id })
+        return Booking
+      } catch (error) {
+        console.error("Error : ", error)
+      }
     }
   },
   Mutation: {

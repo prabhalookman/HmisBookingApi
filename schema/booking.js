@@ -94,11 +94,13 @@ input booking_available_in {
 
 extend type Query {
 getBooking(workspace_id: ID, site_id: ID): [Booking]
+getBookingByStaff(workspace_id: ID, site_id:ID, staff_id: ID ):[Booking]
+getBookingByEvent(workspace_id: ID, site_id:ID, event_id: ID ):[Booking]
 }
 
 extend type Mutation {
 addBooking(input: bookingIn): Booking  
- }
+}
  `
 
 // /*
