@@ -6,9 +6,9 @@ type Booking {
   _id: ID
   add_on_ids: [AddOn]
   amount_paid: Int
-  appointment_booking_time: String
-  appointment_end_time: String
-  appointment_start_time: String
+  appointment_booking_time: Date
+  appointment_end_time: Date
+  appointment_start_time: Date
   appointment_time_before_reschedule: [String]
 
   cost: Int
@@ -49,7 +49,7 @@ type Booking {
   appointment_start_time: String
   appointment_time_before_reschedule: [String]
 
-  cost: Int
+  cost: Float
   created_at: String
   created_by: ID
   created_from: String
@@ -94,6 +94,7 @@ input booking_available_in {
 
 extend type Query {
 getBooking(workspace_id: ID, site_id: ID): [Booking]
+getBookingById(workspace_id: ID, site_id:ID, booking_id: ID ):[Booking]
 getBookingByStaff(workspace_id: ID, site_id:ID, staff_id: ID ):[Booking]
 getBookingByEvent(workspace_id: ID, site_id:ID, event_id: ID ):[Booking]
 }

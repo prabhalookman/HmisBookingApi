@@ -5,9 +5,11 @@ import path from 'path'
 import schema from './schema/index';
 import resolvers from './resolvers/index';
 import models, { connectMongo } from './model/index';
+import  cors from "cors";
 
 const PORT = process.env.PORT;
 const app = express();
+
 
 (async()=>{
   const server = new ApolloServer({
@@ -31,7 +33,7 @@ const app = express();
       //return models
     }
   })
-
+  app.use(cors())
   app.use("/ApiSample", express.static(path.join(__dirname, './ApiSample')));
 
   await server.start();

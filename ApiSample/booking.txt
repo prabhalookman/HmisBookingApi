@@ -258,3 +258,43 @@ name
 event:{
 }
 }
+
+--------------
+query {
+  getBookingById(
+    workspace_id: "611ba08d7dbdecf4c47091db"
+    site_id: "60e2eead5a12d07c2bef058c"
+    booking_id:"614b1e8854258575281a45d7"
+  ) {
+    _id
+    appointment_booking_time
+    appointment_start_time
+    appointment_end_time
+    site_id {
+      _id
+      name
+    }
+    event_id {
+      _id
+      name
+    }
+    staff_id {
+      _id
+      name
+    }
+    location_setting_id {
+      _id
+      video {
+        video_type
+      }
+      inperson {
+        buinsess_address
+      }
+      oncall {
+        client_will_call
+      }
+    }
+  }
+}
+
+---

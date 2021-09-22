@@ -1,21 +1,23 @@
 import mongoose from 'mongoose'
+import Double from '@mongoosejs/double';
+
 const bookingSchema = new mongoose.Schema({  
   add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addon'}],
   amount_paid: Number,
-  appointment_booking_time: String,
-  appointment_end_time: String,
-  appointment_start_time: String,
+  appointment_booking_time: Date,
+  appointment_end_time: Date,
+  appointment_start_time: Date,
   appointment_time_before_reschedule: [String],
 
-  cost: Number,
-  created_at: String,
+  cost: Double,
+  created_at: Date,
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'staff'},
   created_from: String,
   customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer'}],
   customer_mood: String,
   customer_status: String,
   deleted: Boolean,
-  deleted_at: String,
+  deleted_at: Date,
 
   duration_minutes: Number,
   event_id: { type: mongoose.Schema.Types.ObjectId, ref: 'events'},
@@ -33,7 +35,7 @@ const bookingSchema = new mongoose.Schema({
   timezone: String,
   transfered_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}],
   type: String,
-  updated_at: String,
+  updated_at: Date,
   workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace'}
 })
 

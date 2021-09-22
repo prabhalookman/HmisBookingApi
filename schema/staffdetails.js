@@ -33,8 +33,8 @@ type Availablilities {
 
 type availTimes {
   _id: String,
-  slotStartTime: String,
-  slotEndTime: String
+  slotStartTime: Date,
+  slotEndTime: Date
   slot: Int
   isBooking: Boolean
   

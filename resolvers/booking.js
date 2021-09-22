@@ -1,10 +1,18 @@
 import { MyError }  from '../helpers/helper'
-import moment from 'moment';
+import moment from 'moment-timezone';
 export default {
   Query: {
     getBooking: async (parent, args, { models }, info) => {
       try {
         let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id })
+        return Booking
+      } catch (error) {
+        console.error("Error : ", error)
+      }
+    },
+    getBookingById: async (parent, args, { models }, info) => {
+      try {
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id, _id: args.booking_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -80,9 +88,9 @@ export default {
         //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
         newBooking = await newBooking.save();
         
-        newBooking.appointment_start_time = moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        newBooking.appointment_end_time = moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        //newBooking.appointment_booking_time = newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
+        newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time) // moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
+        newBooking.appointment_end_time = moment.utc(newBooking.appointment_start_time) //moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
+        newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time) //newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
         newCustomer.booki = await newCustomer.save();
         newCustomer = await newCustomer.save();
         

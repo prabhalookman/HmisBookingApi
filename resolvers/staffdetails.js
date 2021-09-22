@@ -1,5 +1,5 @@
 import { ObjectId } from 'bson';
-import moment from 'moment';
+import moment from 'moment-timezone';
 export default {
   Query: {
     getStaffDetails: async (parent, args, { models }, info) => {
@@ -44,7 +44,7 @@ export default {
         let minutesFormat = "HH:mm";
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
         let selectedDate = moment(args.date, "YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
-        console.log(`selectedDate.isValid() : ${selectedDate.isValid()}`)
+        console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
         let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
         const pre_booking_day = settings[0].advance_Booking_Period.value
@@ -114,27 +114,26 @@ export default {
 
               console.log(`elem.start_time - ${elem.start_time}`)
               console.log(`new Date(elem.start_time) - ${new Date(elem.start_time)}`)
-              
-              console.log(`selectedDate - ${selectedDate}`)
-              console.log(`new Date() - ${new Date()}`)
 
               dayStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
               dayEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
 
-              const startSeconds = moment.duration(dayStartTime).asSeconds() //
-              const endSeconds = moment.duration(dayEndTime).asSeconds() //
-              console.log('startSeconds : ', startSeconds);
-              console.log('endSeconds : ', endSeconds);
+              const startSeconds = moment.duration(dayStartTime).asSeconds()
+              const endSeconds = moment.duration(dayEndTime).asSeconds()
               
               const timingsStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
-              const timingsEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
+              const timingsEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")              
 
-              const selectedStartTime = new Date(selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsStartTime.format('hh'), timingsStartTime.format('mm'), timingsStartTime.format('sss')); //moment(new Date(args.date+'10:26:000', "YYYY-MM-DDTHH:mm:ss"))
-              const selectedEndTime = new Date(selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')); //moment(new Date(args.date+'10:26:000', "YYYY-MM-DDTHH:mm:ss"))
-
-              const bookingStartTime = moment(new Date(selectedStartTime), "YYYY-MM-DDTHH:mm:ss")
-              const bookingEndTime = moment(new Date(selectedEndTime), "YYYY-MM-DDTHH:mm:ss")
-
+              //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
+              
+              const startDateStr = selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsStartTime.format('hh')+':'+timingsStartTime.format('mm')+':'+ timingsStartTime.format('sss')
+              const endDateStr =selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsEndTime.format('hh')+':'+timingsEndTime.format('mm')+':'+ timingsEndTime.format('sss')
+              const selectedStartTime = moment(startDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
+              const selectedEndTime = moment(endDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
+             
+              const bookingStartTime = moment(selectedStartTime)
+              const bookingEndTime = moment(selectedEndTime)
+              
               console.log(`moment(new Date(timingsStartTime), "HH:mm:ss") : ${moment(new Date(timingsStartTime), "HH:mm:ss").format('HH:mm:sss')} ` )
               console.log('bookingStartTime : ', bookingStartTime);
               console.log('bookingEndTime : ', bookingEndTime);
@@ -149,9 +148,9 @@ export default {
               let slotCount = 0;
               let slotStartTime = '';
               let slotEndTime = '';
-              while (bookingStartTime  <= bookingEndTime ) { //bookingStartTime.format('dddd') <= bookingEndTime.format('dddd')
+              while (bookingStartTime  <= bookingEndTime ) {
                 slotCount++;
-                displaySettings == '12' ? slotStartTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotStartTime = bookingStartTime.format(minutesFormat)
+                displaySettings == '12' ? slotStartTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotStartTime = bookingStartTime.format(minutesFormat)                
                 bookingStartTime.add(slotDuration, 'minutes');
                 displaySettings == '12' ? slotEndTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotEndTime = timingsStartTime.format(minutesFormat) //.format("hh:mm A")
                 availTimes.push({
@@ -160,17 +159,16 @@ export default {
                   slotEndTime: slotEndTime,
                   isBooking: true,
                   slot : slotCount
-                });
-
+                });                
                 
-              }
+              }                      
               //console.log('availLocations : ', availLocations);
               //console.log('availTimes : ', availTimes);
               result.locationAvailable = availLocations
-          result.availableTimes = availTimes
-          result.dayStartTime = dayStartTime.format(dateFormat)
-          result.dayEndTime = dayEndTime.format(dateFormat)
-
+              result.availableTimes = availTimes
+              result.dayStartTime = dayStartTime.format(dateFormat)
+              result.dayEndTime = dayEndTime.format(dateFormat)
+              console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${timingsStartTimeDay}`)
             } else {
               console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${timingsStartTimeDay}`)
             }
@@ -181,7 +179,7 @@ export default {
           result.pre_booking_day = pre_booking_day
           result.available_date = available_date
           result.disable_date = disable_date          
-          result.selectedDate = selectedDate
+          result.selectedDate = selectedDate.format('YYYY-MM-DD')
           result.displaySettings = displaySettings
 
           
