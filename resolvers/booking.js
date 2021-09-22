@@ -82,7 +82,7 @@ export default {
         
         newBooking.appointment_start_time = moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
         newBooking.appointment_end_time = moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        newBooking.appointment_booking_time = newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
+        //newBooking.appointment_booking_time = newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
         newCustomer.booki = await newCustomer.save();
         newCustomer = await newCustomer.save();
         

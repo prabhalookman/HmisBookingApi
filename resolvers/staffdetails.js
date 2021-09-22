@@ -43,7 +43,8 @@ export default {
         let displaySettings = '12'
         let minutesFormat = "HH:mm";
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
-        let selectedDate = moment(args.date, "YYYY-MM-DD").format("YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
+        let selectedDate = moment(args.date, "YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
+        console.log(`selectedDate.isValid() : ${selectedDate.isValid()}`)
 
         let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
         const pre_booking_day = settings[0].advance_Booking_Period.value
@@ -128,8 +129,15 @@ export default {
               const timingsStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
               const timingsEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
 
-              console.log('timingsStartTime : ', timingsStartTime);
-              console.log('timingsEndTime : ', timingsEndTime);
+              const selectedStartTime = new Date(selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsStartTime.format('hh'), timingsStartTime.format('mm'), timingsStartTime.format('sss')); //moment(new Date(args.date+'10:26:000', "YYYY-MM-DDTHH:mm:ss"))
+              const selectedEndTime = new Date(selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')); //moment(new Date(args.date+'10:26:000', "YYYY-MM-DDTHH:mm:ss"))
+
+              const bookingStartTime = moment(new Date(selectedStartTime), "YYYY-MM-DDTHH:mm:ss")
+              const bookingEndTime = moment(new Date(selectedEndTime), "YYYY-MM-DDTHH:mm:ss")
+
+              console.log(`moment(new Date(timingsStartTime), "HH:mm:ss") : ${moment(new Date(timingsStartTime), "HH:mm:ss").format('HH:mm:sss')} ` )
+              console.log('bookingStartTime : ', bookingStartTime);
+              console.log('bookingEndTime : ', bookingEndTime);
 
               //const startEndDiff = timingsEndTime.diff(timingsStartTime, 'seconds')
               const startEndDiff = endSeconds - startSeconds
@@ -141,11 +149,11 @@ export default {
               let slotCount = 0;
               let slotStartTime = '';
               let slotEndTime = '';
-              while (timingsStartTime  <= timingsEndTime ) { //timingsStartTime.format('dddd') <= timingsEndTime.format('dddd')
+              while (bookingStartTime  <= bookingEndTime ) { //bookingStartTime.format('dddd') <= bookingEndTime.format('dddd')
                 slotCount++;
-                displaySettings == '12' ? slotStartTime = moment(timingsStartTime, ["YYYY-MM-DDTHH:mm"]).format("hh:mm A") : slotStartTime = timingsStartTime.format(minutesFormat)
-                timingsStartTime.add(slotDuration, 'minutes');
-                displaySettings == '12' ? slotEndTime = moment(timingsStartTime, ["YYYY-MM-DDTHH:mm"]).format("hh:mm A") : slotEndTime = timingsStartTime.format(minutesFormat)
+                displaySettings == '12' ? slotStartTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotStartTime = bookingStartTime.format(minutesFormat)
+                bookingStartTime.add(slotDuration, 'minutes');
+                displaySettings == '12' ? slotEndTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotEndTime = timingsStartTime.format(minutesFormat) //.format("hh:mm A")
                 availTimes.push({
                   _id: timingsResult[0]._id,
                   slotStartTime: slotStartTime,
