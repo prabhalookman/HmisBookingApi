@@ -1,4 +1,351 @@
+https://realm.mongodb.com/api/client/v2.0/app/schedule-spzut/graphql
+query {
+  timings(query: { _id: "612f6bc03b64c2a30658496a" }) {
+    _id
+    type
+    include_weekends
+    timings {      
+      name
+      start_time
+      end_time
+      work_day_id
+      work_day_name
+    }
+    business_location_setting_ids {
+      _id
+    }
+    location_setting_ids {
+      _id
+      inperson {
+        buinsess_address
+        buinsess_id {
+          _id
+          name
+          display_name
+        }
+      }
+      oncall {
+        client_will_call
+      }
+      video {
+        type
+      }
+      location_id {
+        type
+        name
+      }
+    }
+  }
+}
+---
+https://realm.mongodb.com/api/client/v2.0/app/schedule-spzut/graphql
+query{
+  staffs(query:{name_in:["TATA Roase"]}){
+    _id
+    name
+    staff_detail_id{
+      _id      
+    }
+  }
+}
 
+---
+https://realm.mongodb.com/api/client/v2.0/app/schedule-spzut/graphql
+query {
+  staffdetail(query: { _id: "61409aa2ca9ac7acaa184e54" }) {
+    _id
+    active
+    address_ids {
+      _id
+      country
+    }
+    booking_url
+    business_id {
+      _id
+      display_name
+    }
+    business_timings
+    deafult_calendar_view
+    delete
+    events_ids {
+      _id
+      timing_ids {
+        _id
+        type
+        include_weekends
+        timings {
+          name
+          work_day_id
+          work_day_name
+        }
+        business_location_setting_ids {
+          _id
+        }
+        location_setting_ids {
+          _id
+          inperson {
+            buinsess_address
+            buinsess_id {
+              _id
+              name
+              display_name
+            }
+          }
+          oncall {
+            client_will_call
+          }
+          video {
+            type
+          }
+          location_id {
+            type
+            name
+          }
+        }
+      }
+    }
+    invitationStatus
+    invitation_status_accept
+    is_login
+    is_service_provider
+    is_sync_enabled
+    location_setting_ids {
+      _id
+      inperson {
+        buinsess_address
+        buinsess_id {
+          _id
+          name
+          display_name
+        }
+      }
+      oncall {
+        client_will_call
+      }
+      video {
+        type
+      }
+      location_id {
+        _id
+        type
+        name
+      }
+    }
+    paid_plan_commission
+    product_commission
+    service_commission
+    site_id {
+      _id
+      name
+    }
+    sortingId
+    sorting_id
+    staff_commission
+    staff_group_id {
+      _id
+      group_name
+    }
+    sync {
+      key
+      type
+    }
+    timing_ids: timing_ids {
+      _id
+      type
+      include_weekends
+      timings {
+        name
+        start_time
+        end_time
+        work_day_id
+        work_day_name
+      }
+      business_location_setting_ids {
+        _id
+      }
+      location_setting_ids {
+        _id
+        inperson {
+          buinsess_address
+          buinsess_id {
+            _id
+            name
+            display_name
+          }
+        }
+        oncall {
+          client_will_call
+        }
+        video {
+          type
+        }
+        location_id {
+          _id
+          type
+          name
+        }
+      }
+    }
+    voucher_commission
+    workspace_ids {
+      _id
+      name
+    }
+  }
+}
+--
+query {
+  getAvailabilityByStaff(
+    workspace_id: "611ba08d7dbdecf4c47091db"
+    site_id: "60e2eead5a12d07c2bef058c"
+    staff_ids: "612ee8133b64c2a30642557a"
+    event: [""]
+    date: "2021-09-16"
+  ) {
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date
+    selectedDate
+    dayStartTime
+    dayEndTime
+    locationAvailable {
+      _id
+      type
+    }
+    availableTimes {
+      slot
+      slotStartTime
+      slotEndTime
+      isBooking
+    }
+  }
+}
+---
+https://realm.mongodb.com/api/client/v2.0/app/schedule-spzut/graphql
+query {
+  booking(query: { _id: "614b2a08f6494f7034b80a05" }) {
+    _id
+    appointment_booking_time
+    appointment_start_time
+    appointment_end_time
+    cost
+    site_id {
+      _id
+      name
+    }
+    event_id {
+      _id
+      name
+    }
+    staff_id {
+      _id
+      name
+    }
+    location_setting_id {
+      _id
+     
+      inperson {
+        buinsess_address
+      }
+      oncall {
+        client_will_call
+      }
+    }
+  }
+}
+---
+query{
+  getLocationSetting{
+    _id
+    workspace_id{
+      _id
+      name      
+    }
+    site_id{
+      _id
+      name
+    }
+    location_id{
+      _id
+      name
+      active      
+    }
+    
+    oncall{
+      client_will_call
+    }
+    video{
+      video_type      
+    }
+    inperson{
+      buinsess_address
+    }
+  }
+}
+
+----
+mutation {
+  addBooking(
+    input: {
+      availablity: {
+        event_id: "6141b35902909b25fac46570"
+        site_id: "60e2eead5a12d07c2bef058c"
+        staff_id: "612ee8133b64c2a30642557a"
+        location_setting_id: "612ef2760a711a5659350018"
+        timezone: "Asia/kolkatta"
+        appointment_booking_time: "2021-09-16T04:50:00.000Z"
+        appointment_end_time: "2021-09-16T04:50:00.000Z"
+        appointment_start_time: "2021-09-16T04:30:00.000Z"
+        is_recurring: false
+        slot: 2
+        workspace_id: "611ba08d7dbdecf4c47091db"
+        cost: 500
+      }
+      customer: {
+        name: "Ram"
+        phone: { no: "98745612300" }
+        email: "ram@gmail.com"
+      }
+    }
+  ) {
+    _id
+    appointment_start_time
+    appointment_end_time
+    appointment_booking_time
+    cost
+    created_at
+    
+    site_id {
+      _id
+      name
+    }
+    event_id {
+      _id
+      name
+    }
+    staff_id {
+      _id
+      name
+    }
+    location_setting_id {
+      _id
+      video {
+        video_type
+      }
+      inperson {
+        buinsess_address
+      }
+      oncall {
+        client_will_call
+      }
+    }
+  }
+}
+
+---
 mutation {
   addBooking(
     input: {
@@ -371,3 +718,4 @@ query {
     }
   }
 }
+--

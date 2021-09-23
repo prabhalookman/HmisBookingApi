@@ -61,38 +61,58 @@ export default {
         
         if(customerResult.length > 0 && customerResult[0].email){
           console.log("Customer already exist")
-          throw new Error("Customer already exist")          
+
+          try {
+            let updateObj = { $set: {} };
+            for (var param in bookingInput) {
+              updateObj.$set[param] = bookingInput[param];
+            }
+            newBooking = await models.Booking.findOneAndUpdate({ customer_ids: customerResult[0]._id }, updateObj, { new: true });    
+            console.log("Booking updated : ", newBooking)
+            
+          } catch (error) {
+            console.error("Error : ", error)
+          }
+
+          //throw new Error("Customer already exist")          
         } else {
           newCustomer = await newCustomer.save();
-        }
+          //console.log(`newCustomer : ${JSON.stringify(newCustomer)}`)
+          let customer_ids = []
+          customer_ids.push(newCustomer._id)
+          // console.log(`Customer ID : ${newCustomer._id}`)
+          // console.log(`Customer ID 2 : ${customer_ids}`)
+          
 
-        //console.log(`newCustomer : ${JSON.stringify(newCustomer)}`)
-        let customer_ids = []
-        customer_ids.push(newCustomer._id)
-        // console.log(`Customer ID : ${newCustomer._id}`)
-        // console.log(`Customer ID 2 : ${customer_ids}`)
-        
-
-        //Booking
-        if (!bookingInputKeys)
-          console.log("Error Booking keys")
-        let j = 0;
-        while (j < bookingInputKeys.length) {
-          if (bookingInputKeys[j] in newBooking) {
-            newBooking[bookingInputKeys[j]] = args.input["availablity"][bookingInputKeys[j]]
+          //Booking
+          if (!bookingInputKeys)
+            console.log("Error Booking keys")
+          let j = 0;
+          while (j < bookingInputKeys.length) {
+            if (bookingInputKeys[j] in newBooking) {
+              newBooking[bookingInputKeys[j]] = args.input["availablity"][bookingInputKeys[j]]
+            }
+            j++
           }
-          j++
-        }
-        newBooking.customer_ids = customer_ids
+          newBooking.customer_ids = customer_ids
 
-        //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
-        newBooking = await newBooking.save();
+          //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
+          newBooking = await newBooking.save();
+        }
         
-        newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time) // moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        newBooking.appointment_end_time = moment.utc(newBooking.appointment_start_time) //moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time) //newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
-        newCustomer.booki = await newCustomer.save();
-        newCustomer = await newCustomer.save();
+
+        //RESPONSE
+        if(newBooking){
+          newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time) 
+          newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time) 
+          newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)           
+        }        
+        // moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
+        //moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
+        //newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
+
+        // newCustomer.booki = await newCustomer.save();
+        // newCustomer = await newCustomer.save();
         
         return newBooking
       } catch (error) {
