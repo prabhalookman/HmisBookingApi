@@ -126,15 +126,15 @@ export default {
 
               //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
               
-              const startDateStr = selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsStartTime.format('hh')+':'+timingsStartTime.format('mm')+':'+ timingsStartTime.format('sss')
-              const endDateStr =selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsEndTime.format('hh')+':'+timingsEndTime.format('mm')+':'+ timingsEndTime.format('sss')
+              const startDateStr = selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsStartTime.format('HH')+':'+timingsStartTime.format('mm')+':'+ timingsStartTime.format('sss')
+              const endDateStr =selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsEndTime.format('HH')+':'+timingsEndTime.format('mm')+':'+ timingsEndTime.format('sss')
               const selectedStartTime = moment(startDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
               const selectedEndTime = moment(endDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
              
               const bookingStartTime = moment(selectedStartTime)
               const bookingEndTime = moment(selectedEndTime)
               
-              console.log(`moment(new Date(timingsStartTime), "HH:mm:ss") : ${moment(new Date(timingsStartTime), "HH:mm:ss").format('HH:mm:sss')} ` )
+              console.log(`moment(new Date(timingsStartTime), "HH:mm:ss") : ${moment(new Date(timingsStartTime), "HH:mm:sss").format('HH:mm:sss')} ` )
               console.log('bookingStartTime : ', bookingStartTime);
               console.log('bookingEndTime : ', bookingEndTime);
 
