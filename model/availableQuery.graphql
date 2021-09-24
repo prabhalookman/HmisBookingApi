@@ -6,6 +6,7 @@ Navaneeth - Custom Hours - StaffId : 60ed2287d8dfc8966f547ade, staff_detail_id :
 William_BHF - Business Hours - StaffId : 612ee8133b64c2a30642557a, staff_detail_id : 612ee8133b64c2a30642557b 
 Navaneeth_EM - Default - Business Hours - StaffId : 612f37313b64c2a3064c4215, staff_detail_id: 612f37313b64c2a3064c4216
 William_BHT - Default (True) - StaffId : 6137ef7a95abd02acaf6dcfa - staff_detail_id: 6137ef7a95abd02acaf6dcfb - Businessid: 611ea7c0203fab40501bd0eb
+db Query : {_id:ObjectId('6137ef7a95abd02acaf6dcfb'), workspace_ids: ObjectId('611ba08d7dbdecf4c47091db'), site_id: ObjectId('60e2eead5a12d07c2bef058c')}
 ## ----- Events --
 Neurologist - Custom Hours -  event_id: 612f326c3b64c2a3064b99a6
 Paediatrician - Business Hours -  event_id: 612f172efdc2af72f52703bf

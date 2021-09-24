@@ -1,0 +1,56 @@
+1. Get Staff by site_id, workspace_id, staff_id
+2. Get StaffDetail by site_id, workspace_id, staff_detail_id from staff result
+3. 'selectedDate' get date from argument and convert to date using moment()
+4. take 'advance_Booking_Period', 'client_time_slot' from settings collections
+5. generate minDate,bookingStartDate, maxDate from current date using moment()
+6. if staff_details-> business_timings = false
+7. Get timings detail using timing_id value from staff_detail
+8. Get locationSettings using location_settings_id from timings result
+9. From the location_settings records, create a availLocation[]
+10. compare the current date with max date, until current_date less than the max date , loop the iteration
+11. if the current date weekday is (saturday, sunday) push it in disable date
+12. Loop each timings, take argument date, using moment find the day name and compare with timings "work_day_name" if both are same then follow next step
+13. take the timings day's startTime and endTime -> convert to moment(new Date(xxx)) -> 
+14. convert it to seconds "startSeconds = moment.duration(dayStartTime).asSeconds()"
+15. find the start, end difference , then convert to minutes, then divide by client_time_slot
+16. Booking Time Creation
+17. Take selectdate value and startTime hours,minutes,seconds create a string 
+const startDateStr = selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsStartTime.format('hh')+':'+timingsStartTime.format('mm')+':'+ timingsStartTime.format('sss')
+18. convert the string to moment() object "const selectedStartTime = moment(startDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");"
+19. generate a bookingStartDate "const bookingStartTime = moment(selectedStartTime)"
+20. Loop until bookingStartTime less than bookingEndTime
+21. add slotDuration in minutes to bookingStartTime
+22. insert into available timings
+
+In Resolver
+===========.
+Staff Details 
+-------------
+1. create date in string format to respond to client
+2. Send response to client in "moment.tz(value,"YYYYMMDDHHmm","Asia/Kolkata").toISOString();" format
+
+Booking
+-------
+3. On booking insert records in this  "moment.utc(newBooking.appointment_start_time)" format
+
+-----------
+//Test Date address
+// console.log(`moment().toISOString() Default UTC: ${moment().toISOString()}`)
+// console.log(`moment().toISOString(true) : ${moment().toISOString(true)}`)
+// console.log(`moment().format() ISO 8601, no fractional seconds : ${moment().format()}`)
+// console.log(`moment().toObject() : ${moment().toObject()}`)
+// console.log(`moment().toString() : ${moment().toString()}`)
+
+// moment().toISOString() Default UTC : 2021-09-15T11:05:12.077Z
+// moment().toISOString(true) : 2021-09-15T16:35:12.374+05:30
+// moment().format() : 2021-09-15T16:35:12+05:30
+// moment().toObject() : [object Object]
+// moment().toString() : Wed Sep 15 2021 16:35:13 GMT+0530
+
+//moment('2010-10-20').isSame('2010-10-20'); // true
+
+// var contractMoment = moment(new Date(), dateFormat);
+// var start = moment(contractMoment).add(19, 'days');
+// var end = moment(contractMoment).add(51, 'days');   
+
+-----------

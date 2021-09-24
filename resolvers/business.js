@@ -10,13 +10,10 @@ export default {
         }
     },
     Business: {
-        address_ids: async (business) => {
-            let resultBusiness = await business.populate('address_ids').execPopulate();
-            return resultBusiness.address_ids
-        },
-        workspace_ids: async (business) => {
-            let resultBusiness = await business.populate('workspace_ids').execPopulate();
-            return resultBusiness.workspace_ids
+        
+        workspace_id: async (business) => {
+            let resultBusiness = await business.populate('workspace_id').execPopulate();
+            return resultBusiness.workspace_id
         },
         site_id: async (business) => {
             let resultBusiness = await business.populate('site_id').execPopulate();
@@ -25,3 +22,10 @@ export default {
     }
 
 }
+
+/*
+address_ids: async (business) => {
+            let resultBusiness = await business.populate('address_ids').execPopulate();
+            return resultBusiness.address_ids
+        },
+*/

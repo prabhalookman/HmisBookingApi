@@ -1,18 +1,24 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-type Business {
+scalar Date
+type BusinessInfo {
   _id: ID
-  business_info_ids: [BusinessInfo],    
-  display_name: String,    
-  name: String,    
+  business_hour_end: Int,
+  business_hour_start: Int,
+  restrictedDays: [Date],
+  time_zone: String,
+  timing_ids: [Timing],  
   site_id: Site,
   workspace_id: [Workspace]
 }
+
+`
+
+/*
+
 extend type Query {
     getBusiness: [Business]
 }
-`
-/*
 
 */

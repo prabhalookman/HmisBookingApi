@@ -1,3 +1,51 @@
+New Worspace - MMM_Hospital - 
+Staff - Prabha
+Business_hours : True 
+**********
+Site_id : 614d6350b3df7dad03d6cdb2
+workspace_id: 614d63c649a63250a673d1a3
+staff_detail_id: 614d65a5b3df7dad03d75ea6
+staff_id-614d6350b3df7dad03d6cdb1
+
+Http://Www.Myscheduly.Com/614d6350b3df7dad03d6cdb2/614d63c649a63250a673d1a3
+
+http://localhost:3000/614d6350b3df7dad03d6cdb2/614d63c649a63250a673d1a3/sf-614d6350b3df7dad03d6cdb1
+https://booking-dev-2021.booking.myscheduly.com/614d6350b3df7dad03d6cdb2/614d63c649a63250a673d1a3/sf-614d6350b3df7dad03d6cdb1
+
+{_id:ObjectId('6145db6968d6e038e5eba967'), workspace_ids: ObjectId('61409a3502909b25faa6c3b2'), site_id: ObjectId('613a462aa3a6447e678a40d8')}
+
+---
+query{
+   getAvailabilityByStaff(
+    workspace_id: "614d63c649a63250a673d1a3"
+    site_id: "614d6350b3df7dad03d6cdb2"
+    staff_ids: "614d6350b3df7dad03d6cdb1"
+    event: [""], date: "2021-09-21"
+  ) {
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date   
+    selectedDate
+    dayStartTime
+    dayEndTime
+    locationAvailable {
+      _id
+      type
+    }
+    availableTimes {      
+      slot
+      slotStartTime
+      slotEndTime
+      isBooking
+    }
+  }
+}
+----
+http://www.myscheduly.com/614d6350b3df7dad03d6cdb2/614d63c649a63250a673d1a3/calendar/
+---
 query {
   getStaffDetails(
     workspace_id: "61261b5ba97d172becfc0988"

@@ -4,6 +4,7 @@ import addOnSchema  from './addons'
 import addressSchema  from './address'
 import bookingSchema  from './booking'
 import businessSchema  from './business'
+import businessinfoSchema  from './businessinfo'
 import customerSchema  from './customer'
 import eventsSchema  from './events'
 import locationSchema  from './location'
@@ -38,6 +39,7 @@ export default [baseSchema,
 addressSchema,
 bookingSchema,
 businessSchema,
+businessinfoSchema,
 customerSchema,
 eventsSchema,
 locationSchema,

@@ -3,6 +3,7 @@ import AddOn from "./addons"
 import Address from "./address"
 import Booking  from './booking'
 import Business from './business';
+import BusinessInfo from './businessinfo';
 import Customer from './customer';
 import Event  from "./events"
 import Location from './location';
@@ -38,7 +39,8 @@ const models = {
   StaffDetails,
   Timing,
   Workspace,
-  Setting
+  Setting,
+  BusinessInfo
 }
 
 export {connectMongo};
