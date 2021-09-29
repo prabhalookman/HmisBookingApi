@@ -11,19 +11,19 @@ export default {
       }
     },
     getAvailabilityByStaff: async (parent, args, { models }, info) => {
-      try {       
-        let result = {
-          start_date: "",
-          end_date: "",
-          pre_booking_day: 0,
-          available_date: [],
-          disable_date: [],
-          selectedDate: "",
-          availableTimes: [],
-          locationAvailable: [],
-          dayStartTime: "",
-          dayEndTime:""
-        }
+      try {
+        // let resultObj = {
+        //   start_date: "",
+        //   end_date: "",
+        //   pre_booking_day: 0,
+        //   available_date: [],
+        //   disable_date: [],
+        //   selectedDate: "",
+        //   availableTimes: [],
+        //   locationAvailable: [],
+        //   dayStartTime: "",
+        //   dayEndTime:""
+        // }
         let staffResult;
 
         //Staff
@@ -35,14 +35,13 @@ export default {
         console.log("Staff Details id : ", staffdetail[0]._id)
 
         //Events
-        let events = []
-        let eventResult = [];
-        let combinedslots = [];
+        let eventList = []
+        let eventResult = [];        
 
-        for(let j=0; j < args.event.length; j++){
-          events = await models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event[j] })
-          console.log("events  id : ", events[0]._id)
-        }        
+        for (let j = 0; j < args.event.length; j++) {
+          let events = await models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event[j] })
+          eventList.push(events[0])          
+        }
 
         //2. Business Hours => False
         let displaySettings = '12'
@@ -58,74 +57,30 @@ export default {
 
         let minDate = moment(new Date(), dateFormat)
         let bookingStartDate = moment(new Date(), dateFormat)
-        let maxDate = moment(new Date(), dateFormat).add(pre_booking_day-1, 'days');
+        let maxDate = moment(new Date(), dateFormat).add(pre_booking_day - 1, 'days');
 
         console.log('minDate : ', minDate.format(dateFormat));
         console.log('maxDate : ', maxDate.format(dateFormat));
 
-        if(staffdetail){
-          staffResult = await getting_slots(staffdetail[0], models, result, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate,selectedDate,args.date,dateFormat, pre_booking_day)
-        } 
+        if (staffdetail) {
+          let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+          staffResult = await getting_slots(staffdetail[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+        }
         let newEvents = null;
-        if(events && events.length > 0){
-          for(let k=0; k < events.length; k++){
-            console.log("events  id : ", events[k]._id)
-            newEvents = await getting_slots(events[k], models, result, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate,selectedDate,args.date,dateFormat, pre_booking_day)
-            newEvents ? eventResult.push(newEvents) : 0              
+        if (eventList && eventList.length > 0) {
+          for (let k = 0; k < eventList.length; k++) {
+            console.log("eventList  id : ", eventList[k]._id)
+            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+            newEvents = await getting_slots(eventList[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+            newEvents ? eventResult.push(newEvents) : 0
           }
         }
 
-        //combinedslots
-        //const startSeconds = moment.duration(dayStartTime).asSeconds()
-        //const endSeconds = moment.duration(dayEndTime).asSeconds()
-        let combinedResult = {};
-        let combinedAvailableTimes = [];
-        eventResult.forEach((events)=>{
-          let s_start;
-          let s_end; 
-          let s_start_sec;
-          let s_end_sec
-          let e_start
-          let e_end
-          let e_start_sec
-          let e_end_sec
-          
+        let staff_events_availTimes = compareTwoSlots(staffResult, eventResult)
 
-          
-          staffResult.availableTimes.forEach((staffsAvail)=>{
-              s_start = moment(new Date(staffsAvail.slotStartTime), "YYYY-MM-DDTHH:mm:ss")
-              s_end = moment(new Date(staffsAvail.slotEndTime), "YYYY-MM-DDTHH:mm:ss")
-
-              s_start_sec = moment.duration(s_start).asSeconds()
-              s_end_sec = moment.duration(s_end).asSeconds()
-
-              console.log(`Event slotStartTime : ${staffsAvail.slotStartTime} - as seconds ${s_start_sec} `)
-
-            events.availableTimes.forEach((eventsAvail)=> {              
-              
-              e_start = moment(new Date(eventsAvail.slotStartTime), "YYYY-MM-DDTHH:mm:ss")
-              e_end = moment(new Date(eventsAvail.slotEndTime), "YYYY-MM-DDTHH:mm:ss")
-
-              e_start_sec = moment.duration(e_start).asSeconds()
-              e_end_sec = moment.duration(e_end).asSeconds()
-
-              if(s_start_sec == e_start_sec){
-                console.log(`Event slotStartTime : ${eventsAvail.slotStartTime} - as seconds ${e_start_sec} `)
-                combinedResult["isBooking"] = false
-                combinedResult["slotEndTime"] = staffsAvail.slotEndTime
-                combinedResult["slotStartTime"] = staffsAvail.slotStartTime
-                combinedAvailableTimes.push(combinedResult)                
-              } else {
-                // combinedResult["isBooking"] = true
-                // combinedResult["slotEndTime"] = staffsAvail.slotEndTime
-                // combinedResult["slotStartTime"] = staffsAvail.slotStartTime
-                // combinedAvailableTimes.push(combinedResult)
-              }
-            })            
-          })
-        })
-        staffResult.availableTimes = combinedAvailableTimes
-        console.log('staffResult : ', staffResult.availableTimes )
+        //console.log('staff_events_availTimes : ', staff_events_availTimes )
+        staffResult.availableTimes = staff_events_availTimes
+        //console.log('staffResult : ', staffResult.availableTimes )
         return staffResult
       } catch (error) {
         console.error("Error : ", error)
@@ -189,7 +144,7 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     //Locationsettings
     console.log("location_settings id : ", timingsResult[0].location_setting_ids)
 
-    let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video":1})
+    let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
     //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
     locationSettingsResult.forEach((elem) => {
       if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
@@ -204,25 +159,25 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
         available_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
       }
       bookingStartDate.add(1, 'days');
-    }   
+    }
 
     timingsResult[0].timings.forEach((elem) => {
-      let selectedDayName = moment(new Date(args.date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
+      let selectedDayName = moment(new Date(selected_date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
       let timingsStartTimeDay = elem.work_day_name  //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
       console.log(`Timings Day - ${timingsStartTimeDay}`)
       let slotArguments = {
-        result: result, 
-        _id: timingsResult[0]._id, 
-        start_time: elem.start_time, 
-        end_time: elem.end_time, 
-        clientSlot: clientSlot, 
-        selectedDate: selectedDate, 
-        displaySettings: displaySettings, 
+        result: result,
+        _id: timingsResult[0]._id,
+        start_time: elem.start_time,
+        end_time: elem.end_time,
+        clientSlot: clientSlot,
+        selectedDate: selectedDate,
+        displaySettings: displaySettings,
         dateFormat: dateFormat
       }
 
       if (selectedDayName == timingsStartTimeDay) {
-        result = slots (slotArguments);
+        result = slots(slotArguments);
         console.log('Match')
 
         //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
@@ -236,9 +191,9 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     result.end_date = maxDate.format('YYYY-MM-DD')
     result.pre_booking_day = pre_booking_day
     result.available_date = available_date
-    result.disable_date = disable_date          
+    result.disable_date = disable_date
     result.selectedDate = selectedDate.format('YYYY-MM-DD')
-    result.displaySettings = displaySettings     
+    result.displaySettings = displaySettings
     return result;
 
   } else {
@@ -252,7 +207,7 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     let businessinfoResult = await models.BusinessInfo.find({ _id: businessResult[0].business_info_ids })
     console.log("businessinfoResult id: ", businessinfoResult[0]._id)
     //console.log("businessinfoResult id stringify: ", JSON.stringify(businessinfoResult[0]))
-    
+
     //Timing
     let timingsResult = await models.Timing.find({ _id: businessinfoResult[0].timing_ids })
     console.log("timingsResult id: ", timingsResult[0]._id)
@@ -261,7 +216,7 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     //Locationsettings
     console.log("location_settings id : ", timingsResult[0].location_setting_ids)
 
-    let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video":1})
+    let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
     //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
     locationSettingsResult.forEach((elem) => {
       if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
@@ -276,25 +231,25 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
         available_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
       }
       bookingStartDate.add(1, 'days');
-    }   
+    }
 
     timingsResult[0].timings.forEach((elem) => {
       let selectedDayName = moment(new Date(selected_date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
       let timingsStartTimeDay = elem.work_day_name  //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
       console.log(`Timings Day - ${timingsStartTimeDay}`)
       let slotArguments = {
-        result: result, 
-        _id: timingsResult[0]._id, 
-        start_time: elem.start_time, 
-        end_time: elem.end_time, 
-        clientSlot: clientSlot, 
-        selectedDate: selectedDate, 
-        displaySettings: displaySettings, 
+        result: result,
+        _id: timingsResult[0]._id,
+        start_time: elem.start_time,
+        end_time: elem.end_time,
+        clientSlot: clientSlot,
+        selectedDate: selectedDate,
+        displaySettings: displaySettings,
         dateFormat: dateFormat
       }
 
       if (selectedDayName == timingsStartTimeDay) {
-        result = slots (slotArguments);
+        result = slots(slotArguments);
         console.log('Match')
 
         //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
@@ -308,84 +263,154 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     result.end_date = maxDate.format('YYYY-MM-DD')
     result.pre_booking_day = pre_booking_day
     result.available_date = available_date
-    result.disable_date = disable_date          
+    result.disable_date = disable_date
     result.selectedDate = selectedDate.format('YYYY-MM-DD')
-    result.displaySettings = displaySettings 
+    result.displaySettings = displaySettings
 
-    return result 
+    return result
   }
 }
 
 
 //result, _id, start_time, end_time, clientSlot, selectedDate, displaySettings, dateFormat
-let slots = (params)=> {
-  let {result, _id, start_time, end_time, clientSlot, selectedDate, displaySettings, dateFormat} = params
+let slots = (params) => {
+  let { result, _id, start_time, end_time, clientSlot, selectedDate, displaySettings, dateFormat } = params
 
   let availTimes = [];
-        let dayStartTime = '';
-        let dayEndTime = '';
-        let availLocations = [];
-        let available_date = [];
-        let disable_date = [];
-  
-              //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
+  let dayStartTime = '';
+  let dayEndTime = '';
+  let availLocations = [];
+  let available_date = [];
+  let disable_date = [];
 
-              // console.log(`start_time - ${start_time}`)
-              // console.log(`new Date(start_time) - ${new Date(start_time)}`)
+  //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
 
-              dayStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
-              dayEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
+  // console.log(`start_time - ${start_time}`)
+  // console.log(`new Date(start_time) - ${new Date(start_time)}`)
 
-              const startSeconds = moment.duration(dayStartTime).asSeconds()
-              const endSeconds = moment.duration(dayEndTime).asSeconds()
-              
-              const timingsStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
-              const timingsEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")              
+  dayStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
+  dayEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
 
-              //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
-              
-              const startDateStr = selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsStartTime.format('HH')+':'+timingsStartTime.format('mm')+':'+ timingsStartTime.format('sss')
-              const endDateStr =selectedDate.year()+'-'+(selectedDate.month()+1)+'-'+selectedDate.date()+'T'+timingsEndTime.format('HH')+':'+timingsEndTime.format('mm')+':'+ timingsEndTime.format('sss')
-              
-              const selectedStartTime = moment(startDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
-              const selectedEndTime = moment(endDateStr,"YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
-             
-              const bookingStartTime = moment(selectedStartTime)
-              const bookingEndTime = moment(selectedEndTime)
-              
-              //console.log(`moment(new Date(timingsStartTime), "HH:mm:ss") : ${moment(new Date(timingsStartTime), "HH:mm:ss").format('HH:mm:sss')} ` )
-              // console.log('bookingStartTime : ', bookingStartTime);
-              // console.log('bookingEndTime : ', bookingEndTime);
+  const startSeconds = moment.duration(dayStartTime).asSeconds()
+  const endSeconds = moment.duration(dayEndTime).asSeconds()
 
-              //const startEndDiff = timingsEndTime.diff(timingsStartTime, 'seconds')
-              const startEndDiff = endSeconds - startSeconds
-              var myMinutes = Math.floor(startEndDiff / 60);
+  const timingsStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
+  const timingsEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
 
-              //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
-              const slotDuration = (myMinutes) / clientSlot
+  //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
 
-              let slotCount = 0;
-              let slotStartTime = '';
-              let slotEndTime = '';
-              while (bookingStartTime  <= bookingEndTime ) {
-                slotCount++;
-                displaySettings == '12' ? slotStartTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotStartTime = bookingStartTime.format(minutesFormat)                
-                bookingStartTime.add(clientSlot, 'minutes');
-                displaySettings == '12' ? slotEndTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotEndTime = timingsStartTime.format(minutesFormat) //.format("hh:mm A")
-                availTimes.push({
-                  _id: _id,
-                  slotStartTime: slotStartTime,
-                  slotEndTime: slotEndTime,
-                  isBooking: true,
-                  slot : slotCount
-                });                
-              }
-              //console.log('availLocations : ', availLocations);
-              //console.log('availTimes : ', availTimes);
-              result.locationAvailable = availLocations
-              result.availableTimes = availTimes
-              result.dayStartTime = dayStartTime.format(dateFormat)
-              result.dayEndTime = dayEndTime.format(dateFormat)
+  const startDateStr = selectedDate.year() + '-' + (selectedDate.month() + 1) + '-' + selectedDate.date() + 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
+  const endDateStr = selectedDate.year() + '-' + (selectedDate.month() + 1) + '-' + selectedDate.date() + 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
 
-              return result;
+  const selectedStartTime = moment(startDateStr, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
+  const selectedEndTime = moment(endDateStr, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
+
+  const bookingStartTime = moment(selectedStartTime)
+  const bookingEndTime = moment(selectedEndTime)
+
+  //console.log(`moment(new Date(timingsStartTime), "HH:mm:ss") : ${moment(new Date(timingsStartTime), "HH:mm:ss").format('HH:mm:sss')} ` )
+  // console.log('bookingStartTime : ', bookingStartTime);
+  // console.log('bookingEndTime : ', bookingEndTime);
+
+  //const startEndDiff = timingsEndTime.diff(timingsStartTime, 'seconds')
+  const startEndDiff = endSeconds - startSeconds
+  var myMinutes = Math.floor(startEndDiff / 60);
+
+  //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
+  const slotDuration = (myMinutes) / clientSlot
+
+  let slotCount = 0;
+  let slotStartTime = '';
+  let slotEndTime = '';
+  while (bookingStartTime <= bookingEndTime) {
+    slotCount++;
+    displaySettings == '12' ? slotStartTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotStartTime = bookingStartTime.format(minutesFormat)
+    bookingStartTime.add(clientSlot, 'minutes');
+    displaySettings == '12' ? slotEndTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotEndTime = timingsStartTime.format(minutesFormat) //.format("hh:mm A")
+    availTimes.push({
+      _id: _id,
+      slotStartTime: slotStartTime,
+      slotEndTime: slotEndTime,
+      isBooking: true,
+      slot: slotCount
+    });
+  }
+  //console.log('availLocations : ', availLocations);
+  //console.log('availTimes : ', availTimes);
+  result.locationAvailable = availLocations
+  result.availableTimes = availTimes
+  result.dayStartTime = dayStartTime.format(dateFormat)
+  result.dayEndTime = dayEndTime.format(dateFormat)
+
+  return result;
+}
+
+let compareTwoSlots = async (list_one, list_two) => {
+  let list_availTimes = [];
+  let eventResultCount = 1;
+  list_two.forEach((events) => {
+    let s_start;
+    let s_end;
+    let s_start_sec;
+    let s_end_sec
+    let e_start
+    let e_end
+    let e_start_sec
+    let e_end_sec
+
+    //console.log('list_one.availableTimes : ', list_one.availableTimes)
+    //console.log('events.availableTimes : ', events.availableTimes)
+
+    list_one.availableTimes.forEach((staffsAvail) => {
+      s_start = moment(new Date(staffsAvail.slotStartTime), "YYYY-MM-DDTHH:mm:ss")
+      s_end = moment(new Date(staffsAvail.slotEndTime), "YYYY-MM-DDTHH:mm:ss")
+
+      s_start_sec = moment.duration(s_start).asSeconds()
+      s_end_sec = moment.duration(s_end).asSeconds()
+
+      //console.log(`Staff slotStartTime : ${staffsAvail.slotStartTime} - as seconds ${s_start_sec} `)
+
+      events.availableTimes.forEach((eventsAvail) => {
+
+        e_start = moment(new Date(eventsAvail.slotStartTime), "YYYY-MM-DDTHH:mm:ss")
+        e_end = moment(new Date(eventsAvail.slotEndTime), "YYYY-MM-DDTHH:mm:ss")
+
+        e_start_sec = moment.duration(e_start).asSeconds()
+        e_end_sec = moment.duration(e_end).asSeconds()
+
+        if (s_start_sec == e_start_sec) {
+          console.log(`True : Event slotStartTime : ${eventsAvail.slotStartTime} - Staff slotStartTime : ${staffsAvail.slotStartTime} `)
+          let comObj = new customSlot(true, staffsAvail.slotEndTime, staffsAvail.slotStartTime, staffsAvail._id);
+          list_availTimes.push(comObj)
+        } else {
+          console.log(`False : Event slotStartTime : ${eventsAvail.slotStartTime} - Staff slotStartTime : ${staffsAvail.slotStartTime} `)
+          let comObj = new customSlot(false, staffsAvail.slotEndTime, staffsAvail.slotStartTime, staffsAvail._id);
+          list_availTimes.push(comObj)
+        }
+      })
+    })
+    console.log('eventResultCount : ', eventResultCount)
+    eventResultCount++;
+  })
+  return list_availTimes;
+
+}
+function customSlot(isBooking, slotEndTime, slotStartTime, id) {
+  this.isBooking = isBooking;
+  this.slotEndTime = slotEndTime;
+  this.slotStartTime = slotStartTime;
+  this._id = id;
+}
+
+function result(start_date, end_date, pre_booking_day, available_date, disable_date, selectedDate, availableTimes, locationAvailable, dayStartTime, dayEndTime) {
+  this.start_date = start_date;
+  this.end_date = end_date;
+  this.pre_booking_day = pre_booking_day;
+  this.available_date = available_date;
+  this.disable_date = disable_date;
+  this.selectedDate = selectedDate;
+  this.availableTimes = availableTimes;
+  this.locationAvailable = locationAvailable;
+  this.dayStartTime = dayStartTime;
+  this.dayEndTime = dayEndTime
 }
