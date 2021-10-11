@@ -215,14 +215,24 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
 
     //Locationsettings
     console.log("location_settings id : ", timingsResult[0].location_setting_ids)
-
-    let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
-    //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
-    locationSettingsResult.forEach((elem) => {
-      if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
-      if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
-      if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
-    })
+    if(timingsResult[0].location_setting_ids.length > 0 ){
+      let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
+      //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
+      locationSettingsResult.forEach((elem) => {
+        if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
+        if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
+        if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
+      })
+    } else {
+      let locationSettingsResult = await models.LocationSetting.find({ _id: details.location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
+      //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
+      locationSettingsResult.forEach((elem) => {
+        if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
+        if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
+        if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
+      })
+    }
+    
 
     while (bookingStartDate <= maxDate) {
       if (bookingStartDate.isoWeekday() == 6 || bookingStartDate.isoWeekday() == 7) {

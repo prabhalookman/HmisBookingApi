@@ -200,3 +200,16 @@ guest_ids: async (booking) => {
 
     }
     */
+/*
+    db.AlertDump.find().forEach(function(doc){
+      print(doc._id + " " + doc.VehicleNo.toUpperCase());
+      print("-------------------------------------");
+      db.Alarm.find({"LicensePlateNumber":doc.VehicleNo.toUpperCase(),Year:2021,Month:10}).forEach(function(doc1)
+      {
+            db.FinalResult.insertOne(
+               { LicensePlateNumber : doc.VehicleNo.toUpperCase(), TimeStamp:doc1.TimeStamp,SourceLocation:doc1.SourceLocation ,CamName:doc1.CamName }
+            )
+            print(doc.VehicleNo.toUpperCase() + "," + doc1.TimeStamp +" inserted");
+      })
+    })
+    */
