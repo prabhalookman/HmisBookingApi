@@ -31,17 +31,179 @@ export default {
         console.log("Staff  id : ", staff[0].staff_detail_id)
 
         //StaffDetails
-        let staffdetail = await models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
-        console.log("Staff Details id : ", staffdetail[0]._id)
+        let staffdetail_ag = await models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
+        console.log("Staff Details id : ", staffdetail_ag[0]._id)
+        let pipeline = aggregate_str(staff[0]._id, 'staff')
+      console.log(' pipeline : ', pipeline)
+      let pipeline2 = [
+        {
+          "$project": {                  
+            "staff": "$$ROOT"
+          }
+      },
+        {
+          "$lookup": {
+              "localField": "staff.staff_detail_id",
+              "from": "staffdetails",
+              "foreignField": "_id",
+              "as": "staffdetails"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$staffdetails",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "staffdetails.events_ids",
+              "from": "events",
+              "foreignField": "_id",
+              "as": "events"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$events",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "events.location_setting_ids",
+              "from": "locationsetting",
+              "foreignField": "_id",
+              "as": "locationsetting"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$locationsetting",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "locationsetting.location_id",
+              "from": "location",
+              "foreignField": "_id",
+              "as": "location"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$location",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "staff.workspace_ids",
+              "from": "workspace",
+              "foreignField": "_id",
+              "as": "workspace"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$workspace",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "staff.site_id",
+              "from": "site",
+              "foreignField": "_id",
+              "as": "site"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$site",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "staffdetails.business_id",
+              "from": "business",
+              "foreignField": "_id",
+              "as": "business"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$business",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "business.business_info_ids",
+              "from": "businessinfo",
+              "foreignField": "_id",
+              "as": "businessinfo"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$businessinfo",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "businessinfo.timing_ids",
+              "from": "timings",
+              "foreignField": "_id",
+              "as": "timings"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$timings",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$match": {"staff._id": ObjectId(args.staff_ids)}
+      }, 
+      {
+          "$project": {
+            "_id": "$staff._id",
+            "staff_detail_id": "$staff.staff_detail_id",
+            "events_id" : "$events._id",
+            "timings_id": "$timings._id",
+            "business_timings": "$staffdetails.business_timings",
+            "timings": "$timings.timings" 
+          }
+      }
+    ]
+      //let newPipeline ={ '$match': {"staff._id": ObjectId(args.staff_ids)}, "$project":{"_id": '$staff._id'} }
+      let staffdetail_ag_rs = await models.Staff.aggregate(pipeline);
+      console.log('staffdetail_ag_rs : ', staffdetail_ag_rs.length)
+        // ,
+        //   { "allowDiskUse": true },
+        //   function( err, data ) {        
+        //     if ( err )
+        //       throw err;        
+        //     console.log( JSON.stringify( data, undefined, 2 ) );        
+        //   }      
 
         //Events
         let eventList = []
         let eventResult = [];        
 
-        for (let j = 0; j < args.event.length; j++) {
-          let events = await models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event[j] })
-          eventList.push(events[0])          
-        }
+        // for (let j = 0; j < args.event.length; j++) {
+        //   let events = await models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event[j] })
+        //   eventList.push(events[0])          
+        // }
+        let pipeline3 = aggregate_str(staffdetail_ag_rs[0].events_id, 'event')
+        console.log('pipeline3 : ', pipeline3)
+        let events_ag_rs = await models.Event.aggregate(pipeline3);
+        console.log('events_ag_rs : ', events_ag_rs.length)
 
         //2. Business Hours => False
         let displaySettings = '12'
@@ -62,9 +224,9 @@ export default {
         console.log('minDate : ', minDate.format(dateFormat));
         console.log('maxDate : ', maxDate.format(dateFormat));
 
-        if (staffdetail) {
+        if (staffdetail_ag_rs) {
           let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-          staffResult = await getting_slots(staffdetail[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+          staffResult = await getting_slots(staffdetail_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
         }
         let newEvents = null;
         if (eventList && eventList.length > 0) {
@@ -81,6 +243,8 @@ export default {
         //console.log('staff_events_availTimes : ', staff_events_availTimes )
         staffResult.availableTimes = staff_events_availTimes
         //console.log('staffResult : ', staffResult.availableTimes )
+
+
         return staffResult
       } catch (error) {
         console.error("Error : ", error)
@@ -200,38 +364,38 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
 
     //Business timings == TRUE
     //Business
-    let businessResult = await models.Business.find({ _id: details.business_id })
-    console.log("businessResult id: ", businessResult[0]._id)
-    //console.log("businessResult id stringify: ", JSON.stringify(businessResult[0]))
+    // let businessResult = await models.Business.find({ _id: details.business_id })
+    // console.log("businessResult id: ", businessResult[0]._id)
+    // //console.log("businessResult id stringify: ", JSON.stringify(businessResult[0]))
 
-    let businessinfoResult = await models.BusinessInfo.find({ _id: businessResult[0].business_info_ids })
-    console.log("businessinfoResult id: ", businessinfoResult[0]._id)
-    //console.log("businessinfoResult id stringify: ", JSON.stringify(businessinfoResult[0]))
+    // let businessinfoResult = await models.BusinessInfo.find({ _id: businessResult[0].business_info_ids })
+    // console.log("businessinfoResult id: ", businessinfoResult[0]._id)
+    // //console.log("businessinfoResult id stringify: ", JSON.stringify(businessinfoResult[0]))
 
-    //Timing
-    let timingsResult = await models.Timing.find({ _id: businessinfoResult[0].timing_ids })
-    console.log("timingsResult id: ", timingsResult[0]._id)
-    //console.log("timingsResult id stringify: ", JSON.stringify(timingsResult[0]))
+    // //Timing
+    // let timingsResult = await models.Timing.find({ _id: businessinfoResult[0].timing_ids })
+    // console.log("timingsResult id: ", timingsResult[0]._id)
+    // //console.log("timingsResult id stringify: ", JSON.stringify(timingsResult[0]))
 
-    //Locationsettings
-    console.log("location_settings id : ", timingsResult[0].location_setting_ids)
-    if(timingsResult[0].location_setting_ids.length > 0 ){
-      let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
-      //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
-      locationSettingsResult.forEach((elem) => {
-        if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
-        if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
-        if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
-      })
-    } else {
-      let locationSettingsResult = await models.LocationSetting.find({ _id: details.location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
-      //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
-      locationSettingsResult.forEach((elem) => {
-        if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
-        if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
-        if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
-      })
-    }
+    // //Locationsettings
+    // console.log("location_settings id : ", timingsResult[0].location_setting_ids)
+    // if(timings[0].location_setting_ids.length > 0 ){
+    //   let locationSettingsResult = await models.LocationSetting.find({ _id: timings[0].location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
+    //   //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
+    //   locationSettingsResult.forEach((elem) => {
+    //     if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
+    //     if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
+    //     if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
+    //   })
+    // } else {
+    //   let locationSettingsResult = await models.LocationSetting.find({ _id: details.location_setting_ids }).select({ "inperson": 1, "oncall": 1, "video": 1 })
+    //   //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
+    //   locationSettingsResult.forEach((elem) => {
+    //     if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
+    //     if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
+    //     if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
+    //   })
+    // }
     
 
     while (bookingStartDate <= maxDate) {
@@ -243,13 +407,13 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
       bookingStartDate.add(1, 'days');
     }
 
-    timingsResult[0].timings.forEach((elem) => {
+    details.timings.forEach((elem) => {
       let selectedDayName = moment(new Date(selected_date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
       let timingsStartTimeDay = elem.work_day_name  //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
       console.log(`Timings Day - ${timingsStartTimeDay}`)
       let slotArguments = {
         result: result,
-        _id: timingsResult[0]._id,
+        _id: details._id,
         start_time: elem.start_time,
         end_time: elem.end_time,
         clientSlot: clientSlot,
@@ -424,3 +588,160 @@ function result(start_date, end_date, pre_booking_day, available_date, disable_d
   this.dayStartTime = dayStartTime;
   this.dayEndTime = dayEndTime
 }
+
+function aggregate_str(_ids, root){
+  let match = { }
+  let obj = root + "._id"
+  match[obj] = ObjectId(_ids)  
+
+  let _root = {}
+  _root[root] = "$$ROOT"  
+
+  let pipeline =  [
+    {
+      "$project": _root
+  },
+    {
+      "$lookup": {
+          "localField": "staff.staff_detail_id",
+          "from": "staffdetails",
+          "foreignField": "_id",
+          "as": "staffdetails"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$staffdetails",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "staffdetails.events_ids",
+          "from": "events",
+          "foreignField": "_id",
+          "as": "events"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$events",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "events.location_setting_ids",
+          "from": "locationsetting",
+          "foreignField": "_id",
+          "as": "locationsetting"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$locationsetting",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "locationsetting.location_id",
+          "from": "location",
+          "foreignField": "_id",
+          "as": "location"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$location",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "staff.workspace_ids",
+          "from": "workspace",
+          "foreignField": "_id",
+          "as": "workspace"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$workspace",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "staff.site_id",
+          "from": "site",
+          "foreignField": "_id",
+          "as": "site"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$site",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "staffdetails.business_id",
+          "from": "business",
+          "foreignField": "_id",
+          "as": "business"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$business",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "business.business_info_ids",
+          "from": "businessinfo",
+          "foreignField": "_id",
+          "as": "businessinfo"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$businessinfo",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "businessinfo.timing_ids",
+          "from": "timings",
+          "foreignField": "_id",
+          "as": "timings"
+      }
+  },
+  {
+      "$unwind": {
+          "path": "$timings",
+          "preserveNullAndEmptyArrays": false
+      }
+  },
+  {
+      "$match":match
+  }, 
+  {
+      "$project": {
+        "_id": "$staff._id",
+        "staff_detail_id": "$staff.staff_detail_id",
+        "events_id" : "$events._id",
+        "timings_id": "$timings._id",
+        "business_timings": "$staffdetails.business_timings",
+        "timings": "$timings.timings" 
+      }
+  }
+]
+
+return pipeline
+}
+// {"staff._id": ObjectId(_ids)}
