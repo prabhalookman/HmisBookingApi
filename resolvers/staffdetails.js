@@ -1,3 +1,4 @@
+
 import { ObjectId } from 'bson';
 import moment from 'moment-timezone';
 export default {
@@ -24,61 +25,57 @@ export default {
         //   dayStartTime: "",
         //   dayEndTime:""
         // }
-      let staffResult;
-      let staff_pipeline = aggregate_str(args.staff_ids, 'staff')
-      //console.log(' staff_pipeline : ', staff_pipeline)
-      let staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
+        let staffResult;
+        let staff_pipeline = aggregate_str(args.staff_ids, 'staff')
+        //console.log(' staff_pipeline : ', staff_pipeline)
+        let staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
 
-      //Events
-      let event_pipeline = aggregate_str(args.staff_ids, 'event')
-      //console.log('event_pipeline : ', event_pipeline)
-      let events_ag_rs = await models.Staff.aggregate(event_pipeline);
-      console.log('events_ag_rs : ', events_ag_rs.length)
+        //Events
+        let event_pipeline = aggregate_str(args.staff_ids, 'event')
+        //console.log('event_pipeline : ', event_pipeline)
+        let events_ag_rs = await models.Staff.aggregate(event_pipeline);
+        console.log('events_ag_rs : ', events_ag_rs.length)
 
-      //2. Business Hours => False
-      let displaySettings = '12'
-      let minutesFormat = "HH:mm";
-      const dateFormat = "YYYY-MM-DD HH:mm:ss";
-      let selectedDate = moment(args.date, "YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
-      console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
-      let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
-      const pre_booking_day = settings[0].advance_Booking_Period.value
-      const clientSlot = settings[0].client_time_slot
-      //console.log("settings-advance_Booking_Period : ", pre_booking_day)
+        let displaySettings = '12'
+        let minutesFormat = "HH:mm";
+        const dateFormat = "YYYY-MM-DD HH:mm:ss";
+        let selectedDate = moment(args.date, "YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
+        console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
-      let minDate = moment(new Date(), dateFormat)
-      let bookingStartDate = moment(new Date(), dateFormat)
-      let maxDate = moment(new Date(), dateFormat).add(pre_booking_day - 1, 'days');
+        let settings = await models.Setting.find({})
+        const pre_booking_day = settings[0].advance_Booking_Period.value
+        const clientSlot = settings[0].client_time_slot
 
-      console.log('minDate : ', minDate.format(dateFormat));
-      console.log('maxDate : ', maxDate.format(dateFormat));
+        let minDate = moment(new Date(), dateFormat)
+        let bookingStartDate = moment(new Date(), dateFormat)
+        let maxDate = moment(new Date(), dateFormat).add(pre_booking_day - 1, 'days');
 
-      if (staffdetail_ag_rs) {
-        let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-        staffResult = await getting_slots(staffdetail_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-      }
-      let newEvents = null;
-      let eventList = []
-      let eventResult = [];
-      
-      if (events_ag_rs && events_ag_rs.length > 0) {
-        for (let k = 0; k < events_ag_rs.length; k++) {
-          console.log("events_ag_rs  id : ", events_ag_rs[k]._id)
+        console.log('minDate : ', minDate.format(dateFormat));
+        console.log('maxDate : ', maxDate.format(dateFormat));
+
+        if (staffdetail_ag_rs) {
           let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-          newEvents = await getting_slots(events_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-          newEvents ? eventResult.push(newEvents) : 0
+          staffResult = await getting_slots(staffdetail_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
         }
-      }
+        let newEvents = null;
+        let eventList = []
+        let eventResult = [];
 
-      let staff_events_availTimes = compareTwoSlots(staffResult, eventResult)
+        if (events_ag_rs && events_ag_rs.length > 0) {
+          for (let k = 0; k < events_ag_rs.length; k++) {
+            console.log("events_ag_rs  id : ", events_ag_rs[k]._id)
+            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+            newEvents = await getting_slots(events_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+            newEvents ? eventResult.push(newEvents) : 0
+          }
+        }
 
-      //console.log('staff_events_availTimes : ', staff_events_availTimes )
-      staffResult.availableTimes = staff_events_availTimes
-      //console.log('staffResult : ', staffResult.availableTimes )
+        staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
+        console.log("Final Result : ", staffResult.availableTimes)
+        //console.log('staffResult : ', staffResult.availableTimes )
 
-
-      return staffResult
+        return staffResult
       } catch (error) {
         console.error("Error : ", error)
       }
@@ -128,11 +125,10 @@ export default {
   }
 }
 let getting_slots = async (details, models, result, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, selected_date, dateFormat, pre_booking_day) => {
-
-  let availLocations = [];
+  
   let available_date = [];
   let disable_date = [];
-  if (details.business_timings == false) {    
+  if (details.business_timings == false || details.business_timings == true) {
 
     while (bookingStartDate <= maxDate) {
       if (bookingStartDate.isoWeekday() == 6 || bookingStartDate.isoWeekday() == 7) {
@@ -142,7 +138,7 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
       }
       bookingStartDate.add(1, 'days');
     }
-    let calculatedSlots = []
+    
     if (details.timings.length > 0) {
       details.timings.forEach((elem) => {
         elem.timings.forEach((e1) => {
@@ -150,7 +146,7 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
           let timingsStartTimeDay = e1.work_day_name  //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
           console.log(`Timings Day - ${timingsStartTimeDay}`)
           let slotArguments = {
-            result: result,
+            result: {},
             _id: details._id,
             start_time: e1.start_time,
             end_time: e1.end_time,
@@ -185,57 +181,8 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     result.displaySettings = displaySettings
     return result;
 
-  } else {
-
-    //Business timings == TRUE    
-
-    while (bookingStartDate <= maxDate) {
-      if (bookingStartDate.isoWeekday() == 6 || bookingStartDate.isoWeekday() == 7) {
-        disable_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
-      } else {
-        available_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
-      }
-      bookingStartDate.add(1, 'days');
-    }
-
-    details.timings[0].timings.forEach((elem) => {
-      let selectedDayName = moment(new Date(selected_date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
-      let timingsStartTimeDay = elem.work_day_name  //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
-      console.log(`Timings Day - ${timingsStartTimeDay}`)
-      let slotArguments = {
-        result: result,
-        _id: details._id,
-        start_time: elem.start_time,
-        end_time: elem.end_time,
-        clientSlot: clientSlot,
-        selectedDate: selectedDate,
-        displaySettings: displaySettings,
-        dateFormat: dateFormat
-      }
-
-      if (selectedDayName == timingsStartTimeDay) {
-        let tresult = slots(slotArguments);
-        result.availableTimes.push(tresult.availableTimes)
-        
-        console.log('Match')
-
-        //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
-      } else {
-        console.log('NOT Match')
-        //console.log(`selected date ${selectedDate} DOES NOT match with start time ${start_time} -> ${timingsStartTimeDay}`)
-      }
-
-    }) //Timings ForEach End
-    result.start_date = minDate.format('YYYY-MM-DD')
-    result.end_date = maxDate.format('YYYY-MM-DD')
-    result.pre_booking_day = pre_booking_day
-    result.available_date = available_date
-    result.disable_date = disable_date
-    result.selectedDate = selectedDate.format('YYYY-MM-DD')
-    result.displaySettings = displaySettings
-
-    return result
   }
+
 }
 
 
@@ -246,9 +193,7 @@ let slots = (params) => {
   let availTimes = [];
   let dayStartTime = '';
   let dayEndTime = '';
-  let availLocations = [];
-  let available_date = [];
-  let disable_date = []; 
+  let availLocations = [];  
 
   dayStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
   dayEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
@@ -291,16 +236,8 @@ let slots = (params) => {
       slotEndTime: slotEndTime,
       isBooking: true,
       slot: slotCount
-    });    
-    // const slotEndTimef = moment(slotEndTime, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
-    // const slotEndTimewf = moment(slotEndTime)    
-
-    // if(slotEndTimewf < bookingEndTime){
-      
-    // }    
+    });
   }
-  //console.log('availLocations : ', availLocations);
-  //console.log('availTimes : ', availTimes);
   result.locationAvailable = availLocations
   result.availableTimes = availTimes
   result.dayStartTime = dayStartTime.format(dateFormat)
@@ -309,62 +246,57 @@ let slots = (params) => {
   return result;
 }
 
-let compareTwoSlots =  (list_one, list_two) => {
+let compareTwoSlots = (list_one, list_two) => {
   let list_availTimes = [];
   let eventResultCount = 1;
-  list_two.forEach((events) => {
-    let s_start;
-    let s_end;
-    let s_start_sec;
-    let s_end_sec
-    let e_start
-    let e_end
-    let e_start_sec
-    let e_end_sec
+  //list_two.forEach((events) => {
+  let events_ar = list_two[0].availableTimes
+  let staff_ar = list_one.availableTimes[0]
 
-    //console.log('list_one.availableTimes : ', list_one.availableTimes)
-    //console.log('events.availableTimes : ', events.availableTimes)
-let i =0;
-let j = 0;
+  console.log('events_ar : ', events_ar)
+  console.log('staff_ar : ', staff_ar)
 
-    list_one.availableTimes.forEach((staffsAvail) => {
+  for (let r = 0; r < events_ar.length; r++) {
+    let s_start;    
+    let s_start_sec;    
+    let e_start    
+    let e_start_sec    
+
+    let i = 0;
+    let j = 0;
+
+
+    //list_one.availableTimes.forEach((list_one.availableTimes[q]) => {
+    for (let q = 0; q < staff_ar.length; q++) {
       i++;
-      console.log('staffsAvail Loop Count  : ', i)
-      s_start = moment(new Date(staffsAvail.slotStartTime), "YYYY-MM-DDTHH:mm:ss")
-      s_end = moment(new Date(staffsAvail.slotEndTime), "YYYY-MM-DDTHH:mm:ss")
-
+      console.log('staff_ar[q] Loop Count  : ', i)
+      s_start = moment(new Date(staff_ar[q].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
       s_start_sec = moment.duration(s_start).asSeconds()
-      s_end_sec = moment.duration(s_end).asSeconds()
 
-      //console.log(`Staff slotStartTime : ${staffsAvail.slotStartTime} - as seconds ${s_start_sec} `)
-      for(let k=0; k < events.availableTimes.length-1; k++){
+      //console.log(`Staff slotStartTime : ${staff_ar[q].slotStartTime} - as seconds ${s_start_sec} `)
+      for (let k = 0; k < events_ar.length; k++) {
         j++;
         console.log('events.availableTimes[k] Loop Count  : ', j)
+        for (let l = 0; l < events_ar[k].length; l++) {
+          e_start = moment(new Date(events_ar[k][l].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
+          e_start_sec = moment.duration(e_start).asSeconds()
 
-        e_start = moment(new Date(events.availableTimes[k].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
-        e_end = moment(new Date(events.availableTimes[k].slotEndTime), "YYYY-MM-DDTHH:mm:ss")
-
-        e_start_sec = moment.duration(e_start).asSeconds()
-        e_end_sec = moment.duration(e_end).asSeconds()
-
-        if (s_start_sec == e_start_sec) {
-          console.log(`True : Event slotStartTime : ${events.availableTimes[k].slotStartTime} - Staff slotStartTime : ${staffsAvail.slotStartTime} `)
-          let comObj = new customSlot(true, staffsAvail.slotEndTime, staffsAvail.slotStartTime, staffsAvail._id);
-          list_availTimes.push(comObj)
-        } else {
-          console.log(`False : Event slotStartTime : ${events.availableTimes[k].slotStartTime} - Staff slotStartTime : ${staffsAvail.slotStartTime} `)
-          let comObj = new customSlot(false, staffsAvail.slotEndTime, staffsAvail.slotStartTime, staffsAvail._id);
-          list_availTimes.push(comObj)
+          if (s_start_sec == e_start_sec) {
+            console.log(`True : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+            staff_ar[q].isBooking = true
+            const tindex = events_ar[k].map(e => e.slotStartTime).indexOf(events_ar[k][l].slotStartTime);
+            events_ar[k].splice(tindex, 1)
+          } else {
+            console.log(`False : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+            staff_ar[q].isBooking = false
+          }
         }
       }
-
-      // events.availableTimes.forEach((eventsAvail) => {
-        
-      // })
-    })
+    }
+    list_availTimes = staff_ar
     console.log('eventResultCount : ', eventResultCount)
     eventResultCount++;
-  })
+  }
   return list_availTimes;
 
 }
@@ -388,166 +320,166 @@ function result(start_date, end_date, pre_booking_day, available_date, disable_d
   this.dayEndTime = dayEndTime
 }
 
-function aggregate_str(_ids, root){
-  let match = { }
+function aggregate_str(_ids, root) {
+  let match = {}
   let obj = root + "._id"
-  match["staff._id"] = ObjectId(_ids)  
+  match["staff._id"] = ObjectId(_ids)
 
   let _root = {}
-  _root["staff"] = "$$ROOT"  
+  _root["staff"] = "$$ROOT"
 
- 
-let pipeline = []
-pipeline.push({
-  "$project": {      
-      "staff": "$$ROOT"
-  }
-},
-{
-  "$lookup": {
-      "localField": "staff.staff_detail_id",
-      "from": "staffdetails",
-      "foreignField": "_id",
-      "as": "staffdetails"
-  }
-},
-{
-  "$unwind": {
-      "path": "$staffdetails",
-      "preserveNullAndEmptyArrays": false
-  }
-},
-{
-  "$lookup": {
-      "localField": "staffdetails.events_ids",
-      "from": "events",
-      "foreignField": "_id",
-      "as": "events"
-  }
-})
-if(root === 'staff'){
+
+  let pipeline = []
   pipeline.push({
-    "$lookup": {
+    "$project": {
+      "staff": "$$ROOT"
+    }
+  },
+    {
+      "$lookup": {
+        "localField": "staff.staff_detail_id",
+        "from": "staffdetails",
+        "foreignField": "_id",
+        "as": "staffdetails"
+      }
+    },
+    {
+      "$unwind": {
+        "path": "$staffdetails",
+        "preserveNullAndEmptyArrays": false
+      }
+    },
+    {
+      "$lookup": {
+        "localField": "staffdetails.events_ids",
+        "from": "events",
+        "foreignField": "_id",
+        "as": "events"
+      }
+    })
+  if (root === 'staff') {
+    pipeline.push({
+      "$lookup": {
         "localField": "staffdetails.timing_ids",
         "from": "timings",
         "foreignField": "_id",
         "as": "timings"
-    }
-  },
-  {
-    '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
-  },
-  {
-    '$lookup': {
-      localField: 'staffdetails.business_id',
-      from: 'business',
-      foreignField: '_id',
-      as: 'staffBusiness'
-    }
-  },
-  {
-    '$lookup': {
-      localField: 'staffBusiness.business_info_ids',
-      from: 'businessinfo',
-      foreignField: '_id',
-      as: 'staffBusinessinfo'
-    }
-  },
-  {
-    '$lookup': {
-      localField: 'staffBusinessinfo.timing_ids',
-      from: 'timings',
-      foreignField: '_id',
-      as: 'staffBisTiming'
-    }
-  })
-}
-if(root === 'event'){
-  pipeline.push({
-    "$lookup": {
+      }
+    },
+      {
+        '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+      },
+      {
+        '$lookup': {
+          "localField": 'staffdetails.business_id',
+          "from": 'business',
+          "foreignField": '_id',
+          "as": 'staffBusiness'
+        }
+      },
+      {
+        '$lookup': {
+          "localField": 'staffBusiness.business_info_ids',
+          "from": 'businessinfo',
+          "foreignField": '_id',
+          "as": 'staffBusinessinfo'
+        }
+      },
+      {
+        '$lookup': {
+          "localField": 'staffBusinessinfo.timing_ids',
+          "from": 'timings',
+          "foreignField": '_id',
+          "as": 'staffBisTiming'
+        }
+      })
+  }
+  if (root === 'event') {
+    pipeline.push({
+      "$lookup": {
         "localField": "events.timing_ids",
         "from": "timings",
         "foreignField": "_id",
         "as": "timings"
-    }
-  },
-  {
-    '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
-  },
-  {
-    '$lookup': {
-      localField: 'events.business_id',
-      from: 'business',
-      foreignField: '_id',
-      as: 'eventsBusiness'
-    }
-  },
-  {
-    '$lookup': {
-      localField: 'eventsBusiness.business_info_ids',
-      from: 'businessinfo',
-      foreignField: '_id',
-      as: 'eventsBusinessinfo'
-    }
-  },
-  {
-    '$lookup': {
-      localField: 'eventsBusinessinfo.timing_ids',
-      from: 'timings',
-      foreignField: '_id',
-      as: 'eventsBisTiming'
-    }
+      }
+    },
+      {
+        '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
+      },
+      {
+        '$lookup': {
+          "localField": 'events.business_id',
+          "from": 'business',
+          "foreignField": '_id',
+          "as": 'eventsBusiness'
+        }
+      },
+      {
+        '$lookup': {
+          "localField": 'eventsBusiness.business_info_ids',
+          "from": 'businessinfo',
+          "foreignField": '_id',
+          "as": 'eventsBusinessinfo'
+        }
+      },
+      {
+        '$lookup': {
+          "localField": 'eventsBusinessinfo.timing_ids',
+          "from": 'timings',
+          "foreignField": '_id',
+          "as": 'eventsBisTiming'
+        }
+      }
+    )
   }
-  )
-}
 
-pipeline.push(
-  {
-    "$lookup": {
+  pipeline.push(
+    {
+      "$lookup": {
         "localField": "timings.location_setting_ids",
         "from": "locationsetting",
         "foreignField": "_id",
         "as": "locationsetting"
-    }
-},
-{
-    "$lookup": {
+      }
+    },
+    {
+      "$lookup": {
         "localField": "locationsetting.location_id",
         "from": "location",
         "foreignField": "_id",
         "as": "location"
-    }
-},
-{
-    "$match": match
-})
-if(root === 'event'){
-  pipeline.push({
-    "$project": {
+      }
+    },
+    {
+      "$match": match
+    })
+  if (root === 'event') {
+    pipeline.push({
+      "$project": {
         "_id": "$staff._id",
         "events": "$events._id",
-        "business_timings":"$events.business_timings",
+        "business_timings": "$events.business_timings",
         "locationsetting": "$locationsetting",
         "locationstype": "$location.type",
         "timings": "$timings",
         "eventsBizTimings": '$eventsBisTiming'
-    }
-  })  
-}
-if(root === 'staff'){
-  pipeline.push({
-    "$project": {
+      }
+    })
+  }
+  if (root === 'staff') {
+    pipeline.push({
+      "$project": {
         "_id": "$staff._id",
         "staff": "$staff",
-        "business_timings":"$staffdetails.business_timings",
+        "business_timings": "$staffdetails.business_timings",
         "event": "$events._id",
         "locationsetting": "$locationsetting",
         "locationtype": "$location.type",
         "timings": "$timings",
-        "staffBizTimings":"$staffBisTiming"
-    }
-  })  
-}
+        "staffBizTimings": "$staffBisTiming"
+      }
+    })
+  }
 
-return pipeline
+  return pipeline
 }
