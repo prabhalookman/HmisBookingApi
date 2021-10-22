@@ -10,7 +10,15 @@ db.getCollection("staff").aggregate([
     },
     {
         '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
-    },    
+    },
+    {
+        '$lookup': {
+            localField: 'staffdetails.events_ids',
+            from: 'events',
+            foreignField: '_id',
+            as: 'events'
+        }
+    },
     {
         '$lookup': {
             localField: 'staffdetails.timing_ids',
@@ -19,6 +27,9 @@ db.getCollection("staff").aggregate([
             as: 'timings'
         }
     },    
+    {
+        '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
+    },
     {
         '$lookup': {
             localField: 'staffdetails.business_id',
