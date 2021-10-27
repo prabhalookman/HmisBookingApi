@@ -25,30 +25,33 @@ export default {
         //   dayStartTime: "",
         //   dayEndTime:""
         // }
-        let staffResult;
+        //let staffResult;
         let staffdetail_ag_rs ;
         let events_ag_rs;
         let staffDetails =await models.Staff.aggregate(get_staffdetail_agg(args.staff_ids));
 
         if(staffDetails.business_timings){
-
-          let staff_pipeline = aggregate_str(args.staff_ids, 'staff')
+          
+          //Staff
+          let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff')
           //console.log(' staff_pipeline : ', staff_pipeline)
           staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
 
           //Events
-          let event_pipeline = aggregate_str(args.staff_ids, 'event')
+          let event_pipeline = aggregate_bhf(args.staff_ids, 'event')
           //console.log('event_pipeline : ', event_pipeline)
           events_ag_rs = await models.Staff.aggregate(event_pipeline);
           console.log('events_ag_rs : ', events_ag_rs.length)
 
         } else {
-          let staff_pipeline = aggregate_str(args.staff_ids, 'staff')
+          //Staff
+          let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff')
           //console.log(' staff_pipeline : ', staff_pipeline)
           staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
+          console.log('events_ag_rs : ', staffdetail_ag_rs.length)
 
           //Events
-          let event_pipeline = aggregate_str(args.staff_ids, 'event')
+          let event_pipeline = aggregate_bhf(args.staff_ids, 'event')
           //console.log('event_pipeline : ', event_pipeline)
           events_ag_rs = await models.Staff.aggregate(event_pipeline);
           console.log('events_ag_rs : ', events_ag_rs.length)
@@ -72,10 +75,27 @@ export default {
         console.log('minDate : ', minDate.format(dateFormat));
         console.log('maxDate : ', maxDate.format(dateFormat));
 
-        if (staffdetail_ag_rs) {
-          let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-          staffResult = await getting_slots(staffdetail_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+        // if (staffdetail_ag_rs) {
+        //   let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+        //   staffResult = await getting_slots(staffdetail_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+        // }
+
+        let newStaffs = null;
+        let staffList = []
+        let staffResult = [];
+
+        if (staffdetail_ag_rs && staffdetail_ag_rs.length > 0) {
+          for (let k = 0; k < staffdetail_ag_rs.length; k++) {
+            console.log("staffdetail_ag_rs  id : ", staffdetail_ag_rs[k]._id)
+            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+            if(staffdetail_ag_rs[k].location_type.includes(args.location)){
+              newStaffs = await getting_slots(staffdetail_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+              newStaffs ? staffResult.push(newStaffs) : 0
+            }
+          }
         }
+
+
         let newEvents = null;
         let eventList = []
         let eventResult = [];
@@ -89,9 +109,10 @@ export default {
           }
         }
 
-        staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
-        console.log("Final Result : ", staffResult.availableTimes)
-        //console.log('staffResult : ', staffResult.availableTimes )
+        staffResult.availableTimes = await checkBooking(staffResult, args.date, models)
+        //staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
+        // console.log("Final Result : ", staffResult.availableTimes)
+        // console.log('staffResult : ', staffResult.availableTimes )
 
         return staffResult
       } catch (error) {
@@ -157,8 +178,10 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
       bookingStartDate.add(1, 'days');
     }
     
+    let locationAvailable = [];
+
     if (details.timings) {
-      //details.timings.forEach((elem) => {
+      //details.timings.forEach((elem) => {        
         details.timings.timings.forEach((e1) => {
           let selectedDayName = moment(new Date(selected_date), "YYYY-MM-DDTHH:mm:ss").format('dddd')
           let timingsStartTimeDay = e1.work_day_name  //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
@@ -218,6 +241,7 @@ let slots = (params) => {
 
   const startSeconds = moment.duration(dayStartTime).asSeconds()
   const endSeconds = moment.duration(dayEndTime).asSeconds()
+
 
   const timingsStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
   const timingsEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
@@ -318,6 +342,60 @@ let compareTwoSlots = (list_one, list_two) => {
   return list_availTimes;
 
 }
+
+let checkBooking = async (list_one, select_date, models, args_site_id, args_workspace_id ) => {
+  try {
+
+    let selectedDate = moment(select_date, "YYYY-MM-DDTHH:mm:sss");
+    console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
+
+    let bookingDetails = await models.Booking.find({ site_id: args_site_id, workspace_ids: args_workspace_id, appointment_start_time: { $gt: selectedDate, $lt: selectedDate.add(2, 'days') } })
+
+    //Staff
+    let list_availTimes = [];
+    let staff_ar = list_one.availableTimes
+
+    for (let q = 0; q < staff_ar.length; q++) {
+      i++;
+      console.log('staff_ar[q] Loop Count  : ', i)
+      s_start = moment(new Date(staff_ar[q].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
+      s_end = moment(new Date(staff_ar[q].slotEndTime), "YYYY-MM-DDTHH:mm:ss")
+      s_start_sec = moment.duration(s_start).asSeconds()
+      s_end_sec = moment.duration(s_end).asSeconds()
+
+      //Booking
+      bookingDetails.forEach((e1) => {
+
+        let dayStartTime = '';
+        let dayEndTime = '';
+
+        dayStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
+
+        const b_start_sec = moment.duration(dayStartTime).asSeconds()
+
+        const timingsStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
+
+        if (b_start_sec >= s_start_sec && b_start_sec <= s_end_sec) {
+          console.log(`True : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          staff_ar[q].isBooking = true
+          // const tindex = events_ar[k].map(e => e.slotStartTime).indexOf(events_ar[k][l].slotStartTime);
+          // events_ar[k].splice(tindex, 1)
+        } else {
+          console.log(`False : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          staff_ar[q].isBooking = false
+        }
+
+      })
+    }
+    return staff_ar
+
+  } catch (er) {
+    console.log('checkBooking Error : ', er)
+
+  }
+
+}
+
 function customSlot(isBooking, slotEndTime, slotStartTime, id) {
   this.isBooking = isBooking;
   this.slotEndTime = slotEndTime;
@@ -338,7 +416,7 @@ function result(start_date, end_date, pre_booking_day, available_date, disable_d
   this.dayEndTime = dayEndTime
 }
 
-function aggregate_str(_ids, root, bizhours) {
+function aggregate_bhf(_ids, root, bizhours) {
   let match = {}
 
   match["staff._id"] = ObjectId(_ids)
@@ -349,32 +427,24 @@ function aggregate_str(_ids, root, bizhours) {
 
   let pipeline = []
   if (!bizhours) { // Business Hours : False    
-    if (root == 'events') {
-      match["'events.business_timings'"]  = false
+    if (root == 'event') {
+      match['events.business_timings']  = false
       pipeline.push(
         { '$project': { staff: '$$ROOT' } },
         {
           '$lookup': {
-            localField: 'staff.staff_detail_id',
-            from: 'staffdetails',
-            foreignField: '_id',
-            as: 'staffdetails'
+            'localField': 'staff.staff_detail_id',
+            'from': 'staffdetails',
+            'foreignField': '_id',
+            'as': 'staffdetails'
           }
         },
         {
           '$lookup': {
-            localField: 'staffdetails.events_ids',
-            from: 'events',
-            foreignField: '_id',
-            as: 'events'
-          }
-        },
-        {
-          '$lookup': {
-            localField: 'events.timing_ids',
-            from: 'timings',
-            foreignField: '_id',
-            as: 'timings'
+            'localField': 'staffdetails.events_ids',
+            'from': 'events',
+            'foreignField': '_id',
+            'as': 'events'
           }
         },
         {
@@ -382,25 +452,36 @@ function aggregate_str(_ids, root, bizhours) {
         },
         {
           '$lookup': {
-            localField: 'timings.location_setting_ids',
-            from: 'locationsetting',
-            foreignField: '_id',
-            as: 'locationsetting'
+            'localField': 'events.timing_ids',
+            'from': 'timings',
+            'foreignField': '_id',
+            'as': 'timings'
+          }
+        },
+        {
+          '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
+        },
+        {
+          '$lookup': {
+            'localField': 'timings.location_setting_ids',
+            'from': 'locationsetting',
+            'foreignField': '_id',
+            'as': 'locationsetting'
           }
         },
         {
           '$lookup': {
-            localField: 'locationsetting.location_id',
-            from: 'location',
-            foreignField: '_id',
-            as: 'location'
+            'localField': 'locationsetting.location_id',
+            'from': 'location',
+            'foreignField': '_id',
+            'as': 'location'
           }
         },
         { '$match': match},
         {
           '$project': {
             timings: '$timings',
-            locationsetting_id: '$llocationsetting._id',
+            locationsetting_id: '$locationsetting._id',
             location_type: '$location.type',
           }
         })
@@ -458,6 +539,7 @@ function aggregate_str(_ids, root, bizhours) {
   } else {
     // Business Hours : True    
   }
+  //console.log('pipeline : ', pipeline);
   return pipeline
 }
 function get_staffdetail_agg(_ids) {
