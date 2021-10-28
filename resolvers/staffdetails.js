@@ -109,7 +109,7 @@ export default {
           }
         }
 
-        staffResult.availableTimes = await checkBooking(staffResult, args.date, models)
+        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, models)
         //staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
         // console.log("Final Result : ", staffResult.availableTimes)
         // console.log('staffResult : ', staffResult.availableTimes )
@@ -234,25 +234,27 @@ let slots = (params) => {
   let availTimes = [];
   let dayStartTime = '';
   let dayEndTime = '';
-  let availLocations = [];  
+  let availLocations = [];
+  let minutesFormat = "YYYY-MM-DDTHH:mm";
+  let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
 
-  dayStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
-  dayEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
+  dayStartTime = moment(new Date(start_time), secondsFormat)
+  dayEndTime = moment(new Date(end_time), secondsFormat)
 
   const startSeconds = moment.duration(dayStartTime).asSeconds()
   const endSeconds = moment.duration(dayEndTime).asSeconds()
 
 
-  const timingsStartTime = moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss")
-  const timingsEndTime = moment(new Date(end_time), "YYYY-MM-DDTHH:mm:ss")
+  const timingsStartTime = moment(new Date(start_time), secondsFormat)
+  const timingsEndTime = moment(new Date(end_time), secondsFormat)
 
   //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
 
   const startDateStr = selectedDate.year() + '-' + (selectedDate.month() + 1) + '-' + selectedDate.date() + 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
   const endDateStr = selectedDate.year() + '-' + (selectedDate.month() + 1) + '-' + selectedDate.date() + 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
 
-  const selectedStartTime = moment(startDateStr, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
-  const selectedEndTime = moment(endDateStr, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss");
+  const selectedStartTime = moment(startDateStr, secondsFormat).format(secondsFormat);
+  const selectedEndTime = moment(endDateStr, secondsFormat).format(secondsFormat);
 
   const bookingStartTime = moment(selectedStartTime)
   const bookingEndTime = moment(selectedEndTime)
@@ -268,14 +270,14 @@ let slots = (params) => {
   let slotEndTime = '';
   while (bookingStartTime <= bookingEndTime) {
     slotCount++;
-    displaySettings == '12' ? slotStartTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotStartTime = bookingStartTime.format(minutesFormat)
+    displaySettings == '12' ? slotStartTime = moment(bookingStartTime, [secondsFormat]).format(secondsFormat) : slotStartTime = bookingStartTime.format(secondsFormat)
     bookingStartTime.add(clientSlot, 'minutes');
-    displaySettings == '12' ? slotEndTime = moment(bookingStartTime, ["YYYY-MM-DDTHH:mm"]).format("YYYY-MM-DDTHH:mm") : slotEndTime = timingsStartTime.format(minutesFormat) //.format("hh:mm A")
+    displaySettings == '12' ? slotEndTime = moment(bookingStartTime, [secondsFormat]).format(secondsFormat) : slotEndTime = timingsStartTime.format(secondsFormat) //.format("hh:mm A")
 
     availTimes.push({
       _id: _id,
-      slotStartTime: slotStartTime,
-      slotEndTime: slotEndTime,
+      slotStartTime: moment.utc(slotStartTime).format(),
+      slotEndTime: moment.utc(slotEndTime).format(),
       isBooking: true,
       slot: slotCount
     });
@@ -346,22 +348,32 @@ let compareTwoSlots = (list_one, list_two) => {
 let checkBooking = async (list_one, select_date, models, args_site_id, args_workspace_id ) => {
   try {
 
-    let selectedDate = moment(select_date, "YYYY-MM-DDTHH:mm:sss");
-    console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
+    let selectedDate = moment.utc('2021-09-29') //moment.utc('2021-09-29T12:00:14.000+00:00') moment(new Date ('2021-09-29T12:00:00.000+00:00'), "YYYY-MM-DDTHH:mm:sss").toUTCString();
+    console.log(`selectedDate.isValid() : ${selectedDate.isValid()}  : ${selectedDate}`) //
 
-    let bookingDetails = await models.Booking.find({ site_id: args_site_id, workspace_ids: args_workspace_id, appointment_start_time: { $gt: selectedDate, $lt: selectedDate.add(2, 'days') } })
+    let bookingDetails = await models.Booking.find({appointment_start_time: {$gte: moment.utc('2021-09-29')}   })//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
 
     //Staff
     let list_availTimes = [];
-    let staff_ar = list_one.availableTimes
+    let staff_ar = list_one.availableTimes[0]
 
-    for (let q = 0; q < staff_ar.length; q++) {
-      i++;
-      console.log('staff_ar[q] Loop Count  : ', i)
-      s_start = moment(new Date(staff_ar[q].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
-      s_end = moment(new Date(staff_ar[q].slotEndTime), "YYYY-MM-DDTHH:mm:ss")
-      s_start_sec = moment.duration(s_start).asSeconds()
-      s_end_sec = moment.duration(s_end).asSeconds()
+    // let s_start;
+    // let s_end;
+    // let s_start_sec;
+    // let s_end_sec;
+    console.log('staff_ar.length  : ', staff_ar.length)
+    for (let q = 0; q < staff_ar.length; q++) {      
+       console.log('staff_ar[q] Loop Count  : ', q)
+      // console.log('staff_ar[q].slotStartTime  : ', staff_ar[q].slotStartTime)
+      // console.log('typeOf  : ', typeof(staff_ar[q].slotStartTime))
+      
+
+      let s_start = moment(new Date(staff_ar[q].slotStartTime))      
+      //console.log(`s_start :  ${s_start.isValid()} - ${s_start}`)
+
+      let s_end = moment(new Date(staff_ar[q].slotEndTime))
+      let s_start_sec = moment.duration(s_start).asSeconds()
+      let s_end_sec = moment.duration(s_end).asSeconds()
 
       //Booking
       bookingDetails.forEach((e1) => {
@@ -369,19 +381,24 @@ let checkBooking = async (list_one, select_date, models, args_site_id, args_work
         let dayStartTime = '';
         let dayEndTime = '';
 
-        dayStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
+        dayStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss") //moment.utc(e1.appointment_start_time).format()
+        //let temp = moment(new Date(dayStartTime))
 
         const b_start_sec = moment.duration(dayStartTime).asSeconds()
 
         const timingsStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
 
+        console.log(`s_start : ${s_start} - s_start_sec : ${s_start_sec} `)
+        console.log(`s_end : ${s_end} - s_end_sec : ${s_end_sec} `)
+        console.log(`B dayStartTime : ${dayStartTime} - b_start_sec : ${b_start_sec} - Db - ${e1.appointment_start_time} `)
+
         if (b_start_sec >= s_start_sec && b_start_sec <= s_end_sec) {
-          console.log(`True : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          //console.log(`True : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
           staff_ar[q].isBooking = true
           // const tindex = events_ar[k].map(e => e.slotStartTime).indexOf(events_ar[k][l].slotStartTime);
           // events_ar[k].splice(tindex, 1)
         } else {
-          console.log(`False : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          //console.log(`False : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
           staff_ar[q].isBooking = false
         }
 

@@ -12,7 +12,8 @@ export default {
       return value; // value from the client
     },
     serialize(value) {
-      let respo = moment.tz(value,"YYYYMMDDHHmm","Asia/Kolkata").toISOString();
+      //let respo = moment.tz(value,"YYYYMMDDHHmm","Asia/Kolkata").toISOString();
+      let respo = moment.utc(value).format();
       return new Date(respo); // value sent to the client
     },
     parseLiteral(ast) {
