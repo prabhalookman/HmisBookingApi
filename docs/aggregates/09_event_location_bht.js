@@ -7,7 +7,7 @@ db.getCollection("staff").aggregate([
             foreignField: '_id',
             as: 'staffdetails'
         }
-    },    
+    },
     {
         '$lookup': {
             localField: 'staffdetails.events_ids',
@@ -21,23 +21,36 @@ db.getCollection("staff").aggregate([
     },
     {
         '$lookup': {
-            localField: 'events.timing_ids',
+            localField: 'events.business_id',
+            from: 'business',
+            foreignField: '_id',
+            as: 'business'
+        }
+    },
+    {
+        '$lookup': {
+            localField: 'business.business_info_ids',
+            from: 'businessinfo',
+            foreignField: '_id',
+            as: 'businessinfo'
+        }
+    },
+    {
+        '$lookup': {
+            localField: 'businessinfo.timing_ids',
             from: 'timings',
             foreignField: '_id',
             as: 'timings'
         }
-    },    
-    {
-        '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
     },
     {
         '$lookup': {
-            localField: 'timings.location_setting_ids',
+            localField: 'events.location_setting_ids',
             from: 'locationsetting',
             foreignField: '_id',
             as: 'locationsetting'
         }
-    },    
+    },
     {
         '$lookup': {
             localField: 'locationsetting.location_id',
@@ -45,15 +58,14 @@ db.getCollection("staff").aggregate([
             foreignField: '_id',
             as: 'location'
         }
-    },    
-    { '$match': { 'staff._id': ObjectId("615589d480cdf8b12c8530b9"), 'events.business_timings' : false } },
+    },
+    
+    { '$match': { 'staff._id': ObjectId("614d6350b3df7dad03d6cdb1") } },
     {
-        '$project': { 
-            events: '$events._id',
+        '$project': {
+            event: '$events._id',            
             timings: '$timings',
-            locationsetting_id: '$locationsetting._id',
-            
-            location_type: '$location.type',
+            location: '$location.type'
         }
-    }    
+    }
 ])

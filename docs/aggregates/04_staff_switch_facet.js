@@ -11,9 +11,29 @@ db.getCollection("staff").aggregate([
     { '$match': { 'staff._id': ObjectId("614d6350b3df7dad03d6cdb1") } },
     {
         "$facet": {
-            'one': [
+            'staffDetails': [
+                {
+                    '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+                },
+                {
+                    '$project': {
+                        'business_timings': '$staffdetails.business_timings',
+                    }
+                }
 
-
+            ],
+            'events': [
+                {
+                    "$lookup": {
+                        "localField": "staff.staff_detail_id",
+                        "from": "staffdetails",
+                        "foreignField": "_id",
+                        "as": "staffdetails"
+                    }
+                },
+                {
+                    '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+                },
                 {
                     '$lookup': {
                         localField: 'staffdetails.events_ids',
@@ -26,26 +46,18 @@ db.getCollection("staff").aggregate([
                     '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
                 },
                 {
-                    '$lookup': {
-                        localField: 'staffdetails.timing_ids',
-                        from: 'timings',
-                        foreignField: '_id',
-                        as: 'timings'
-                    }
-                },
-                {
                     '$project': {
-                        'event': '$events'
+                        'events': '$events._id',
+                        'event_business_timings': '$events.business_timings',
                     }
                 }
-            ],
-            'two': [
-                {
-                    '$project': {
-                        staffTimings: '$timings',
-                    }
-                },
             ]
+        }
+    },
+    {
+        '$project': {
+            'staffDetails': '$staffDetails',
+            'events': '$events'
         }
     }
 ])

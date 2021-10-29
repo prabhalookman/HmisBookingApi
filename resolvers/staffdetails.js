@@ -26,37 +26,50 @@ export default {
         //   dayEndTime:""
         // }
         //let staffResult;
-        let staffdetail_ag_rs ;
-        let events_ag_rs;
+        let staffdetail_ag_rs ;        
         let staffDetails =await models.Staff.aggregate(get_staffdetail_agg(args.staff_ids));
 
         if(staffDetails.business_timings){
           
-          //Staff
-          let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff')
-          //console.log(' staff_pipeline : ', staff_pipeline)
+          let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff', true)
           staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
-
-          //Events
-          let event_pipeline = aggregate_bhf(args.staff_ids, 'event')
-          //console.log('event_pipeline : ', event_pipeline)
-          events_ag_rs = await models.Staff.aggregate(event_pipeline);
-          console.log('events_ag_rs : ', events_ag_rs.length)
 
         } else {
-          //Staff
-          let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff')
-          //console.log(' staff_pipeline : ', staff_pipeline)
+
+          let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff', false)
           staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
           console.log('events_ag_rs : ', staffdetail_ag_rs.length)
-
-          //Events
-          let event_pipeline = aggregate_bhf(args.staff_ids, 'event')
-          //console.log('event_pipeline : ', event_pipeline)
-          events_ag_rs = await models.Staff.aggregate(event_pipeline);
-          console.log('events_ag_rs : ', events_ag_rs.length)
-          
         }
+
+        let newEvents = null;
+        let eventList = []
+        let eventResult = [];
+        let events_ag_rs = [];
+
+        if (staffDetails.events && staffDetails.events.length > 0) {
+          for (let k = 0; k < staffDetails.events.length; k++) {
+            console.log("staffDetails.events  id : ", staffDetails.events[k]._id)
+            if(staffDetails[k].events.event_business_timings){          
+
+              let event_pipeline = aggregate_bhf(args.staff_ids, 'event', ture)
+              events_ag_rs = await models.Staff.aggregate(event_pipeline);
+              console.log('events_ag_rs : ', events_ag_rs.length)
+    
+            } else {
+
+              let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false)
+              events_ag_rs = await models.Staff.aggregate(event_pipeline);
+              console.log('events_ag_rs : ', events_ag_rs.length)          
+            }
+
+            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+            newEvents = await getting_slots(events_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+            newEvents ? eventResult.push(newEvents) : 0
+            
+          }
+        }
+
+        
 
         let displaySettings = '12'
         let minutesFormat = "HH:mm";
@@ -92,20 +105,6 @@ export default {
               newStaffs = await getting_slots(staffdetail_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
               newStaffs ? staffResult.push(newStaffs) : 0
             }
-          }
-        }
-
-
-        let newEvents = null;
-        let eventList = []
-        let eventResult = [];
-
-        if (events_ag_rs && events_ag_rs.length > 0) {
-          for (let k = 0; k < events_ag_rs.length; k++) {
-            console.log("events_ag_rs  id : ", events_ag_rs[k]._id)
-            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            newEvents = await getting_slots(events_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-            newEvents ? eventResult.push(newEvents) : 0
           }
         }
 
@@ -330,10 +329,11 @@ let compareTwoSlots = (list_one, list_two) => {
             staff_ar[q].isBooking = true
             const tindex = events_ar[k].map(e => e.slotStartTime).indexOf(events_ar[k][l].slotStartTime);
             events_ar[k].splice(tindex, 1)
-          } else {
-            console.log(`False : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
-            staff_ar[q].isBooking = false
-          }
+          } 
+          // else {
+          //   console.log(`False : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          //   staff_ar[q].isBooking = false
+          // }
         }
       }
     }
@@ -348,10 +348,14 @@ let compareTwoSlots = (list_one, list_two) => {
 let checkBooking = async (list_one, select_date, models, args_site_id, args_workspace_id ) => {
   try {
 
-    let selectedDate = moment.utc('2021-09-29') //moment.utc('2021-09-29T12:00:14.000+00:00') moment(new Date ('2021-09-29T12:00:00.000+00:00'), "YYYY-MM-DDTHH:mm:sss").toUTCString();
-    console.log(`selectedDate.isValid() : ${selectedDate.isValid()}  : ${selectedDate}`) //
-
-    let bookingDetails = await models.Booking.find({appointment_start_time: {$gte: moment.utc('2021-09-29')}   })//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
+    let selectedDate = moment(new Date(select_date), "YYYY-MM-DDTHH:mm:ss").toISOString() //moment.utc('2021-09-29T12:00:14.000+00:00') moment(new Date ('2021-09-29T12:00:00.000+00:00'), "YYYY-MM-DDTHH:mm:sss").toUTCString();
+    let selectedDatePlus = moment(new Date(select_date), "YYYY-MM-DDTHH:mm:ss").add(1, 'days').toISOString()
+    
+    //console.log('selectedDate : ', selectedDate)
+    //console.log(`selectedDate.isValid() : ${selectedDate.isValid()}  : ${selectedDate.toISOString()}`) // 
+    //console.log(`selectedDatePlus.isValid() : ${selectedDatePlus.isValid()}  : ${selectedDatePlus.toISOString()}`) // 
+    
+    let bookingDetails = await models.Booking.find({appointment_start_time: {$gte: selectedDate, $lte: selectedDatePlus}})//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
 
     //Staff
     let list_availTimes = [];
@@ -369,40 +373,38 @@ let checkBooking = async (list_one, select_date, models, args_site_id, args_work
       
 
       let s_start = moment(new Date(staff_ar[q].slotStartTime))      
-      //console.log(`s_start :  ${s_start.isValid()} - ${s_start}`)
-
       let s_end = moment(new Date(staff_ar[q].slotEndTime))
       let s_start_sec = moment.duration(s_start).asSeconds()
       let s_end_sec = moment.duration(s_end).asSeconds()
 
       //Booking
-      bookingDetails.forEach((e1) => {
+      //bookingDetails.forEach((e1) => {
+        for (let l = 0; l < bookingDetails.length; l++) {
 
         let dayStartTime = '';
         let dayEndTime = '';
 
-        dayStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss") //moment.utc(e1.appointment_start_time).format()
+        dayStartTime = moment(new Date(bookingDetails[l].appointment_start_time), "YYYY-MM-DDTHH:mm:ss") //moment.utc(bookingDetails[l].appointment_start_time).format()
         //let temp = moment(new Date(dayStartTime))
 
         const b_start_sec = moment.duration(dayStartTime).asSeconds()
 
-        const timingsStartTime = moment(new Date(e1.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
+        const timingsStartTime = moment(new Date(bookingDetails[l].appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
 
-        console.log(`s_start : ${s_start} - s_start_sec : ${s_start_sec} `)
-        console.log(`s_end : ${s_end} - s_end_sec : ${s_end_sec} `)
-        console.log(`B dayStartTime : ${dayStartTime} - b_start_sec : ${b_start_sec} - Db - ${e1.appointment_start_time} `)
+        // console.log(`s_start : ${s_start} - s_start_sec : ${s_start_sec} `)
+        // console.log(`s_end : ${s_end} - s_end_sec : ${s_end_sec} `)
+        // console.log(`B dayStartTime : ${dayStartTime} - b_start_sec : ${b_start_sec} - Db - ${bookingDetails[l].appointment_start_time} `)
 
         if (b_start_sec >= s_start_sec && b_start_sec <= s_end_sec) {
-          //console.log(`True : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
           staff_ar[q].isBooking = true
-          // const tindex = events_ar[k].map(e => e.slotStartTime).indexOf(events_ar[k][l].slotStartTime);
-          // events_ar[k].splice(tindex, 1)
+           const tindex = bookingDetails.map(e => e.appointment_start_time ).indexOf(bookingDetails[l].appointment_start_time );
+           bookingDetails.splice(tindex, 1)
+           break;
         } else {
-          //console.log(`False : Event slotStartTime : ${b_start_sec} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
           staff_ar[q].isBooking = false
         }
 
-      })
+      }
     }
     return staff_ar
 
@@ -554,7 +556,8 @@ function aggregate_bhf(_ids, root, bizhours) {
       )
     }
   } else {
-    // Business Hours : True    
+    // Business Hours : True
+
   }
   //console.log('pipeline : ', pipeline);
   return pipeline
@@ -564,29 +567,70 @@ function get_staffdetail_agg(_ids) {
 
   match["staff._id"] = ObjectId(_ids)
 
-  let _root = {}
-  _root["staff"] = "$$ROOT"
 
   let pipeline = []
-  pipeline.push({        
-    "$project": {
-      "staff": "$$ROOT"
-    }
+
+  pipeline.push({ '$project': { staff: '$$ROOT' } },
+  {
+      '$lookup': {
+          localField: 'staff.staff_detail_id',
+          from: 'staffdetails',
+          foreignField: '_id',
+          as: 'staffdetails'
+      }
   },
-    {
-      "$lookup": {
-        "localField": "staff.staff_detail_id",
-        "from": "staffdetails",
-        "foreignField": "_id",
-        "as": "staffdetails"
+  { '$match': match },
+  {
+      "$facet": {
+          'staffDetails': [
+              {
+                  '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+              },
+              {
+                  '$project': {
+                      'business_timings': '$staffdetails.business_timings',
+                  }
+              }
+
+          ],
+          'events': [
+              {
+                  "$lookup": {
+                      "localField": "staff.staff_detail_id",
+                      "from": "staffdetails",
+                      "foreignField": "_id",
+                      "as": "staffdetails"
+                  }
+              },
+              {
+                  '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+              },
+              {
+                  '$lookup': {
+                      localField: 'staffdetails.events_ids',
+                      from: 'events',
+                      foreignField: '_id',
+                      as: 'events'
+                  }
+              },
+              {
+                  '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
+              },
+              {
+                  '$project': {
+                      'events': '$events._id',
+                      'event_business_timings': '$events.business_timings',
+                  }
+              }
+          ]
       }
-    },    
-    { '$match': match },
-    {
-      '$project': {        
-        'business_timings':'$staffdetails.business_timings'
+  },
+  {
+      '$project': {
+          'staffDetails': '$staffDetails',
+          'events': '$events'
       }
-    })
+  })
   
   return pipeline
 }
