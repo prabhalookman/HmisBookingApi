@@ -45,8 +45,7 @@ export default {
 
         let staffdetail_ag_rs;
         let staffDetail_ar = await models.Staff.aggregate(get_staffdetail_agg(args.staff_ids));
-        let staffDetails = staffDetail_ar[0]
-
+        let staffDetails = staffDetail_ar[0].staffDetails[0]
         if (staffDetails.business_timings) {
 
           let staff_pipeline = aggregate_bht(args.staff_ids, 'staff', true)
@@ -64,10 +63,10 @@ export default {
         let eventResult = [];
         let events_ag_rs = [];
 
-        if (staffDetails.events && staffDetails.events.length > 0) {
-          for (let k = 0; k < staffDetails.events.length; k++) {
-            console.log("staffDetails.events  id : ", staffDetails.events[k]._id)
-            if (staffDetails.events[k].event_business_timings) {
+        if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
+          for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
+            console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k]._id)
+            if (staffDetail_ar[0].events[k].event_business_timings) {
 
               let event_pipeline = aggregate_bht(args.staff_ids, 'event', true)
               events_ag_rs = await models.Staff.aggregate(event_pipeline);
@@ -86,13 +85,6 @@ export default {
 
           }
         }
-
-        
-
-        // if (staffdetail_ag_rs) {
-        //   let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-        //   staffResult = await getting_slots(staffdetail_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-        // }
 
         let newStaffs = null;
         let staffList = []
@@ -182,8 +174,8 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
   let timings_loop = []
   if(details.timings.timings){
     timings_loop = details.timings.timings
-  } else if(details.timings.timings == undefined){
-    timings_loop = details.timings
+  } else if(details.timings.timings == undefined && details.timings.length > 0){
+    timings_loop = details.timings[0].timings
   }
 
   if (details.timings) {
@@ -649,7 +641,7 @@ function aggregate_bht(_ids, root, bizhours) {
         '$project': {
           event: '$events._id',
           timings: '$timings',
-          location: '$location.type'
+          location_type: '$location.type'
         }
       })
   } else {
@@ -708,7 +700,7 @@ function aggregate_bht(_ids, root, bizhours) {
         '$project': {
           event: '$events._id',
           timings: '$timings',
-          location: '$location.type'
+          location_type: '$location.type'
         }
       }
     )
