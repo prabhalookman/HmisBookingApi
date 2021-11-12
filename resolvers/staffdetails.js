@@ -58,34 +58,6 @@ export default {
           console.log('events_ag_rs : ', staffdetail_ag_rs.length)
         }
 
-        let newEvents = null;
-        let eventList = []
-        let eventResult = [];
-        let events_ag_rs = [];
-
-        if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
-          for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
-            console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k]._id)
-            if (staffDetail_ar[0].events[k].event_business_timings) {
-
-              let event_pipeline = aggregate_bht(args.staff_ids, 'event', true)
-              events_ag_rs = await models.Staff.aggregate(event_pipeline);
-              console.log('events_ag_rs : ', events_ag_rs.length)
-
-            } else {
-
-              let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false)
-              events_ag_rs = await models.Staff.aggregate(event_pipeline);
-              console.log('events_ag_rs : ', events_ag_rs.length)
-            }
-
-            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            newEvents = await getting_slots(events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-            newEvents ? eventResult.push(newEvents) : 0
-
-          }
-        }
-
         let newStaffs = null;
         let staffList = []
         let staffResult = [];
@@ -101,8 +73,50 @@ export default {
           }
         }
 
+        let newEvents = null;
+        let eventList = []
+        let eventResult = [];
+        let events_ag_rs = [];
+
+        if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
+          for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
+            console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k].events._id)
+            if(args.event[0] == staffDetail_ar[0].events[k].events._id){
+
+              console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k]._id)
+            if (staffDetail_ar[0].events[k].event_business_timings) {
+
+              let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
+              events_ag_rs = await models.Staff.aggregate(event_pipeline);
+              console.log('events_ag_rs : ', events_ag_rs.length)
+
+            } else {
+
+              let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false, args.event[0])
+              events_ag_rs = await models.Staff.aggregate(event_pipeline);
+              console.log('events_ag_rs : ', events_ag_rs.length)
+            }
+
+            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+            newEvents = await getting_slots(events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+            newEvents ? eventResult.push(newEvents) : 0
+
+            }
+          }
+        }
+
+        
+
         staffResult.availableTimes = await checkBooking(staffResult[0], args.date, models)
-        //staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
+        staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
+        staffResult.start_date = newStaffs.start_date
+        staffResult.end_date = newStaffs.end_date
+        staffResult.pre_booking_day = newStaffs.pre_booking_day
+        staffResult.available_date = newStaffs.available_date
+        staffResult.disable_date = newStaffs.disable_date
+        staffResult.selectedDate = newStaffs.selectedDate
+        staffResult.displaySettings = newStaffs.displaySettings
+        staffResult.locationAvailable = args.location
         // console.log("Final Result : ", staffResult.availableTimes)
         // console.log('staffResult : ', staffResult.availableTimes )
 
@@ -259,7 +273,7 @@ let slots = (params) => {
 
   const startEndDiff = endSeconds - startSeconds
   var myMinutes = Math.floor(startEndDiff / 60);
-
+  
   //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
   const slotDuration = (myMinutes) / clientSlot
 
@@ -276,7 +290,7 @@ let slots = (params) => {
       _id: _id,
       slotStartTime: moment.utc(slotStartTime).format(),
       slotEndTime: moment.utc(slotEndTime).format(),
-      isBooking: true,
+      isBooking: false,
       slot: slotCount
     });
   }
@@ -293,7 +307,7 @@ let compareTwoSlots = (list_one, list_two) => {
   let eventResultCount = 1;
   //list_two.forEach((events) => {
   let events_ar = list_two[0].availableTimes
-  let staff_ar = list_one.availableTimes[0]
+  let staff_ar = list_one.availableTimes//[0]
 
   console.log('events_ar : ', events_ar)
   console.log('staff_ar : ', staff_ar)
@@ -434,7 +448,7 @@ function result(start_date, end_date, pre_booking_day, available_date, disable_d
   this.dayEndTime = dayEndTime
 }
 
-function aggregate_bhf(_ids, root, bizhours) {
+function aggregate_bhf(_ids, root, bizhours, eventid) {
   let match = {}
 
   match["staff._id"] = ObjectId(_ids)
@@ -447,6 +461,7 @@ function aggregate_bhf(_ids, root, bizhours) {
 
   if (root == 'event') {
     match['events.business_timings'] = false
+    match['events._id'] = ObjectId(eventid)
     pipeline.push(
       { '$project': { staff: '$$ROOT' } },
       {
@@ -557,7 +572,7 @@ function aggregate_bhf(_ids, root, bizhours) {
     //console.log('pipeline : ', pipeline);
     return pipeline
   }
-  //console.log('aggregate_bhf pipeline : ', pipeline);
+  console.log('aggregate_bhf pipeline : ', pipeline);
   return pipeline
 }
 

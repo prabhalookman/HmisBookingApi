@@ -24,10 +24,8 @@ type Availablilities {
   available_date: [String],
   disable_date: [String],
 	availableTimes: [availTimes],
-  locationAvailable: [availLocations]
+  locationAvailable: String
   selectedDate: String
-  dayStartTime: String
-  dayEndTime: String
   displaySettings:String
 }
 
