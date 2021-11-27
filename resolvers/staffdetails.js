@@ -55,7 +55,7 @@ export default {
 
           let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff', false)
           staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
-          console.log('events_ag_rs : ', staffdetail_ag_rs.length)
+          console.log('staffdetail_ag_rs : ', staffdetail_ag_rs.length)
         }
 
         let newStaffs = null;
@@ -106,21 +106,31 @@ export default {
         }
 
         
-
+        let resp_result = {}
         staffResult.availableTimes = await checkBooking(staffResult[0], args.date, models)
-        staffResult.availableTimes = compareTwoSlots(staffResult, eventResult)
-        staffResult.start_date = newStaffs.start_date
-        staffResult.end_date = newStaffs.end_date
-        staffResult.pre_booking_day = newStaffs.pre_booking_day
-        staffResult.available_date = newStaffs.available_date
-        staffResult.disable_date = newStaffs.disable_date
-        staffResult.selectedDate = newStaffs.selectedDate
-        staffResult.displaySettings = newStaffs.displaySettings
-        staffResult.locationAvailable = args.location
-        // console.log("Final Result : ", staffResult.availableTimes)
-        // console.log('staffResult : ', staffResult.availableTimes )
+        let events_availableTimes = compareTwoSlots(staffResult, eventResult)
+        resp_result.start_date = eventResult[0].start_date
+        resp_result.end_date = eventResult[0].end_date
+        resp_result.pre_booking_day = eventResult[0].pre_booking_day
+        resp_result.available_date = eventResult[0].available_date
+        resp_result.disable_date = eventResult[0].disable_date
+        resp_result.selectedDate = eventResult[0].selectedDate
+        resp_result.displaySettings = eventResult[0].displaySettings
+        resp_result.locationAvailable = args.location
+        resp_result.availableTimes = [];
+        // console.log("Final staffResult : ", staffResult.availableTimes.length)
+        // console.log(' Final eventResult: ', eventResult.availableTimes.length )
+        if(events_availableTimes.length>0){
+          events_availableTimes.forEach(e => {
+            e.forEach(e1 => {
+              resp_result.availableTimes.push(e1)
+            })
+            
+          })
+        }
+        //staffResult.availableTimes = eventResult[0].availableTimes[0]
 
-        return staffResult
+        return resp_result
       } catch (error) {
         console.error("Error : ", error)
       }
@@ -174,14 +184,15 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
   let available_date = [];
   let disable_date = [];
   //if (details.business_timings == false || details.business_timings == true) {
-
-  while (bookingStartDate <= maxDate) {
-    if (bookingStartDate.isoWeekday() == 6 || bookingStartDate.isoWeekday() == 7) {
-      disable_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
+  
+  let bookStartDate = moment(bookingStartDate, "YYYY-MM-DD HH:mm:ss")
+  while (bookStartDate <= maxDate) {
+    if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
+      disable_date.push(new moment(bookStartDate).format('YYYY-MM-DD'))
     } else {
-      available_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
+      available_date.push(new moment(bookStartDate).format('YYYY-MM-DD'))
     }
-    bookingStartDate.add(1, 'days');
+    bookStartDate.add(1, 'days');
   }
 
   let locationAvailable = [];
@@ -286,10 +297,12 @@ let slots = (params) => {
     bookingStartTime.add(clientSlot, 'minutes');
     displaySettings == '12' ? slotEndTime = moment(bookingStartTime, [secondsFormat]).format(secondsFormat) : slotEndTime = timingsStartTime.format(secondsFormat) //.format("hh:mm A")
 
+    //moment.utc(slotStartTime).format(),
+    //moment.utc(slotEndTime).format()
     availTimes.push({
       _id: _id,
-      slotStartTime: moment.utc(slotStartTime).format(),
-      slotEndTime: moment.utc(slotEndTime).format(),
+      slotStartTime: slotStartTime,
+      slotEndTime: slotEndTime,
       isBooking: false,
       slot: slotCount
     });
@@ -337,11 +350,11 @@ let compareTwoSlots = (list_one, list_two) => {
           e_start = moment(new Date(events_ar[k][l].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
           e_start_sec = moment.duration(e_start).asSeconds()
 
-          if (s_start_sec == e_start_sec) {
+          if (s_start_sec == e_start_sec && staff_ar[q].isBooking == true) {
             console.log(`True : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
-            staff_ar[q].isBooking = true
-            const tindex = events_ar[k].map(e => e.slotStartTime).indexOf(events_ar[k][l].slotStartTime);
-            events_ar[k].splice(tindex, 1)
+            events_ar[k][l].isBooking = true
+            const tindex = staff_ar.map(e => e.slotStartTime).indexOf(staff_ar[q].slotStartTime);
+            staff_ar.splice(tindex, 1)
           }
           // else {
           //   console.log(`False : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
@@ -350,7 +363,7 @@ let compareTwoSlots = (list_one, list_two) => {
         }
       }
     }
-    list_availTimes = staff_ar
+    list_availTimes = events_ar
     console.log('eventResultCount : ', eventResultCount)
     eventResultCount++;
   }
@@ -386,7 +399,7 @@ let checkBooking = async (list_one, select_date, models, args_site_id, args_work
 
 
       let s_start = moment(new Date(staff_ar[q].slotStartTime))
-      let s_end = moment(new Date(staff_ar[q].slotEndTime))
+     let s_end = moment(new Date(staff_ar[q].slotEndTime))
       let s_start_sec = moment.duration(s_start).asSeconds()
       let s_end_sec = moment.duration(s_end).asSeconds()
 
@@ -396,7 +409,7 @@ let checkBooking = async (list_one, select_date, models, args_site_id, args_work
 
         let dayStartTime = '';
         let dayEndTime = '';
-
+      
         dayStartTime = moment(new Date(bookingDetails[l].appointment_start_time), "YYYY-MM-DDTHH:mm:ss") //moment.utc(bookingDetails[l].appointment_start_time).format()
         //let temp = moment(new Date(dayStartTime))
 
@@ -408,7 +421,7 @@ let checkBooking = async (list_one, select_date, models, args_site_id, args_work
         // console.log(`s_end : ${s_end} - s_end_sec : ${s_end_sec} `)
         // console.log(`B dayStartTime : ${dayStartTime} - b_start_sec : ${b_start_sec} - Db - ${bookingDetails[l].appointment_start_time} `)
 
-        if (b_start_sec >= s_start_sec && b_start_sec <= s_end_sec) {
+        if (b_start_sec == s_start_sec && b_start_sec <= s_end_sec) {
           staff_ar[q].isBooking = true
           const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
           bookingDetails.splice(tindex, 1)
@@ -572,7 +585,7 @@ function aggregate_bhf(_ids, root, bizhours, eventid) {
     //console.log('pipeline : ', pipeline);
     return pipeline
   }
-  console.log('aggregate_bhf pipeline : ', pipeline);
+  //console.log('aggregate_bhf pipeline : ', pipeline);
   return pipeline
 }
 
