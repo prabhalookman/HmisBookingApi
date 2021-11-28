@@ -1,10 +1,10 @@
-import { MyError }  from '../helpers/helper'
+import { MyError } from '../helpers/helper'
 import moment from 'moment-timezone';
 export default {
   Query: {
     getBooking: async (parent, args, { models }, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id })
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -12,7 +12,7 @@ export default {
     },
     getBookingById: async (parent, args, { models }, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id, _id: args.booking_id })
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, _id: args.booking_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -20,7 +20,7 @@ export default {
     },
     getBookingByStaff: async (parent, args, { models }, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id, staff_id:args.staff_id })
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, staff_id: args.staff_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -28,7 +28,7 @@ export default {
     },
     getBookingByEvent: async (parent, args, { models }, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id:args.site_id, event_id: args.event_id })
+        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, event_id: args.event_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -40,7 +40,7 @@ export default {
       try {
         let newBooking = new models.Booking();
         let newCustomer = new models.Customer();
-        
+
         let bookingInput = args.input.availablity
         let bookingInputKeys = Object.keys(bookingInput)
 
@@ -56,11 +56,11 @@ export default {
             newCustomer[customerKeys[i]] = args.input["customer"][customerKeys[i]]
           }
           i++
-        }        
+        }
         let customer_ids = []
-        let customerResult = await models.Customer.find({email: customer.email})
-        
-        if(customerResult.length > 0 && customerResult[0].email){
+        let customerResult = await models.Customer.find({ email: customer.email })
+
+        if (customerResult.length > 0 && customerResult[0].email) {
           console.log("Customer already exist")
           customer_ids.push(customerResult[0]._id)
           // try {
@@ -70,7 +70,7 @@ export default {
           //   }
           //   newBooking = await models.Booking.findOneAndUpdate({ customer_ids: customerResult[0]._id }, updateObj, { new: true });    
           //   console.log("Booking updated : ", newBooking)
-            
+
           // } catch (error) {
           //   console.error("Error : ", error)
           // }
@@ -78,44 +78,80 @@ export default {
           //throw new Error("Customer already exist")          
         } else {
           newCustomer = await newCustomer.save();
-          //console.log(`newCustomer : ${JSON.stringify(newCustomer)}`)
-          
           customer_ids.push(newCustomer._id)
-          // console.log(`Customer ID : ${newCustomer._id}`)
-          // console.log(`Customer ID 2 : ${customer_ids}`)
-          
-
-          
         }
         //Booking
         if (!bookingInputKeys)
-        console.log("Error Booking keys")
-      let j = 0;
-      while (j < bookingInputKeys.length) {
-        if (bookingInputKeys[j] in newBooking) {
-          newBooking[bookingInputKeys[j]] = args.input["availablity"][bookingInputKeys[j]]
+          console.log("Error Booking keys")
+        let j = 0;
+        while (j < bookingInputKeys.length) {
+          if (bookingInputKeys[j] in newBooking) {
+            newBooking[bookingInputKeys[j]] = args.input["availablity"][bookingInputKeys[j]]
+          }
+          j++
         }
-        j++
-      }
-      newBooking.customer_ids = customer_ids
+        newBooking.customer_ids = customer_ids
 
-      //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
-      newBooking = await newBooking.save();
-        
+        //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
+        let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
+        //let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
+        const timingsStartTime = moment(new Date(args.input["availablity"].appointment_start_time), secondsFormat)
+        const timingsEndTime = moment(new Date(args.input["availablity"].repeat_upto_date), secondsFormat)
+
+        const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date()
+        const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date()
+
+        const selectedStartTime = moment(startDateStr, secondsFormat).format(secondsFormat);
+        const selectedEndTime = moment(endDateStr, secondsFormat).format(secondsFormat);
+
+        const bookingStartTime = moment(selectedStartTime, secondsFormat)
+        const bookingEndTime = moment(selectedEndTime, secondsFormat)
+
+        console.log('bookingStartTime : ', bookingStartTime)
+        console.log('bookingEndTime : ', bookingEndTime)
+
+        if (args.input["availablity"].is_recurring == true) {
+          let i = 0;
+          if (args.input["availablity"].repeat_on == 'Daily') {
+            while (bookingStartTime <= bookingEndTime) {
+              if (i == 0) {
+                newBooking.appointment_start_time = moment(newBooking.appointment_start_time)
+                newBooking.appointment_end_time = moment(newBooking.appointment_end_time)
+                newBooking.appointment_booking_time = moment(newBooking.appointment_booking_time)
+                newBooking = await newBooking.save();
+                console.log(newBooking._id)
+              } else {
+                newBooking.appointment_start_time = moment(newBooking.appointment_start_time).add(1, 'days')
+                newBooking.appointment_end_time = moment(newBooking.appointment_end_time).add(1, 'days')
+                newBooking.appointment_booking_time = moment(newBooking.appointment_booking_time).add(1, 'days')
+                newBooking = await newBooking.save();
+                console.log(newBooking._id)
+              } bookingStartTime.add(1, 'days');
+              i++
+            }
+
+          } else if (args.input["availablity"].repeat_on == 'Weekly') {
+
+          } else if (args.input["availablity"].repeat_on == 'Monthly') {
+
+          }
+        } else {
+          newBooking = await newBooking.save();
+        }
 
         //RESPONSE
-        if(newBooking){
-          newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time) 
-          newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time) 
-          newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)           
-        }        
+        if (newBooking) {
+          newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time)
+          newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time)
+          newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)
+        }
         // moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
         //moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
         //newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
 
         // newCustomer.booki = await newCustomer.save();
         // newCustomer = await newCustomer.save();
-        
+
         return newBooking
       } catch (error) {
         console.error("Error : ", error)
@@ -127,7 +163,7 @@ export default {
     event_id: async (booking) => {
       let resultBooking = await booking.populate('event_id').execPopulate();
       return resultBooking.event_id
-    },    
+    },
     customer_ids: async (booking) => {
       let resultBooking = await booking.populate('customer_ids').execPopulate();
       return resultBooking.customer_ids
@@ -156,7 +192,7 @@ export default {
       let resultBooking = await booking.populate('location_setting_id').execPopulate();
       return resultBooking.location_setting_id
     },
-    
+
   }
 }
 /*

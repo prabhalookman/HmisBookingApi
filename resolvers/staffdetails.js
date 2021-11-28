@@ -107,7 +107,7 @@ export default {
 
         
         let resp_result = {}
-        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, models)
+        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, models, args.staff_ids, args.event)
         let events_availableTimes = compareTwoSlots(staffResult, eventResult)
         resp_result.start_date = eventResult[0].start_date
         resp_result.end_date = eventResult[0].end_date
@@ -371,7 +371,7 @@ let compareTwoSlots = (list_one, list_two) => {
 
 }
 
-let checkBooking = async (list_one, select_date, models, args_site_id, args_workspace_id) => {
+let checkBooking = async (list_one, select_date, models, args_staff_ids, args_event_id) => {
   try {
 
     let selectedDate = moment(new Date(select_date), "YYYY-MM-DDTHH:mm:ss").toISOString() //moment.utc('2021-09-29T12:00:14.000+00:00') moment(new Date ('2021-09-29T12:00:00.000+00:00'), "YYYY-MM-DDTHH:mm:sss").toUTCString();
@@ -381,7 +381,8 @@ let checkBooking = async (list_one, select_date, models, args_site_id, args_work
     //console.log(`selectedDate.isValid() : ${selectedDate.isValid()}  : ${selectedDate.toISOString()}`) // 
     //console.log(`selectedDatePlus.isValid() : ${selectedDatePlus.isValid()}  : ${selectedDatePlus.toISOString()}`) // 
 
-    let bookingDetails = await models.Booking.find({ appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus } })//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
+    let bookingDetails = await models.Booking.find({staff_id: args_staff_ids, event_id: args_event_id, Is_cancelled:false, deleted:false, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }})//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
+    //{staff_id: args_staff_ids, event_id: args_event_id, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }}
 
     //Staff
     let list_availTimes = [];

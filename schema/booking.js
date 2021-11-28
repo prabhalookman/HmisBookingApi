@@ -10,6 +10,8 @@ type Booking {
   appointment_end_time: Date
   appointment_start_time: Date
   appointment_time_before_reschedule: [String]
+  repeat_upto_date:Date
+  repeat_on: String
 
   cost: Int
   created_at: String
@@ -48,6 +50,8 @@ type Booking {
   appointment_end_time: String
   appointment_start_time: String
   appointment_time_before_reschedule: [String]
+  repeat_upto_date:Date
+  repeat_on: String
 
   cost: Float
   created_at: String
