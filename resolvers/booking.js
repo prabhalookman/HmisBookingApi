@@ -92,7 +92,6 @@ export default {
         }
         newBooking.customer_ids = customer_ids
 
-        //console.log(`newBooking : ${JSON.stringify(newBooking)}`)
         let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
         //let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
         const timingsStartTime = moment(new Date(args.input["availablity"].appointment_start_time), secondsFormat)
@@ -109,31 +108,124 @@ export default {
 
         console.log('bookingStartTime : ', bookingStartTime)
         console.log('bookingEndTime : ', bookingEndTime)
+        const dateFormat = "YYYY-MM-DD HH:mm:ss";
+
+        let available_date = [];
+        let disable_date = [];
+        //if (details.business_timings == false || details.business_timings == true) {
+
+        let bookStartDate = moment(timingsStartTime, "YYYY-MM-DD HH:mm:ss")
+        let maxDate = moment(selectedEndTime, dateFormat)
+
+        while (bookStartDate <= maxDate) {
+          if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
+            disable_date.push(new moment(bookStartDate).format('YYYY-MM-DD'))
+          } else {
+            available_date.push(new moment(bookStartDate).format('YYYY-MM-DD'))
+          }
+          bookStartDate.add(1, 'days');
+        }
+
+        console.log('disable_date : ', disable_date)
+        console.log('available_date : ', available_date)
+
+        let arg_appointment_start_time = moment(args.input["availablity"].appointment_start_time, secondsFormat).format(secondsFormat)
+        let arg_appointment_end_time = moment(args.input["availablity"].appointment_end_time, secondsFormat).format(secondsFormat)
+        let arg_appointment_booking_time = moment(args.input["availablity"].appointment_booking_time, secondsFormat).format(secondsFormat)
 
         if (args.input["availablity"].is_recurring == true) {
           let i = 0;
+          let res = {};
           if (args.input["availablity"].repeat_on == 'Daily') {
             while (bookingStartTime <= bookingEndTime) {
+
               if (i == 0) {
-                newBooking.appointment_start_time = moment(newBooking.appointment_start_time)
-                newBooking.appointment_end_time = moment(newBooking.appointment_end_time)
-                newBooking.appointment_booking_time = moment(newBooking.appointment_booking_time)
+                res = dateCreate(args.input["availablity"].appointment_start_time, args.input["availablity"].appointment_end_time)
+                newBooking.appointment_start_time = arg_appointment_start_time
+                newBooking.appointment_end_time = arg_appointment_end_time
+                newBooking.appointment_booking_time = arg_appointment_booking_time
                 newBooking = await newBooking.save();
-                console.log(newBooking._id)
+                console.log('i ' + i +' - ' +newBooking._id)
               } else {
-                newBooking.appointment_start_time = moment(newBooking.appointment_start_time).add(1, 'days')
-                newBooking.appointment_end_time = moment(newBooking.appointment_end_time).add(1, 'days')
-                newBooking.appointment_booking_time = moment(newBooking.appointment_booking_time).add(1, 'days')
+                res = dateCreate(res.bookingStartTime.add(1, 'days'), res.bookingEndTime.add(1, 'days'))
+                newBooking = new models.Booking();
+                newBooking.appointment_start_time = res.bookingStartTime
+                newBooking.appointment_end_time = res.bookingEndTime
+                newBooking.appointment_booking_time = arg_appointment_booking_time
+                newBooking.event_id = args.input["availablity"].event_id
+                newBooking.staff_id = args.input["availablity"].staff_id
+                newBooking.site_id = args.input["availablity"].site_id
+                newBooking.workspace_id = args.input["availablity"].workspace_id
+                newBooking.is_recurring = args.input["availablity"].is_recurring
+                newBooking.Is_cancelled = false
+                newBooking.deleted = false
                 newBooking = await newBooking.save();
-                console.log(newBooking._id)
-              } bookingStartTime.add(1, 'days');
+                console.log('i ' + i +' - ' +newBooking._id)
+              }
+              bookingStartTime.add(1, 'days');
               i++
             }
 
-          } else if (args.input["availablity"].repeat_on == 'Weekly') {
+          } else if (args.input["availablity"].repeat_on == 'Weeks') {
+            while (bookingStartTime <= bookingEndTime) {
+
+              if (i == 0) {
+                res = dateCreate(args.input["availablity"].appointment_start_time, args.input["availablity"].appointment_end_time)
+                newBooking.appointment_start_time = arg_appointment_start_time
+                newBooking.appointment_end_time = arg_appointment_end_time
+                newBooking.appointment_booking_time = arg_appointment_booking_time
+                newBooking = await newBooking.save();
+                console.log('i ' + i +' - ' +newBooking._id)
+              } else {
+                res = dateCreate(res.bookingStartTime.add(7, 'days'), res.bookingEndTime.add(7, 'days'))
+                newBooking = new models.Booking();
+                newBooking.appointment_start_time = res.bookingStartTime
+                newBooking.appointment_end_time = res.bookingEndTime
+                newBooking.appointment_booking_time = arg_appointment_booking_time
+                newBooking.event_id = args.input["availablity"].event_id
+                newBooking.staff_id = args.input["availablity"].staff_id
+                newBooking.site_id = args.input["availablity"].site_id
+                newBooking.workspace_id = args.input["availablity"].workspace_id
+                newBooking.is_recurring = args.input["availablity"].is_recurring
+                newBooking.Is_cancelled = false
+                newBooking.deleted = false
+                newBooking = await newBooking.save();
+                console.log('i ' + i +' - ' +newBooking._id)
+              }
+              bookingStartTime.add(1, 'days');
+              i++
+            }
 
           } else if (args.input["availablity"].repeat_on == 'Monthly') {
+            while (bookingStartTime <= bookingEndTime) {
 
+              if (i == 0) {
+                res = dateCreate(args.input["availablity"].appointment_start_time, args.input["availablity"].appointment_end_time)
+                newBooking.appointment_start_time = arg_appointment_start_time
+                newBooking.appointment_end_time = arg_appointment_end_time
+                newBooking.appointment_booking_time = arg_appointment_booking_time
+                newBooking = await newBooking.save();
+                console.log('i ' + i +' - ' +newBooking._id)
+              } else {
+                res = dateCreate(res.bookingStartTime.add(30, 'days'), res.bookingEndTime.add(30, 'days'))
+                newBooking = new models.Booking();
+                newBooking = new models.Booking();
+                newBooking.appointment_start_time = res.bookingStartTime
+                newBooking.appointment_end_time = res.bookingEndTime
+                newBooking.appointment_booking_time = arg_appointment_booking_time
+                newBooking.event_id = args.input["availablity"].event_id
+                newBooking.staff_id = args.input["availablity"].staff_id
+                newBooking.site_id = args.input["availablity"].site_id
+                newBooking.workspace_id = args.input["availablity"].workspace_id
+                newBooking.is_recurring = args.input["availablity"].is_recurring
+                newBooking.Is_cancelled = false
+                newBooking.deleted = false
+                newBooking = await newBooking.save();
+                console.log('i ' + i +' - ' +newBooking._id)
+              }
+              bookingStartTime.add(1, 'days');
+              i++
+            }
           }
         } else {
           newBooking = await newBooking.save();
@@ -195,7 +287,25 @@ export default {
 
   }
 }
-/*
+
+let dateCreate = (start_time, end_time) => {
+  let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
+  const timingsStartTime = moment(new Date(start_time), secondsFormat)
+  const timingsEndTime = moment(new Date(end_time), secondsFormat)
+
+  //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
+
+  const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date() + 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
+  const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date() + 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
+
+  const selectedStartTime = moment(startDateStr, secondsFormat).format(secondsFormat);
+  const selectedEndTime = moment(endDateStr, secondsFormat).format(secondsFormat);
+
+  const bookingStartTime = moment(selectedStartTime)
+  const bookingEndTime = moment(selectedEndTime)
+
+  return { bookingStartTime: bookingStartTime, bookingEndTime: bookingEndTime }
+}/*
 guest_ids: async (booking) => {
       let resultBooking = await booking.populate('guest_ids').execPopulate();
       return resultBooking.guest_ids
