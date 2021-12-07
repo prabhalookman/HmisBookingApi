@@ -39,6 +39,8 @@ token :
 
 mongodb+srv://ananduse:<password>@cluster0.zt0q7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
 
+New DB : mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster1.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority
+
 pass : 3CTLbbttBT7wTZw
 db :hmis
 

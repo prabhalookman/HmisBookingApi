@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, ApolloError } from 'apollo-server-express';
 import path from 'path'
 import schema from './schema/index';
 import resolvers from './resolvers/index';
@@ -31,6 +31,28 @@ const app = express();
         }
       }
       //return models
+    },
+
+    formatError: (err) => {
+
+      console.log('Internal server Error : ', err.message)
+      if(err.originalError instanceof ApolloError){
+        return {message : `${err.message} Apollo Error`}
+      }
+      
+      if(err.message.startsWith('Database Error : ')){
+        return {message : `${err.message}`}
+      }
+
+      if(err.message.startsWith('Validation Error : ')){
+        return {message : `${err.message}`}
+      }
+
+      if(err.extensions && err.name === 'ValidationError'){
+        return {message : `${err.extensions.code} : ${err.message}`}
+      }
+
+      return {message : `${err.message}`}
     }
   })
   app.use(cors())

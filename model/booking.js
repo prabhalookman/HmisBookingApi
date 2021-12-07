@@ -16,6 +16,7 @@ const bookingSchema = new mongoose.Schema({
   customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer'}],
   customer_mood: String,
   customer_status: String,
+  Is_cancelled: Boolean,
   deleted: Boolean,
   deleted_at: Date,
 
@@ -62,7 +63,7 @@ module.exports = Booking;
 // integration: String,
 // is_approved: Boolean,
 // is_asked_for_review: Boolean,
-// is_cancelled: Boolean,
+// Is_cancelled: Boolean,
 // is_failed: Boolean,
 // is_multi_service: Boolean,
 // is_offer_applied: Boolean,

@@ -8,6 +8,7 @@ export default {
         return Booking
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error(error)
       }
     },
     getBookingById: async (parent, args, { models }, info) => {
@@ -16,6 +17,7 @@ export default {
         return Booking
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error(error)
       }
     },
     getBookingByStaff: async (parent, args, { models }, info) => {
@@ -24,6 +26,7 @@ export default {
         return Booking
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error(error)
       }
     },
     getBookingByEvent: async (parent, args, { models }, info) => {
@@ -32,6 +35,7 @@ export default {
         return Booking
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error(error)
       }
     }
   },
@@ -129,103 +133,16 @@ export default {
         console.log('disable_date : ', disable_date)
         console.log('available_date : ', available_date)
 
-        let arg_appointment_start_time = moment(args.input["availablity"].appointment_start_time, secondsFormat).format(secondsFormat)
-        let arg_appointment_end_time = moment(args.input["availablity"].appointment_end_time, secondsFormat).format(secondsFormat)
-        let arg_appointment_booking_time = moment(args.input["availablity"].appointment_booking_time, secondsFormat).format(secondsFormat)
-
         if (args.input["availablity"].is_recurring == true) {
-          let i = 0;
-          let res = {};
+         
           if (args.input["availablity"].repeat_on == 'Daily') {
-            while (bookingStartTime <= bookingEndTime) {
-
-              if (i == 0) {
-                res = dateCreate(args.input["availablity"].appointment_start_time, args.input["availablity"].appointment_end_time)
-                newBooking.appointment_start_time = arg_appointment_start_time
-                newBooking.appointment_end_time = arg_appointment_end_time
-                newBooking.appointment_booking_time = arg_appointment_booking_time
-                newBooking = await newBooking.save();
-                console.log('i ' + i +' - ' +newBooking._id)
-              } else {
-                res = dateCreate(res.bookingStartTime.add(1, 'days'), res.bookingEndTime.add(1, 'days'))
-                newBooking = new models.Booking();
-                newBooking.appointment_start_time = res.bookingStartTime
-                newBooking.appointment_end_time = res.bookingEndTime
-                newBooking.appointment_booking_time = arg_appointment_booking_time
-                newBooking.event_id = args.input["availablity"].event_id
-                newBooking.staff_id = args.input["availablity"].staff_id
-                newBooking.site_id = args.input["availablity"].site_id
-                newBooking.workspace_id = args.input["availablity"].workspace_id
-                newBooking.is_recurring = args.input["availablity"].is_recurring
-                newBooking.Is_cancelled = false
-                newBooking.deleted = false
-                newBooking = await newBooking.save();
-                console.log('i ' + i +' - ' +newBooking._id)
-              }
-              bookingStartTime.add(1, 'days');
-              i++
-            }
-
-          } else if (args.input["availablity"].repeat_on == 'Weeks') {
-            while (bookingStartTime <= bookingEndTime) {
-
-              if (i == 0) {
-                res = dateCreate(args.input["availablity"].appointment_start_time, args.input["availablity"].appointment_end_time)
-                newBooking.appointment_start_time = arg_appointment_start_time
-                newBooking.appointment_end_time = arg_appointment_end_time
-                newBooking.appointment_booking_time = arg_appointment_booking_time
-                newBooking = await newBooking.save();
-                console.log('i ' + i +' - ' +newBooking._id)
-              } else {
-                res = dateCreate(res.bookingStartTime.add(7, 'days'), res.bookingEndTime.add(7, 'days'))
-                newBooking = new models.Booking();
-                newBooking.appointment_start_time = res.bookingStartTime
-                newBooking.appointment_end_time = res.bookingEndTime
-                newBooking.appointment_booking_time = arg_appointment_booking_time
-                newBooking.event_id = args.input["availablity"].event_id
-                newBooking.staff_id = args.input["availablity"].staff_id
-                newBooking.site_id = args.input["availablity"].site_id
-                newBooking.workspace_id = args.input["availablity"].workspace_id
-                newBooking.is_recurring = args.input["availablity"].is_recurring
-                newBooking.Is_cancelled = false
-                newBooking.deleted = false
-                newBooking = await newBooking.save();
-                console.log('i ' + i +' - ' +newBooking._id)
-              }
-              bookingStartTime.add(1, 'days');
-              i++
-            }
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, models,disable_date, args.input["availablity"], 1)
+          } 
+          else if (args.input["availablity"].repeat_on == 'Weekly') {
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, models,disable_date, args.input["availablity"], 7)
 
           } else if (args.input["availablity"].repeat_on == 'Monthly') {
-            while (bookingStartTime <= bookingEndTime) {
-
-              if (i == 0) {
-                res = dateCreate(args.input["availablity"].appointment_start_time, args.input["availablity"].appointment_end_time)
-                newBooking.appointment_start_time = arg_appointment_start_time
-                newBooking.appointment_end_time = arg_appointment_end_time
-                newBooking.appointment_booking_time = arg_appointment_booking_time
-                newBooking = await newBooking.save();
-                console.log('i ' + i +' - ' +newBooking._id)
-              } else {
-                res = dateCreate(res.bookingStartTime.add(30, 'days'), res.bookingEndTime.add(30, 'days'))
-                newBooking = new models.Booking();
-                newBooking = new models.Booking();
-                newBooking.appointment_start_time = res.bookingStartTime
-                newBooking.appointment_end_time = res.bookingEndTime
-                newBooking.appointment_booking_time = arg_appointment_booking_time
-                newBooking.event_id = args.input["availablity"].event_id
-                newBooking.staff_id = args.input["availablity"].staff_id
-                newBooking.site_id = args.input["availablity"].site_id
-                newBooking.workspace_id = args.input["availablity"].workspace_id
-                newBooking.is_recurring = args.input["availablity"].is_recurring
-                newBooking.Is_cancelled = false
-                newBooking.deleted = false
-                newBooking = await newBooking.save();
-                console.log('i ' + i +' - ' +newBooking._id)
-              }
-              bookingStartTime.add(1, 'days');
-              i++
-            }
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, models,disable_date, args.input["availablity"], 30)
           }
         } else {
           newBooking = await newBooking.save();
@@ -237,16 +154,11 @@ export default {
           newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time)
           newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)
         }
-        // moment(new Date(newBooking.appointment_start_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        //moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss")
-        //newBooking.appointment_booking_time ? "": moment(new Date(newBooking.appointment_end_time), "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DD HH:mm:ss")
-
-        // newCustomer.booki = await newCustomer.save();
-        // newCustomer = await newCustomer.save();
 
         return newBooking
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error(error)
       }
 
     }
@@ -288,24 +200,108 @@ export default {
   }
 }
 
-let dateCreate = (start_time, end_time) => {
+let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, models, disable_date, input, days_count) =>{
+  let i = 0;
+  let res = {};
   let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
-  const timingsStartTime = moment(new Date(start_time), secondsFormat)
-  const timingsEndTime = moment(new Date(end_time), secondsFormat)
+  let arg_appointment_start_time = moment(input.appointment_start_time, secondsFormat).format(secondsFormat)
+  let arg_appointment_end_time = moment(input.appointment_end_time, secondsFormat).format(secondsFormat)
+  let arg_appointment_booking_time = moment(input.appointment_booking_time, secondsFormat).format(secondsFormat)
 
-  //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
+  while (recurring_start_date <= recurring_end_date) {
 
-  const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date() + 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
-  const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date() + 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
+    if (i == 0) {
+      res = dateCreate(input.appointment_start_time, input.appointment_end_time)
+      newBooking.appointment_start_time = arg_appointment_start_time
+      newBooking.appointment_end_time = arg_appointment_end_time
+      newBooking.appointment_booking_time = arg_appointment_booking_time
+      newBooking.Is_cancelled = false
+      newBooking.deleted = false
+      const checkbook = await checkBook(models, input.staff_id, input.event_id, input.appointment_start_time)
+      
+      if (checkbook) {
+        throw new Error(`Booking not available in this slot ${arg_appointment_start_time}, please select another slot`)
+      }
+      if(disable_date.includes(moment(arg_appointment_start_time).format('YYYY-MM-DD'))){
+        throw new Error(`Can not book in this disabled day ${arg_appointment_start_time}, please select another slot`)
+      }
+      newBooking = await newBooking.save();
+      console.log('i ' + i + ' - ' + newBooking._id)
+    } else {
+      res = dateCreate(res.bookingStartTime.add(days_count, 'days'), res.bookingEndTime.add(days_count, 'days'))
+      const checkbook = await checkBook(models, input.staff_id, input.event_id, res.bookingStartTime)
+      
+      if (checkbook) {
+        throw new Error(`Booking not available in this slot ${res.bookingStartTime}, please select another slot`)
+      }
+      if(disable_date.includes(moment(arg_appointment_start_time).format('YYYY-MM-DD'))){
+        throw new Error(`Can not book in this disabled day ${arg_appointment_start_time}, please select another slot`)
+      }
+      newBooking = new models.Booking();
+      newBooking.appointment_start_time = res.bookingStartTime
+      newBooking.appointment_end_time = res.bookingEndTime
+      newBooking.appointment_booking_time = arg_appointment_booking_time
+      newBooking.event_id = input.event_id
+      newBooking.staff_id = input.staff_id
+      newBooking.site_id = input.site_id
+      newBooking.workspace_id = input.workspace_id
+      newBooking.is_recurring = input.is_recurring
+      newBooking.Is_cancelled = false
+      newBooking.deleted = false
+      newBooking = await newBooking.save();
+      console.log('i ' + i + ' - ' + newBooking._id)
+    }
+    recurring_start_date.add(days_count, 'days');
+    i++
+  }
+  return newBooking
+}
 
-  const selectedStartTime = moment(startDateStr, secondsFormat).format(secondsFormat);
-  const selectedEndTime = moment(endDateStr, secondsFormat).format(secondsFormat);
+let dateCreate = (start_time, end_time) => {
+  try {
+    let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
+    const timingsStartTime = moment(new Date(start_time), secondsFormat)
+    const timingsEndTime = moment(new Date(end_time), secondsFormat)
 
-  const bookingStartTime = moment(selectedStartTime)
-  const bookingEndTime = moment(selectedEndTime)
+    //selectedDate.year(), selectedDate.month(), selectedDate.date(), timingsEndTime.format('hh'), timingsEndTime.format('mm'), timingsEndTime.format('sss')
 
-  return { bookingStartTime: bookingStartTime, bookingEndTime: bookingEndTime }
-}/*
+    const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date() + 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
+    const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date() + 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
+
+    const selectedStartTime = moment(startDateStr, secondsFormat).format(secondsFormat);
+    const selectedEndTime = moment(endDateStr, secondsFormat).format(secondsFormat);
+
+    const bookingStartTime = moment(selectedStartTime)
+    const bookingEndTime = moment(selectedEndTime)
+
+    return { bookingStartTime: bookingStartTime, bookingEndTime: bookingEndTime }
+
+  } catch (error) {
+    throw new Error(error)
+  }
+
+}
+
+let checkBook = async (models, staffid, eventid,  appointmentstarttime) => {
+  try {
+    let bookingDetails = [];
+    const bookdate   = moment(new Date(appointmentstarttime), "YYYY-MM-DDTHH:mm:ss").toISOString() 
+    console.log('bookdate : ', bookdate);
+    bookingDetails = await models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate)  })
+    console.log('bookingDetails length: ', bookingDetails.length );
+    if (bookingDetails.length > 0) {
+      return true
+    } else {
+      return false
+    }
+  } catch (error) {
+    throw new Error(error)
+  }
+
+
+}
+
+/*
 guest_ids: async (booking) => {
       let resultBooking = await booking.populate('guest_ids').execPopulate();
       return resultBooking.guest_ids

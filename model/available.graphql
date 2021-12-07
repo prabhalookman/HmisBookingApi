@@ -1141,7 +1141,7 @@ type SettingBooking_notificationSm {
     integration: String
     is_approved: Boolean
     is_asked_for_review: Boolean
-    is_cancelled: Boolean
+    Is_cancelled: Boolean
     is_failed: Boolean
     is_multi_service: Boolean
     is_offer_applied: Boolean

@@ -20,6 +20,7 @@ type Booking {
   customer_ids: [Customer]
   customer_mood: String
   customer_status: String
+  Is_cancelled: Boolean
   deleted: Boolean
   deleted_at: String
 
@@ -61,6 +62,7 @@ type Booking {
   customer_mood: String
   customer_status: String
   deleted: Boolean
+  Is_cancelled: Boolean
   deleted_at: String
 
   duration_minutes: Int
@@ -129,7 +131,7 @@ addBooking(input: bookingIn): Booking
 // integration: String
 // is_approved: Boolean
 // is_asked_for_review: Boolean
-// is_cancelled: Boolean
+// Is_cancelled: Boolean
 // is_failed: Boolean
 // is_multi_service: Boolean
 // is_offer_applied: Boolean

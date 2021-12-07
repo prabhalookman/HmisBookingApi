@@ -9,9 +9,11 @@ export default {
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error (error)
       }
     },
     getAvailabilityByStaff: async (parent, args, { models }, info) => {
+      
       try {
         // let resultObj = {
         //   start_date: "",
@@ -133,6 +135,7 @@ export default {
         return resp_result
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error (error)
       }
     },
     getstaffdetailbyservice: async (parent, args, { models }, info) => {
@@ -141,6 +144,7 @@ export default {
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error (error)
       }
     }
   },
@@ -435,9 +439,9 @@ let checkBooking = async (list_one, select_date, models, args_staff_ids, args_ev
     }
     return staff_ar
 
-  } catch (er) {
-    console.log('checkBooking Error : ', er)
-
+  }  catch (error) {
+    console.error("Error : ", error)
+    throw new Error (error)
   }
 
 }
