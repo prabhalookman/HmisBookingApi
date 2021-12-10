@@ -606,7 +606,7 @@ function aggregate_bht(_ids, root, bizhours) {
   let pipeline = []
 
   if (root == 'event') {
-    match['events.business_timings'] = false
+    match['events.business_timings'] = true
     pipeline.push(
       { '$project': { staff: '$$ROOT' } },
       {
