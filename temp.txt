@@ -123,3 +123,23 @@ env old :
 MONGO_LOCAL=mongodb://localhost:27017/HMISV3
 MONGO_URL=mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority
 PORT =4000
+
+
+staffdetail_ag_rs[k], 
+models, 
+newRes, 
+minutesFormat, 
+ 
+ 
+
+
+displaySettings,
+bookingStartDate,
+clientSlot, 
+minDate, 
+maxDate,
+pre_booking_day,
+selectedDate,
+dateFormat, 
+args.date,
+

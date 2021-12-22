@@ -38,16 +38,45 @@ type availTimes {
   
 }
 
-type availLocations {
-  _id: String, 
-  type: String
+type AvailLocations {
+  start_date: String,
+  end_date: String,
+  pre_booking_day: Int,
+  available_date: [String],
+  disable_date: [String],
+	locationAvailable: [Avail_Location_Settings]
+  selectedDate: String
+  displaySettings:String,
+  clientSlot: Int
 }
+
+type Avail_Location_Settings {
+  location_setting_id: String, 
+  location_name: String, 
+  location_type: String
+  }
+input getAvailInput {
+  workspace_id: ID, 
+  site_id: ID, 
+  staff_ids: ID, 
+  event: [ID], 
+  date: String, 
+  location: String,
+  locationSettingId: ID
+  }
 
 
 extend type Query {
   getStaffDetails(workspace_id: ID, site_id: ID): [StaffDetails]
   getstaffdetailbyservice(workspace_id: ID, site_id: ID,event_ids: ID):[StaffDetails]
-  getAvailabilityByStaff(workspace_id: ID, site_id: ID, staff_ids: ID, event: [ID], date: String, location: String): Availablilities
+  getAvailabilityByStaff(workspace_id: ID, 
+  site_id: ID, 
+  staff_ids: ID, 
+  event: [ID], 
+  date: String, 
+  location: String,
+  locationSettingId: ID): Availablilities
+  getLocationSettings(workspace_id: ID, site_id: ID, staff_id: ID, date: String): AvailLocations
 }
 
 `

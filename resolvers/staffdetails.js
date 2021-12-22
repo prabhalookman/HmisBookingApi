@@ -31,7 +31,7 @@ export default {
         let displaySettings = '12'
         let minutesFormat = "HH:mm";
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
-        let selectedDate = moment(args.date, "YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
+        let selectedDate = moment(args.date, "YYYY-MM-DD"); 
         console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
         let settings = await models.Setting.find({})
@@ -69,12 +69,12 @@ export default {
             console.log("staffdetail_ag_rs  id : ", staffdetail_ag_rs[k]._id)
             let newRes = new result("", "", 0, [], [], "", [], [], "", "")
             if (staffdetail_ag_rs[k].location_type.includes(args.location)) {
-              newStaffs = await getting_slots(staffdetail_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+              newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
               newStaffs ? staffResult.push(newStaffs) : 0
             }
           }
         }
-
+        
         let newEvents = null;
         let eventList = []
         let eventResult = [];
@@ -85,7 +85,7 @@ export default {
             console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k].events._id)
             if(args.event[0] == staffDetail_ar[0].events[k].events._id){
 
-              console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k]._id)
+              console.log("staffDetail_ar[0] staff id : ", staffDetail_ar[0].events[k]._id)
             if (staffDetail_ar[0].events[k].event_business_timings) {
 
               let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
@@ -100,7 +100,7 @@ export default {
             }
 
             let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            newEvents = await getting_slots(events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+            newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
             newEvents ? eventResult.push(newEvents) : 0
 
             }
@@ -137,6 +137,68 @@ export default {
         console.error("Error : ", error)
         throw new Error (error)
       }
+    },
+    getLocationSettings: async(parent, args, { models }, info)=> {
+      try {
+        let displaySettings = '12'
+      let minutesFormat = "HH:mm";
+      const secondsFormat = "YYYY-MM-DD HH:mm:ss";
+      const dateFormat = "YYYY-MM-DD";
+      let selectedDate = moment(args.date, dateFormat);
+      //console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
+
+      let settings = await models.Setting.find({})
+      const pre_booking_day = settings[0].advance_Booking_Period.value
+      const clientSlot = settings[0].client_time_slot
+
+      let minDate = moment(new Date(), secondsFormat)
+      let maxDate = moment(new Date(), secondsFormat).add(pre_booking_day - 1, 'days');
+
+      let available_date = [];
+      let disable_date = [];
+      
+      let bookStartDate = moment(minDate, secondsFormat)
+      while (bookStartDate <= maxDate) {
+        if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
+          disable_date.push(new moment(bookStartDate).format(dateFormat))
+        } else {
+          available_date.push(new moment(bookStartDate).format(dateFormat))
+        }
+        bookStartDate.add(1, 'days');
+      }
+
+      let loc_ar = []; let location_setting = [], locations = [];
+        loc_ar = await models.Staff.aggregate(get_locationsettings_agg(args.staff_id));
+        location_setting = loc_ar[0].locationsetting
+        locations = loc_ar[0].location_type
+        let loc = [];
+        location_setting.forEach((elem)=>{
+          let ls_id = elem.locationsetting_id
+          locations.forEach((obj)=>{
+            if(elem.location_id.toString() == obj.location_id.toString()){
+              loc.push({location_setting_id: ls_id, location_name: obj.location_name, location_type: obj.location_type}) 
+            }
+          })
+        })
+
+        let result = {
+          displaySettings,
+          selectedDate: selectedDate.format(dateFormat),
+          start_date: minDate.format(dateFormat),
+          end_date: maxDate.format(dateFormat),
+          pre_booking_day,
+          clientSlot,
+          available_date,
+          disable_date,
+          locationAvailable:loc
+        }
+
+        return result
+        
+      } catch (error) {
+        throw new Error(error)
+      }
+
     },
     getstaffdetailbyservice: async (parent, args, { models }, info) => {
       try {
@@ -183,7 +245,7 @@ export default {
     }
   }
 }
-let getting_slots = async (details, models, result, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, selected_date, dateFormat, pre_booking_day) => {
+let getting_slots = async (fromObj,details, models, result, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, selected_date, dateFormat, pre_booking_day) => {
 
   let available_date = [];
   let disable_date = [];
@@ -207,6 +269,8 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     timings_loop = details.timings[0].timings
   }
 
+  let is_matched = false
+
   if (details.timings) {
     //details.timings.forEach((elem) => {        
       timings_loop.forEach((e1) => {
@@ -227,6 +291,7 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
       if (selectedDayName == timingsStartTimeDay) {
         let tresult = slots(slotArguments);
         result.availableTimes.push(tresult.availableTimes)
+        is_matched = true
         console.log('Match')
 
         //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
@@ -238,6 +303,11 @@ let getting_slots = async (details, models, result, displaySettings, minutesForm
     })
 
     //}) //Timings ForEach End
+  }
+
+  if(is_matched == false){
+    console.log(`${fromObj} not available on the selected day`)
+    throw new Error (`${fromObj} not available on the selected day`)
   }
 
   result.start_date = minDate.format('YYYY-MM-DD')
@@ -326,8 +396,8 @@ let compareTwoSlots = (list_one, list_two) => {
   let events_ar = list_two[0].availableTimes
   let staff_ar = list_one.availableTimes//[0]
 
-  console.log('events_ar : ', events_ar)
-  console.log('staff_ar : ', staff_ar)
+  // console.log('events_ar : ', events_ar)
+  // console.log('staff_ar : ', staff_ar)
 
   for (let r = 0; r < events_ar.length; r++) {
     let s_start;
@@ -342,14 +412,14 @@ let compareTwoSlots = (list_one, list_two) => {
     //list_one.availableTimes.forEach((list_one.availableTimes[q]) => {
     for (let q = 0; q < staff_ar.length; q++) {
       i++;
-      console.log('staff_ar[q] Loop Count  : ', i)
+      
       s_start = moment(new Date(staff_ar[q].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
       s_start_sec = moment.duration(s_start).asSeconds()
 
       //console.log(`Staff slotStartTime : ${staff_ar[q].slotStartTime} - as seconds ${s_start_sec} `)
       for (let k = 0; k < events_ar.length; k++) {
         j++;
-        console.log('events.availableTimes[k] Loop Count  : ', j)
+        
         for (let l = 0; l < events_ar[k].length; l++) {
           e_start = moment(new Date(events_ar[k][l].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
           e_start_sec = moment.duration(e_start).asSeconds()
@@ -367,6 +437,8 @@ let compareTwoSlots = (list_one, list_two) => {
         }
       }
     }
+    console.log('staff_ar[q] Loop Count  : ', i)
+    console.log('events.availableTimes[k] Loop Count  : ', j)
     list_availTimes = events_ar
     console.log('eventResultCount : ', eventResultCount)
     eventResultCount++;
@@ -531,11 +603,12 @@ function aggregate_bhf(_ids, root, bizhours, eventid) {
       { '$match': match },
       {
         '$project': {
-          timings: '$timings',
-          locationsetting_id: '$locationsetting._id',
-          location_type: '$location.type',
+          'timings': '$timings',
+          'locationsetting_id': '$locationsetting._id',
+          'location_type': '$location.type',
         }
       })
+      console.log(`aggregate_bhf pipeline  EVENT ID ${eventid} :: ${JSON.stringify(pipeline)} `);
   } else {
     pipeline.push({
       "$project": {
@@ -586,11 +659,9 @@ function aggregate_bhf(_ids, root, bizhours, eventid) {
         }
       }
     )
-
-    //console.log('pipeline : ', pipeline);
-    return pipeline
+    console.log(`aggregate_bhf pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
   }
-  //console.log('aggregate_bhf pipeline : ', pipeline);
+  
   return pipeline
 }
 
@@ -677,6 +748,7 @@ function aggregate_bht(_ids, root, bizhours) {
           location_type: '$location.type'
         }
       })
+      console.log('aggregate_bht pipeline EVENT : ', JSON.stringify(pipeline));
   } else {
     pipeline.push({ '$project': { staff: '$$ROOT' } },
       {
@@ -737,11 +809,10 @@ function aggregate_bht(_ids, root, bizhours) {
         }
       }
     )
-
-    //console.log('pipeline : ', pipeline);
-    return pipeline
+    console.log(`aggregate_bht pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
+    
   }
-  //console.log('aggregate_bht pipeline : ', pipeline);
+  
   return pipeline
 }
 
@@ -816,7 +887,114 @@ function get_staffdetail_agg(_ids) {
       }
     })
 
-  //console.log('pipeline : ', pipeline)
+  //console.log('get_staffdetail_agg : ', JSON.stringify(pipeline) )
 
   return pipeline
+}
+
+function get_locationsettings_agg(_ids) {
+  let match = {}
+  match["staff._id"] = ObjectId(_ids)
+  let pipeline = []
+  pipeline.push({
+    "$project": {
+        "staff": "$$ROOT"
+    }
+},
+{
+    "$lookup": {
+        "localField": "staff.staff_detail_id",
+        "from": "staffdetails",
+        "foreignField": "_id",
+        "as": "staffdetails"
+    }
+},
+{
+    "$lookup": {
+        "localField": "staffdetails.business_id",
+        "from": "business",
+        "foreignField": "_id",
+        "as": "business"
+    }
+},
+{
+    "$lookup": {
+        "localField": "business.business_info_ids",
+        "from": "businessinfo",
+        "foreignField": "_id",
+        "as": "businessinfo"
+    }
+},
+{
+    "$lookup": {
+        "localField": "businessinfo.timing_ids",
+        "from": "timings",
+        "foreignField": "_id",
+        "as": "timings"
+    }
+},
+{
+    "$lookup": {
+        "localField": "staffdetails.location_setting_ids",
+        "from": "locationsetting",
+        "foreignField": "_id",
+        "as": "locationsetting"
+    }
+},
+{
+    "$lookup": {
+        "localField": "locationsetting.location_id",
+        "from": "location",
+        "foreignField": "_id",
+        "as": "location"
+    }
+},
+{
+   '$match': match ,
+},
+{
+    "$facet": {
+        "locationSetting": [
+            {
+                "$unwind": {
+                    "path": "$locationsetting",
+                    "preserveNullAndEmptyArrays": false
+                }
+            },
+            {
+                "$project": {
+                    "locationsetting_id": "$locationsetting._id",
+                    "location_id": "$locationsetting.location_id",
+
+                }
+            }
+        ],
+
+        "location": [
+            {
+                "$unwind": {
+                    "path": "$location",
+                    "preserveNullAndEmptyArrays": false
+                }
+            },
+            {
+                "$project": {
+                    "location_id": "$location._id",
+                    "location_type": "$location.type",
+                    "location_name": "$location.name"
+                }
+            }
+        ]
+    }
+},
+{
+    "$project": {
+        "locationsetting": "$locationSetting",
+        "location_type": "$location"
+
+    }
+})
+
+console.log('pipeline : ', JSON.stringify(pipeline) )
+return pipeline
 }

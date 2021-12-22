@@ -158,3 +158,27 @@ query {
     }
   }
 
+----
+
+query {
+  getLocationSettings(
+    staff_id: "616fcf37060fb2763097c715"
+    workspace_id: ""
+    site_id: ""
+    date: "2021-12-22"
+  ) {
+    displaySettings
+    selectedDate
+    start_date
+    end_date
+    pre_booking_day
+    clientSlot
+    available_date
+    disable_date
+    locationAvailable {
+      location_setting_id
+      location_name
+      location_type
+    }
+  }
+}
