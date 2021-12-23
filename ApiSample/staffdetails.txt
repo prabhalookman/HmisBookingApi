@@ -14,71 +14,7 @@ https://booking-dev-2021.booking.myscheduly.com/614d6350b3df7dad03d6cdb2/614d63c
 
 {_id:ObjectId('6145db6968d6e038e5eba967'), workspace_ids: ObjectId('61409a3502909b25faa6c3b2'), site_id: ObjectId('613a462aa3a6447e678a40d8')}
 
------
-Business_hours : False 
-
-query {
-  getAvailabilityByStaff(
-    workspace_id: "614d63c649a63250a673d1a3"
-    site_id: "614d6350b3df7dad03d6cdb2"
-    staff_ids: "615589d480cdf8b12c8530b9"
-    event: ["614d68782829c7ca3db2e570"]
-    date: "2021-09-29",
-    location: "Video"
-  ) {
-    start_date
-    end_date
-    pre_booking_day
-    selectedDate
-    available_date
-    disable_date
-    selectedDate
-    dayStartTime
-    dayEndTime
-    locationAvailable {
-      _id
-      type
-    }
-    availableTimes {
-      _id
-      slot
-      slotStartTime
-      slotEndTime
-      isBooking
-    }
-  }
-}
-
 ---
-query{
-   getAvailabilityByStaff(
-    workspace_id: "614d63c649a63250a673d1a3"
-    site_id: "614d6350b3df7dad03d6cdb2"
-    staff_ids: "614d6350b3df7dad03d6cdb1"
-    event: [""], date: "2021-09-21"
-  ) {
-    start_date
-    end_date
-    pre_booking_day
-    selectedDate
-    available_date
-    disable_date   
-    selectedDate
-    dayStartTime
-    dayEndTime
-    locationAvailable {
-      _id
-      type
-    }
-    availableTimes {      
-      slot
-      slotStartTime
-      slotEndTime
-      isBooking
-    }
-  }
-}
-----
 http://www.myscheduly.com/614d6350b3df7dad03d6cdb2/614d63c649a63250a673d1a3/calendar/
 ---
 query {
@@ -102,70 +38,39 @@ query {
 ---
 query {
   getAvailabilityByStaff(
-    workspace_id: "611ba08d7dbdecf4c47091db"
-    site_id: "60e2eead5a12d07c2bef058c"
-    staff_ids: "612ee8133b64c2a30642557a"
-    event: [""]
-    date: "2021-09-15"
+    workspace_id: "614d63c649a63250a673d1a3"
+    site_id: "614d6350b3df7dad03d6cdb2"
+    staff_ids: "614d6350b3df7dad03d6cdb1"
+    event: ["614d68782829c7ca3db2e570"]
+    date: "2021-12-27"
+    locationName: ["InPerson"]
+    locationSettingId: ["61b1cc0408357b3a66397e10"]
   ) {
     start_date
+
     end_date
     pre_booking_day
+    selectedDate
     available_date
     disable_date
     selectedDate
-    dayStartTime
-    dayEndTime
-    
-    locationAvailable {
-      _id
-      type
-    }
-    selectedDate
+    locationAvailable
     availableTimes {
       _id
-      time
-      isBooking
-    }
-  }
-}
-
---------------------------------------------------------------------------------query {
-  getAvailabilityByStaff(
-    workspace_id: "611ba08d7dbdecf4c47091db"
-    site_id: "60e2eead5a12d07c2bef058c"
-    staff_ids: "612ee8133b64c2a30642557a"
-    event: [""], date: "2021-09-16"
-  ) {
-    start_date
-    end_date
-    pre_booking_day
-    selectedDate
-    available_date
-    disable_date   
-    selectedDate
-    dayStartTime
-    dayEndTime
-    locationAvailable {
-      _id
-      type
-    }
-    availableTimes {      
       slot
       slotStartTime
       slotEndTime
       isBooking
     }
   }
-
+}
 ----
-
 query {
   getLocationSettings(
-    staff_id: "616fcf37060fb2763097c715"
-    workspace_id: ""
-    site_id: ""
-    date: "2021-12-22"
+    staff_id: "614d6350b3df7dad03d6cdb1"
+    workspace_id: "614d63c649a63250a673d1a3"
+    site_id: "614d6350b3df7dad03d6cdb2"
+    date: "2021-12-27"
   ) {
     displaySettings
     selectedDate

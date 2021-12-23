@@ -38,22 +38,26 @@ query {
   }
 }
 ----------
-addBooking :
+Add Booking : 
+==============
 mutation {
   addBooking(
     input: {
       availablity: {
-        event_id: "6141b35902909b25fac46570"
-        site_id: "60e2eead5a12d07c2bef058c"
-        staff_id: "612ee8133b64c2a30642557a"
-        location_setting_id: "612ef2760a711a5659350018"
+        event_id: "614d68782829c7ca3db2e570"
+        staff_id: "614d6350b3df7dad03d6cdb1"
+        site_id: "614d6350b3df7dad03d6cdb2"
+        workspace_id:"614d63c649a63250a673d1a3"
+        location_setting_id: "6154119a3a40664ee3993f80"
         timezone: "Asia/kolkatta"
-        appointment_booking_time: ""
-        appointment_end_time: "2021-09-17 11:06:59"
-        appointment_start_time: "2021-09-17 12:06:59"
-        is_recurring: false
+        appointment_booking_time: "2021-12-07 12:00:00"
+        appointment_end_time: "2021-12-07 12:15:00"
+        appointment_start_time: "2021-12-07 12:00:00"
+        is_recurring: true
+        repeat_upto_date:"2022-02-09"
+        repeat_on:"Monthly"
         slot: 2,
-        workspace_id:"611ba08d7dbdecf4c47091db"
+        
       }
       customer: {
         name: "Ram"
@@ -90,175 +94,6 @@ mutation {
     }
   }
 }
----
-query {
-  getBookingByEvent(
-    workspace_id: "611ba08d7dbdecf4c47091db"
-    site_id: "60e2eead5a12d07c2bef058c"
-    event_id:"6141b35902909b25fac46570"
-  ) {
-    _id
-    appointment_start_time
-    appointment_end_time
-    site_id {
-      _id
-      name
-    }
-    event_id {
-      _id
-      name
-    }
-    staff_id {
-      _id
-      name
-    }
-    location_setting_id {
-      _id
-      video {
-        video_type
-      }
-      inperson {
-        buinsess_address
-      }
-      oncall {
-        client_will_call
-      }
-    }
-  }
-}
-
-------------
-mutation {
-  addBooking(
-    input: {
-      appointment_booking_time: "2021-08-20T08:40:53.973+0000"
-      appointment_end_time: "2021-08-20T08:40:53.973+0000"
-      appointment_start_time: "2021-08-20T08:40:53.973+0000"
-      is_recurring: true
-      timezone: "Kolkatta"
-      booked_by: "Ram"
-      cost: 100.10
-      customer_mood: "Normal"
-      customer_status: "Active"
-      location_link: "http://hmis.com"
-      integration: ""
-      note: "best consulting"
-      slot: 2
-      arrival_status: "Arrived"
-      type: "Normal"
-      event_id: "60f136aae66c183a14ad0bdf"
-      site_id: "60ec2ecc1fb0c42560fbf5d2"
-      add_on_ids: ["60f152ad7ff71d359825a6af"]
-      staff_id: "60f7c8e0fe41c636781746c0"
-      workspace_id: "60ed492b4bdef938f022d20d"
-      created_by: "60f7c8e0fe41c636781746c0"
-      created_at: "2021-08-20T08:40:53.973+0000"
-      created_from: "Chennai"
-      deleted: false
-      deleted_at: "2021-08-20T08:40:53.973+0000"
-      updated_at: "2021-08-20T08:40:53.973+0000"
-    }
-  ) {
-    _id
-    timezone
-    booked_by
-  }
-}
-----------
-mutation {
-  updateBooking(
-    bookingID: "611f7e2744662b52c8c4e709"
-    input: {
-      appointment_booking_time: "2021-08-20T08:40:53.973+0000"
-      appointment_end_time: "2021-08-20T08:40:53.973+0000"
-      appointment_start_time: "2021-08-20T08:40:53.973+0000"
-      is_recurring: true
-      timezone: "Kolkatta"
-      booked_by: "Manoj"
-      cost: 100.10
-      customer_mood: "Normal"
-      customer_status: "Active"
-      location_link: "http://hmis.com"
-      integration: ""
-      note: "best consulting"
-      slot: 2
-      arrival_status: "Arrived"
-      type: "Normal"
-      event_id: "60f136aae66c183a14ad0bdf"
-      site_id: "60ec2ecc1fb0c42560fbf5d2"
-      add_on_ids: ["60f152ad7ff71d359825a6af"]
-      staff_id: "60f7c8e0fe41c636781746c0"
-      workspace_id: "60ed492b4bdef938f022d20d"
-      created_by: "60f7c8e0fe41c636781746c0"
-      created_at: "2021-08-20T08:40:53.973+0000"
-      created_from: "Chennai"
-      deleted: false
-      deleted_at: "2021-08-20T08:40:53.973+0000"
-      updated_at: "2021-08-20T08:40:53.973+0000"
-    }
-  ) {
-    _id
-    timezone
-    booked_by
-  }
-}
-------
-REQUEST
-{
-staff:"612f37313b64c2a3064c4215",
-event:["612f37313b64c2a3064c4215","612f37313b64c2a3064c4215"],
-site: "60e2eead5a12d07c2bef058c",
-workspace:"611ba08d7dbdecf4c47091db",
-availablity:{
-"location":"611ba08d7dbdecf4c47091db",
-"time_zone":"",
-"booking_date":"",
-"slot":"611ba08d7dbdecf4c47091db",
-"isRepeted":true,
-"cycle_format":"Week",
-"till_date":"date"
-}
-customer:{
- "name":"Ram",
- "phone_no":"98745612300",
- "email":"ram@gmail.com",
- "isTermsAndConditions":true,
- "isShareInfo":false
-}
-}
-RESPONSE
-{
-    _id:"",
-booking_date:"",
-amount:"200",
-status:"Confirmed",
-"time_zone":"",
-"isRepeted":true,
-"cycle_format":"Week",
-"till_date":"date",
-customer:{
- "name":"Ram",
- "phone_no":"98745612300",
- "email":"ram@gmail.com",
- "isTermsAndConditions":true,
- "isShareInfo":false
-}
-locationAvailable:{
-_id
-type
-}
-availableTimes:{
-_id
-time
-}
-staff:{
-_id
-name
-}
-event:{
-}
-}
-
 --------------
 query {
   getBookingById(
@@ -298,3 +133,42 @@ query {
 }
 
 ---
+
+mutation {
+  updateBooking(
+    bookingID: "611f7e2744662b52c8c4e709"
+    input: {
+      appointment_booking_time: "2021-08-20T08:40:53.973+0000"
+      appointment_end_time: "2021-08-20T08:40:53.973+0000"
+      appointment_start_time: "2021-08-20T08:40:53.973+0000"
+      is_recurring: true
+      timezone: "Kolkatta"
+      booked_by: "Manoj"
+      cost: 100.10
+      customer_mood: "Normal"
+      customer_status: "Active"
+      location_link: "http://hmis.com"
+      integration: ""
+      note: "best consulting"
+      slot: 2
+      arrival_status: "Arrived"
+      type: "Normal"
+      event_id: "60f136aae66c183a14ad0bdf"
+      site_id: "60ec2ecc1fb0c42560fbf5d2"
+      add_on_ids: ["60f152ad7ff71d359825a6af"]
+      staff_id: "60f7c8e0fe41c636781746c0"
+      workspace_id: "60ed492b4bdef938f022d20d"
+      created_by: "60f7c8e0fe41c636781746c0"
+      created_at: "2021-08-20T08:40:53.973+0000"
+      created_from: "Chennai"
+      deleted: false
+      deleted_at: "2021-08-20T08:40:53.973+0000"
+      updated_at: "2021-08-20T08:40:53.973+0000"
+    }
+  ) {
+    _id
+    timezone
+    booked_by
+  }
+}
+------

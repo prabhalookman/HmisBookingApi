@@ -1,0 +1,533 @@
+import { ObjectId } from 'bson';
+export function aggregate_bhf(_ids, root, bizhours, eventid) {
+    let match = {}
+  
+    match["staff._id"] = ObjectId(_ids)
+  
+    let _root = {}
+    _root["staff"] = "$$ROOT"
+  
+  
+    let pipeline = []
+  
+    if (root == 'event') {
+      match['events.business_timings'] = false
+      match['events._id'] = ObjectId(eventid)
+      pipeline.push(
+        { '$project': { staff: '$$ROOT' } },
+        {
+          '$lookup': {
+            'localField': 'staff.staff_detail_id',
+            'from': 'staffdetails',
+            'foreignField': '_id',
+            'as': 'staffdetails'
+          }
+        },
+        {
+          '$lookup': {
+            'localField': 'staffdetails.events_ids',
+            'from': 'events',
+            'foreignField': '_id',
+            'as': 'events'
+          }
+        },
+        {
+          '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
+        },
+        {
+          '$lookup': {
+            'localField': 'events.timing_ids',
+            'from': 'timings',
+            'foreignField': '_id',
+            'as': 'timings'
+          }
+        },
+        {
+          '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
+        },
+        {
+          '$lookup': {
+            'localField': 'timings.location_setting_ids',
+            'from': 'locationsetting',
+            'foreignField': '_id',
+            'as': 'locationsetting'
+          }
+        },
+        {
+          '$lookup': {
+            'localField': 'locationsetting.location_id',
+            'from': 'location',
+            'foreignField': '_id',
+            'as': 'location'
+          }
+        },
+        { '$match': match },
+        {
+          '$project': {
+            'timings': '$timings',
+            'locationsetting_id': '$locationsetting._id',
+            'location_name': '$location.name',
+          }
+        })
+        console.log(`aggregate_bhf pipeline  EVENT ID ${eventid} :: ${JSON.stringify(pipeline)} `);
+    } else {
+      const bhf = staff_business_hours_false ()
+    pipeline = [...bhf]
+      pipeline.push(
+        { '$match': match },
+        {
+          '$project': {
+            'timings': '$timings',
+            'locationsetting_id': '$llocationsetting._id',
+            'location_name': '$location.name'
+          }
+        }
+      )
+      console.log(`aggregate_bhf pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
+    }
+    
+    return pipeline
+  }
+  
+export function aggregate_bht(_ids, root, bizhours) {
+    let match = {}
+  
+    match["staff._id"] = ObjectId(_ids)
+  
+    let _root = {}
+    _root["staff"] = "$$ROOT"
+  
+  
+    let pipeline = []
+  
+    if (root == 'event') {
+      match['events.business_timings'] = true
+      pipeline.push(
+        { '$project': { staff: '$$ROOT' } },
+        {
+          '$lookup': {
+            localField: 'staff.staff_detail_id',
+            from: 'staffdetails',
+            foreignField: '_id',
+            as: 'staffdetails'
+          }
+        },
+        {
+          '$lookup': {
+            localField: 'staffdetails.events_ids',
+            from: 'events',
+            foreignField: '_id',
+            as: 'events'
+          }
+        },
+        {
+          '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
+        },
+        {
+          '$lookup': {
+            localField: 'events.business_id',
+            from: 'business',
+            foreignField: '_id',
+            as: 'business'
+          }
+        },
+        {
+          '$lookup': {
+            localField: 'business.business_info_ids',
+            from: 'businessinfo',
+            foreignField: '_id',
+            as: 'businessinfo'
+          }
+        },
+        {
+          '$lookup': {
+            localField: 'businessinfo.timing_ids',
+            from: 'timings',
+            foreignField: '_id',
+            as: 'timings'
+          }
+        },
+        {
+          '$lookup': {
+            localField: 'events.location_setting_ids',
+            from: 'locationsetting',
+            foreignField: '_id',
+            as: 'locationsetting'
+          }
+        },
+        {
+          '$lookup': {
+            localField: 'locationsetting.location_id',
+            from: 'location',
+            foreignField: '_id',
+            as: 'location'
+          }
+        },
+  
+        { '$match': match },
+        {
+          '$project': {
+            event: '$events._id',
+            timings: '$timings',
+            location_name: '$location.name'
+          }
+        })
+        console.log('aggregate_bht pipeline EVENT : ', JSON.stringify(pipeline));
+    } else {
+      const bht = staff_business_hours_true()
+    pipeline = [...bht]
+      pipeline.push(
+  
+        { '$match': match },
+        {
+          '$project': {
+            event: '$events._id',
+            timings: '$timings',
+            location_name: '$location.name'
+          }
+        }
+      )
+      console.log(`aggregate_bht pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
+      
+    }
+    
+    return pipeline
+  }
+  
+  
+export  function get_staffdetail_agg(_ids,workspace_id,site_id) {
+    let match = {}
+  
+    match["staff._id"] = ObjectId(_ids)
+    match["staff.workspace_ids"] = ObjectId(workspace_id)
+    match["staff.site_id"] = ObjectId(site_id)
+
+    let pipeline = []
+  
+    pipeline.push({ '$project': { staff: '$$ROOT' } },
+      {
+        '$lookup': {
+          localField: 'staff.staff_detail_id',
+          from: 'staffdetails',
+          foreignField: '_id',
+          as: 'staffdetails'
+        }
+      },
+      { '$match': match },
+      {
+        "$facet": {
+          'staffDetails': [
+            {
+              '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+            },
+            {
+              '$project': {
+                'business_timings': '$staffdetails.business_timings',
+              }
+            }
+  
+          ],
+          'events': [
+            {
+              "$lookup": {
+                "localField": "staff.staff_detail_id",
+                "from": "staffdetails",
+                "foreignField": "_id",
+                "as": "staffdetails"
+              }
+            },
+            {
+              '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
+            },
+            {
+              '$lookup': {
+                localField: 'staffdetails.events_ids',
+                from: 'events',
+                foreignField: '_id',
+                as: 'events'
+              }
+            },
+            {
+              '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
+            },
+            {
+              '$project': {
+                'events': '$events._id',
+                'event_business_timings': '$events.business_timings',
+              }
+            }
+          ]
+        }
+      },
+      {
+        '$project': {
+          'staffDetails': '$staffDetails',
+          'events': '$events'
+        }
+      })
+  
+    //console.log('get_staffdetail_agg : ', JSON.stringify(pipeline) )
+  
+    return pipeline
+  }
+  
+export  function get_locationsettings_agg_bht(_ids,workspace_id,site_id) {
+    let match = {}
+    match["staff._id"] = ObjectId(_ids)
+    match["staff.workspace_ids"] = ObjectId(workspace_id)
+    match["staff.site_id"] = ObjectId(site_id)
+    let pipeline = []
+    const bht = staff_business_hours_true ()
+    pipeline = [...bht]
+    pipeline.push(
+  {
+     '$match': match ,
+  },
+  {
+      "$facet": {
+          "locationSetting": [
+              {
+                  "$unwind": {
+                      "path": "$locationsetting",
+                      "preserveNullAndEmptyArrays": false
+                  }
+              },
+              {
+                  "$project": {
+                      "locationsetting_id": "$locationsetting._id",
+                      "location_id": "$locationsetting.location_id",
+  
+                  }
+              }
+          ],
+  
+          "location": [
+              {
+                  "$unwind": {
+                      "path": "$location",
+                      "preserveNullAndEmptyArrays": false
+                  }
+              },
+              {
+                  "$project": {
+                      "location_id": "$location._id",
+                      "location_type": "$location.type",
+                      "location_name": "$location.name"
+                  }
+              }
+          ]
+      }
+  },
+  {
+      "$project": {
+          "locationsetting": "$locationSetting",
+          "location_type": "$location"
+  
+      }
+  })
+  console.log('get_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  return pipeline
+  }
+  
+export  function get_locationsettings_agg_bhf(_ids,workspace_id,site_id){
+    let match = {}
+    match["staff._id"] = ObjectId(_ids)
+    match["staff.workspace_ids"] = ObjectId(workspace_id)
+    match["staff.site_id"] = ObjectId(site_id)
+    let pipeline = []
+    const bht = staff_business_hours_false ()
+    pipeline = [...bht]
+    pipeline.push(
+      {
+         '$match': match ,
+      },
+      {
+          "$facet": {
+              "locationSetting": [
+                  {
+                      "$unwind": {
+                          "path": "$locationsetting",
+                          "preserveNullAndEmptyArrays": false
+                      }
+                  },
+                  {
+                      "$project": {
+                          "locationsetting_id": "$locationsetting._id",
+                          "location_id": "$locationsetting.location_id",
+      
+                      }
+                  }
+              ],
+      
+              "location": [
+                  {
+                      "$unwind": {
+                          "path": "$location",
+                          "preserveNullAndEmptyArrays": false
+                      }
+                  },
+                  {
+                      "$project": {
+                          "location_id": "$location._id",
+                          "location_type": "$location.type",
+                          "location_name": "$location.name"
+                      }
+                  }
+              ]
+          }
+      },
+      {
+          "$project": {
+              "locationsetting": "$locationSetting",
+              "location_type": "$location"
+      
+          }
+      })
+    console.log('get_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+  
+export  function staff_business_hours_true() {
+    let pipline = [];
+    pipline.push({
+      "$project": {
+        "staff": "$$ROOT"
+      }
+    },
+      {
+        "$lookup": {
+          "localField": "staff.staff_detail_id",
+          "from": "staffdetails",
+          "foreignField": "_id",
+          "as": "staffdetails"
+        }
+      },
+      {
+        "$lookup": {
+          "localField": "staffdetails.business_id",
+          "from": "business",
+          "foreignField": "_id",
+          "as": "business"
+        }
+      },
+      {
+        "$lookup": {
+          "localField": "business.business_info_ids",
+          "from": "businessinfo",
+          "foreignField": "_id",
+          "as": "businessinfo"
+        }
+      },
+      {
+        "$lookup": {
+          "localField": "businessinfo.timing_ids",
+          "from": "timings",
+          "foreignField": "_id",
+          "as": "timings"
+        }
+      },
+      {
+        "$lookup": {
+          "localField": "staffdetails.location_setting_ids",
+          "from": "locationsetting",
+          "foreignField": "_id",
+          "as": "locationsetting"
+        }
+      },
+      {
+        "$lookup": {
+          "localField": "locationsetting.location_id",
+          "from": "location",
+          "foreignField": "_id",
+          "as": "location"
+        }
+      })
+    return pipline
+    //console.log(`staff_business_hours_true : ${JSON.stringify(pipline) } `)
+  }
+  
+export  function staff_business_hours_false() {
+    let pipline = [];
+    pipline.push({
+      "$project": {
+        "staff": "$$ROOT"
+      }
+    },
+      {
+        "$lookup": {
+          "localField": "staff.staff_detail_id",
+          "from": "staffdetails",
+          "foreignField": "_id",
+          "as": "staffdetails"
+        }
+      },
+      {
+        '$lookup': {
+          'localField': 'staffdetails.timing_ids',
+          'from': 'timings',
+          'foreignField': '_id',
+          'as': 'timings'
+        }
+      },
+      {
+        '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
+      },
+      {
+        '$lookup': {
+          'localField': 'timings.location_setting_ids',
+          'from': 'locationsetting',
+          'foreignField': '_id',
+          'as': 'locationsetting'
+        }
+      },
+      {
+        '$lookup': {
+          'localField': 'locationsetting.location_id',
+          'from': 'location',
+          'foreignField': '_id',
+          'as': 'location'
+        }
+      })
+    return pipline
+    //console.log(`staff_business_hours_false : ${JSON.stringify(pipline) } `)
+  }
+  
+  //To check staff_id is business_hours true or false
+export  function bushiness_timings_agg(staff_id,workspace_id,site_id){
+    let pipline = [];
+    let match = {}
+  
+    match["staff._id"] = ObjectId(staff_id)
+    match["staff.workspace_ids"] = ObjectId(workspace_id)
+    match["staff.site_id"] = ObjectId(site_id)
+    pipline.push([
+      {
+          "$project": {
+              "staff": "$$ROOT"
+          }
+      },
+      {
+          "$lookup": {
+              "localField": "staff.staff_detail_id",
+              "from": "staffdetails",
+              "foreignField": "_id",
+              "as": "staffdetails"
+          }
+      },
+      {
+          "$unwind": {
+              "path": "$staffdetails",
+              "preserveNullAndEmptyArrays": false
+          }
+      },
+      {
+          "$match": match
+      }, {
+          "$project": {
+              "business_hours": "$staffdetails.business_timings"
+          }
+      }])
+    return pipline
+  }
+

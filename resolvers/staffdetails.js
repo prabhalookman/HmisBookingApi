@@ -1,6 +1,14 @@
 
 import { ObjectId } from 'bson';
 import moment from 'moment-timezone';
+import {  
+  aggregate_bhf,
+  aggregate_bht,
+  get_staffdetail_agg,
+  get_locationsettings_agg_bht,
+  get_locationsettings_agg_bhf,
+  bushiness_timings_agg
+} from '../helpers/aggregateFunctions'
 export default {
   Query: {
     getStaffDetails: async (parent, args, { models }, info) => {
@@ -15,19 +23,6 @@ export default {
     getAvailabilityByStaff: async (parent, args, { models }, info) => {
       
       try {
-        // let resultObj = {
-        //   start_date: "",
-        //   end_date: "",
-        //   pre_booking_day: 0,
-        //   available_date: [],
-        //   disable_date: [],
-        //   selectedDate: "",
-        //   availableTimes: [],
-        //   locationAvailable: [],
-        //   dayStartTime: "",
-        //   dayEndTime:""
-        // }
-        //let staffResult;
         let displaySettings = '12'
         let minutesFormat = "HH:mm";
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
@@ -41,12 +36,15 @@ export default {
         let minDate = moment(new Date(), dateFormat)
         let bookingStartDate = moment(new Date(), dateFormat)
         let maxDate = moment(new Date(), dateFormat).add(pre_booking_day - 1, 'days');
+        if(selectedDate<minDate){
+          throw new Error('Selected date should be greater than current date')
+        }
 
         console.log('minDate : ', minDate.format(dateFormat));
         console.log('maxDate : ', maxDate.format(dateFormat));
 
         let staffdetail_ag_rs;
-        let staffDetail_ar = await models.Staff.aggregate(get_staffdetail_agg(args.staff_ids));
+        let staffDetail_ar = await models.Staff.aggregate(get_staffdetail_agg(args.staff_ids,args.workspace_id,args.site_id));
         let staffDetails = staffDetail_ar[0].staffDetails[0]
         if (staffDetails.business_timings) {
 
@@ -68,9 +66,20 @@ export default {
           for (let k = 0; k < staffdetail_ag_rs.length; k++) {
             console.log("staffdetail_ag_rs  id : ", staffdetail_ag_rs[k]._id)
             let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            if (staffdetail_ag_rs[k].location_type.includes(args.location)) {
+            let location_flag = false
+            staffdetail_ag_rs[k].location_name.forEach((stf)=>{
+              args.locationName.forEach((loc)=>{
+                if(loc == stf){
+                  location_flag = true
+                }
+              })
+            })
+            if (location_flag) {
               newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
               newStaffs ? staffResult.push(newStaffs) : 0
+            } else {
+              console.error("location_flag not match ")
+              throw new Error ("Location Name  not match with staff location ")
             }
           }
         }
@@ -100,9 +109,29 @@ export default {
             }
 
             let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-            newEvents ? eventResult.push(newEvents) : 0
+            ///
+            let ev_location_flag = false
+            events_ag_rs[0].location_name.forEach((evt)=>{
+              args.locationName.forEach((loc)=>{
+                if(loc == evt){
+                  ev_location_flag = true
+                }
+              })
+            })
+            if (ev_location_flag) {
+              newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+              newEvents ? eventResult.push(newEvents) : 0
+            } else {
+              console.error("ev_location_flag not match ")
+              throw new Error ("Location Name not match with Event location ")
+            }
+            ///
+            // newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+            // newEvents ? eventResult.push(newEvents) : 0
 
+            } else {
+              console.error("Event Id not associated with staff ")
+              throw new Error ("Event Id not associated with staff ")
             }
           }
         }
@@ -140,6 +169,7 @@ export default {
     },
     getLocationSettings: async(parent, args, { models }, info)=> {
       try {
+        
         let displaySettings = '12'
       let minutesFormat = "HH:mm";
       const secondsFormat = "YYYY-MM-DD HH:mm:ss";
@@ -153,6 +183,9 @@ export default {
 
       let minDate = moment(new Date(), secondsFormat)
       let maxDate = moment(new Date(), secondsFormat).add(pre_booking_day - 1, 'days');
+      if(selectedDate<minDate){
+        throw new Error('Selected date should be greater than current date')
+      }
 
       let available_date = [];
       let disable_date = [];
@@ -168,7 +201,14 @@ export default {
       }
 
       let loc_ar = []; let location_setting = [], locations = [];
-        loc_ar = await models.Staff.aggregate(get_locationsettings_agg(args.staff_id));
+      
+      let business_time = await models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id));
+      if(business_time){
+        loc_ar = await models.Staff.aggregate(get_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
+      } else {
+        loc_ar = await models.Staff.aggregate(get_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
+      }
+        
         location_setting = loc_ar[0].locationsetting
         locations = loc_ar[0].location_type
         let loc = [];
@@ -293,16 +333,11 @@ let getting_slots = async (fromObj,details, models, result, displaySettings, min
         result.availableTimes.push(tresult.availableTimes)
         is_matched = true
         console.log('Match')
-
-        //console.log(`selected date ${selectedDate} match with start time ${start_time} -> ${timingsStartTimeDay}`)
       } else {
         console.log('NOT Match')
-        //console.log(`selected date ${selectedDate} DOES NOT match with start time ${start_time} -> ${timingsStartTimeDay}`)
       }
 
     })
-
-    //}) //Timings ForEach End
   }
 
   if(is_matched == false){
@@ -536,465 +571,4 @@ function result(start_date, end_date, pre_booking_day, available_date, disable_d
   this.locationAvailable = locationAvailable;
   this.dayStartTime = dayStartTime;
   this.dayEndTime = dayEndTime
-}
-
-function aggregate_bhf(_ids, root, bizhours, eventid) {
-  let match = {}
-
-  match["staff._id"] = ObjectId(_ids)
-
-  let _root = {}
-  _root["staff"] = "$$ROOT"
-
-
-  let pipeline = []
-
-  if (root == 'event') {
-    match['events.business_timings'] = false
-    match['events._id'] = ObjectId(eventid)
-    pipeline.push(
-      { '$project': { staff: '$$ROOT' } },
-      {
-        '$lookup': {
-          'localField': 'staff.staff_detail_id',
-          'from': 'staffdetails',
-          'foreignField': '_id',
-          'as': 'staffdetails'
-        }
-      },
-      {
-        '$lookup': {
-          'localField': 'staffdetails.events_ids',
-          'from': 'events',
-          'foreignField': '_id',
-          'as': 'events'
-        }
-      },
-      {
-        '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
-      },
-      {
-        '$lookup': {
-          'localField': 'events.timing_ids',
-          'from': 'timings',
-          'foreignField': '_id',
-          'as': 'timings'
-        }
-      },
-      {
-        '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
-      },
-      {
-        '$lookup': {
-          'localField': 'timings.location_setting_ids',
-          'from': 'locationsetting',
-          'foreignField': '_id',
-          'as': 'locationsetting'
-        }
-      },
-      {
-        '$lookup': {
-          'localField': 'locationsetting.location_id',
-          'from': 'location',
-          'foreignField': '_id',
-          'as': 'location'
-        }
-      },
-      { '$match': match },
-      {
-        '$project': {
-          'timings': '$timings',
-          'locationsetting_id': '$locationsetting._id',
-          'location_type': '$location.type',
-        }
-      })
-      console.log(`aggregate_bhf pipeline  EVENT ID ${eventid} :: ${JSON.stringify(pipeline)} `);
-  } else {
-    pipeline.push({
-      "$project": {
-        "staff": "$$ROOT"
-      }
-    },
-      {
-        "$lookup": {
-          "localField": "staff.staff_detail_id",
-          "from": "staffdetails",
-          "foreignField": "_id",
-          "as": "staffdetails"
-        }
-      },
-      {
-        '$lookup': {
-          'localField': 'staffdetails.timing_ids',
-          'from': 'timings',
-          'foreignField': '_id',
-          'as': 'timings'
-        }
-      },
-      {
-        '$unwind': { path: '$timings', preserveNullAndEmptyArrays: false }
-      },
-      {
-        '$lookup': {
-          'localField': 'timings.location_setting_ids',
-          'from': 'locationsetting',
-          'foreignField': '_id',
-          'as': 'locationsetting'
-        }
-      },
-      {
-        '$lookup': {
-          'localField': 'locationsetting.location_id',
-          'from': 'location',
-          'foreignField': '_id',
-          'as': 'location'
-        }
-      },
-      { '$match': match },
-      {
-        '$project': {
-          'timings': '$timings',
-          'locationsetting_id': '$llocationsetting._id',
-          'location_type': '$location.type'
-        }
-      }
-    )
-    console.log(`aggregate_bhf pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
-  }
-  
-  return pipeline
-}
-
-function aggregate_bht(_ids, root, bizhours) {
-  let match = {}
-
-  match["staff._id"] = ObjectId(_ids)
-
-  let _root = {}
-  _root["staff"] = "$$ROOT"
-
-
-  let pipeline = []
-
-  if (root == 'event') {
-    match['events.business_timings'] = true
-    pipeline.push(
-      { '$project': { staff: '$$ROOT' } },
-      {
-        '$lookup': {
-          localField: 'staff.staff_detail_id',
-          from: 'staffdetails',
-          foreignField: '_id',
-          as: 'staffdetails'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'staffdetails.events_ids',
-          from: 'events',
-          foreignField: '_id',
-          as: 'events'
-        }
-      },
-      {
-        '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
-      },
-      {
-        '$lookup': {
-          localField: 'events.business_id',
-          from: 'business',
-          foreignField: '_id',
-          as: 'business'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'business.business_info_ids',
-          from: 'businessinfo',
-          foreignField: '_id',
-          as: 'businessinfo'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'businessinfo.timing_ids',
-          from: 'timings',
-          foreignField: '_id',
-          as: 'timings'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'events.location_setting_ids',
-          from: 'locationsetting',
-          foreignField: '_id',
-          as: 'locationsetting'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'locationsetting.location_id',
-          from: 'location',
-          foreignField: '_id',
-          as: 'location'
-        }
-      },
-
-      { '$match': match },
-      {
-        '$project': {
-          event: '$events._id',
-          timings: '$timings',
-          location_type: '$location.type'
-        }
-      })
-      console.log('aggregate_bht pipeline EVENT : ', JSON.stringify(pipeline));
-  } else {
-    pipeline.push({ '$project': { staff: '$$ROOT' } },
-      {
-        '$lookup': {
-          localField: 'staff.staff_detail_id',
-          from: 'staffdetails',
-          foreignField: '_id',
-          as: 'staffdetails'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'staffdetails.business_id',
-          from: 'business',
-          foreignField: '_id',
-          as: 'business'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'business.business_info_ids',
-          from: 'businessinfo',
-          foreignField: '_id',
-          as: 'businessinfo'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'businessinfo.timing_ids',
-          from: 'timings',
-          foreignField: '_id',
-          as: 'timings'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'staffdetails.location_setting_ids',
-          from: 'locationsetting',
-          foreignField: '_id',
-          as: 'locationsetting'
-        }
-      },
-      {
-        '$lookup': {
-          localField: 'locationsetting.location_id',
-          from: 'location',
-          foreignField: '_id',
-          as: 'location'
-        }
-      },
-
-      { '$match': match },
-      {
-        '$project': {
-          event: '$events._id',
-          timings: '$timings',
-          location_type: '$location.type'
-        }
-      }
-    )
-    console.log(`aggregate_bht pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
-    
-  }
-  
-  return pipeline
-}
-
-
-function get_staffdetail_agg(_ids) {
-  let match = {}
-
-  match["staff._id"] = ObjectId(_ids)
-
-
-  let pipeline = []
-
-  pipeline.push({ '$project': { staff: '$$ROOT' } },
-    {
-      '$lookup': {
-        localField: 'staff.staff_detail_id',
-        from: 'staffdetails',
-        foreignField: '_id',
-        as: 'staffdetails'
-      }
-    },
-    { '$match': match },
-    {
-      "$facet": {
-        'staffDetails': [
-          {
-            '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
-          },
-          {
-            '$project': {
-              'business_timings': '$staffdetails.business_timings',
-            }
-          }
-
-        ],
-        'events': [
-          {
-            "$lookup": {
-              "localField": "staff.staff_detail_id",
-              "from": "staffdetails",
-              "foreignField": "_id",
-              "as": "staffdetails"
-            }
-          },
-          {
-            '$unwind': { path: '$staffdetails', preserveNullAndEmptyArrays: false }
-          },
-          {
-            '$lookup': {
-              localField: 'staffdetails.events_ids',
-              from: 'events',
-              foreignField: '_id',
-              as: 'events'
-            }
-          },
-          {
-            '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
-          },
-          {
-            '$project': {
-              'events': '$events._id',
-              'event_business_timings': '$events.business_timings',
-            }
-          }
-        ]
-      }
-    },
-    {
-      '$project': {
-        'staffDetails': '$staffDetails',
-        'events': '$events'
-      }
-    })
-
-  //console.log('get_staffdetail_agg : ', JSON.stringify(pipeline) )
-
-  return pipeline
-}
-
-function get_locationsettings_agg(_ids) {
-  let match = {}
-  match["staff._id"] = ObjectId(_ids)
-  let pipeline = []
-  pipeline.push({
-    "$project": {
-        "staff": "$$ROOT"
-    }
-},
-{
-    "$lookup": {
-        "localField": "staff.staff_detail_id",
-        "from": "staffdetails",
-        "foreignField": "_id",
-        "as": "staffdetails"
-    }
-},
-{
-    "$lookup": {
-        "localField": "staffdetails.business_id",
-        "from": "business",
-        "foreignField": "_id",
-        "as": "business"
-    }
-},
-{
-    "$lookup": {
-        "localField": "business.business_info_ids",
-        "from": "businessinfo",
-        "foreignField": "_id",
-        "as": "businessinfo"
-    }
-},
-{
-    "$lookup": {
-        "localField": "businessinfo.timing_ids",
-        "from": "timings",
-        "foreignField": "_id",
-        "as": "timings"
-    }
-},
-{
-    "$lookup": {
-        "localField": "staffdetails.location_setting_ids",
-        "from": "locationsetting",
-        "foreignField": "_id",
-        "as": "locationsetting"
-    }
-},
-{
-    "$lookup": {
-        "localField": "locationsetting.location_id",
-        "from": "location",
-        "foreignField": "_id",
-        "as": "location"
-    }
-},
-{
-   '$match': match ,
-},
-{
-    "$facet": {
-        "locationSetting": [
-            {
-                "$unwind": {
-                    "path": "$locationsetting",
-                    "preserveNullAndEmptyArrays": false
-                }
-            },
-            {
-                "$project": {
-                    "locationsetting_id": "$locationsetting._id",
-                    "location_id": "$locationsetting.location_id",
-
-                }
-            }
-        ],
-
-        "location": [
-            {
-                "$unwind": {
-                    "path": "$location",
-                    "preserveNullAndEmptyArrays": false
-                }
-            },
-            {
-                "$project": {
-                    "location_id": "$location._id",
-                    "location_type": "$location.type",
-                    "location_name": "$location.name"
-                }
-            }
-        ]
-    }
-},
-{
-    "$project": {
-        "locationsetting": "$locationSetting",
-        "location_type": "$location"
-
-    }
-})
-
-console.log('pipeline : ', JSON.stringify(pipeline) )
-return pipeline
 }
