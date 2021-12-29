@@ -1,0 +1,26 @@
+service: apollo-lambda-01
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ap-south-1
+
+functions:
+  graphql:
+    # this is formatted as <FILENAME>.<HANDLER>
+    handler: graphql.graphqlHandler
+    events:
+    - http:
+        path: /
+        method: post
+        cors: true
+    - http:
+        path: /
+        method: get
+        cors: true
+plugins:
+  - serverless-webpack
+  - serverless-offline
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true

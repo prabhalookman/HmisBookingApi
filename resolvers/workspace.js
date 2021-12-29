@@ -1,8 +1,8 @@
 export default {
   Query: {
-    getWorkspace: async (parent, args, { models }, info) => {
+    getWorkspace: async (parent, args, context, info) => {
       try {
-        let workspace = await models.Workspace.find({})
+        let workspace = await context.models.Workspace.find({})
         return workspace
       } catch (error) {
         console.error("Error : ", error)
@@ -10,7 +10,7 @@ export default {
     }
   },
   Workspace: {
-    site_id: async (wrkspace, args, { models }) => {
+    site_id: async (wrkspace, args, context) => {
       const resultworkspace = await wrkspace.populate('site_id').execPopulate()
       return resultworkspace.site_id
     }

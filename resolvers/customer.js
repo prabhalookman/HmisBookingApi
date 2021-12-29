@@ -1,8 +1,8 @@
 export default {
   Query: {
-    getCustomer: async (parent, args, { models }, info) => {
+    getCustomer: async (parent, args, context, info) => {
       try {
-        let Customer = await models.Customer.find({workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id  })
+        let Customer = await context.models.Customer.find({workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id  })
         //// workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id 
         return Customer
       } catch (error) {
@@ -11,7 +11,7 @@ export default {
     }
   },
   Mutation: {
-    addCustomer: async (parent, args, { models }, info) => {
+    addCustomer: async (parent, args, context, info) => {
       try {
         let newCustomer = new models.Customer();
         let clientKeys = Object.keys(args.input);

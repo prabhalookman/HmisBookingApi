@@ -15,4 +15,4 @@ const staffDetailsSchema = new mongoose.Schema({
 })
 
 const StaffDetails = mongoose.model('staffdetails', staffDetailsSchema, 'staffdetails')
-module.exports = StaffDetails;
+export default StaffDetails;

@@ -106,3 +106,40 @@ http://52.172.97.26:4000/ApiSample/index.html (edited)
 
 Mongo Compass : 
 mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?authSource=admin&replicaSet=atlas-fyf4l0-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true
+
+http://52.172.97.26:4000/graphql
+http://52.172.97.26:4000/ApiSample/index.html (edited) 
+
+Lambda :
+Local NVM ls : v15.2.1
+
+service: apollo-lambda-01
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ap-south-1
+  ------
+  Service Information
+service: apollo-lambda-01
+stage: dev
+region: ap-south-1
+stack: apollo-lambda-01-dev
+resources: 11
+api keys:
+  None
+endpoints:
+  POST - https://pyvhrzj446.execute-api.ap-south-1.amazonaws.com/dev/
+  GET - https://pyvhrzj446.execute-api.ap-south-1.amazonaws.com/dev/
+functions:
+  graphql: apollo-lambda-01-dev-graphql
+layers:
+  None
+
+  -----
+  Cloud sls Deployment During local running state :
+  nvm ls
+  v12.16.0
+  -> v12.20.2
+  v15.2.1
+
+  Local : http://localhost:4000/graphql

@@ -12,7 +12,7 @@ const businessInfoSchema = new mongoose.Schema({
 })
 
 const BusinessInfo = mongoose.model('businessinfo', businessInfoSchema, 'businessinfo')
-module.exports = BusinessInfo;
+export default BusinessInfo;
 
 /*
  accessible: Boolean,

@@ -1,8 +1,8 @@
 export default {
     Query: {
-        getAddOns: async (parent, args, { models }, info) => {
+        getAddOns: async (parent, args, context, info) => {
             try {
-                let addon = await models.AddOn.find({ delete: false })
+                let addon = await context.models.AddOn.find({ delete: false })
                 return addon
             } catch (error) {
                 console.error("Error : ", error)

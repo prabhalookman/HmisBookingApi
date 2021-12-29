@@ -11,16 +11,16 @@ import {
 } from '../helpers/aggregateFunctions'
 export default {
   Query: {
-    getStaffDetails: async (parent, args, { models }, info) => {
+    getStaffDetails: async (parent, args, context, info) => {
       try {
-        let staffDetails = await models.StaffDetails.find({ site_id: args.site_id, workspace_ids: args.workspace_id })
+        let staffDetails = await context.models.StaffDetails.find({ site_id: args.site_id, workspace_ids: args.workspace_id })
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
         throw new Error (error)
       }
     },
-    getAvailabilityByStaff: async (parent, args, { models }, info) => {
+    getAvailabilityByStaff: async (parent, args, context, info) => {
       
       try {
         let displaySettings = '12'
@@ -29,7 +29,7 @@ export default {
         let selectedDate = moment(args.date, "YYYY-MM-DD"); 
         console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
-        let settings = await models.Setting.find({})
+        let settings = await context.models.Setting.find({})
         const pre_booking_day = settings[0].advance_Booking_Period.value
         const clientSlot = settings[0].client_time_slot
 
@@ -44,17 +44,17 @@ export default {
         console.log('maxDate : ', maxDate.format(dateFormat));
 
         let staffdetail_ag_rs;
-        let staffDetail_ar = await models.Staff.aggregate(get_staffdetail_agg(args.staff_ids,args.workspace_id,args.site_id));
+        let staffDetail_ar = await context.models.Staff.aggregate(get_staffdetail_agg(args.staff_ids,args.workspace_id,args.site_id));
         let staffDetails = staffDetail_ar[0].staffDetails[0]
         if (staffDetails.business_timings) {
 
           let staff_pipeline = aggregate_bht(args.staff_ids, 'staff', true)
-          staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
+          staffdetail_ag_rs = await context.models.Staff.aggregate(staff_pipeline);
 
         } else {
 
           let staff_pipeline = aggregate_bhf(args.staff_ids, 'staff', false)
-          staffdetail_ag_rs = await models.Staff.aggregate(staff_pipeline);
+          staffdetail_ag_rs = await context.models.Staff.aggregate(staff_pipeline);
           console.log('staffdetail_ag_rs : ', staffdetail_ag_rs.length)
         }
 
@@ -75,7 +75,7 @@ export default {
               })
             })
             if (location_flag) {
-              newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+              newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
               newStaffs ? staffResult.push(newStaffs) : 0
             } else {
               console.error("location_flag not match ")
@@ -98,13 +98,13 @@ export default {
             if (staffDetail_ar[0].events[k].event_business_timings) {
 
               let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
-              events_ag_rs = await models.Staff.aggregate(event_pipeline);
+              events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
               console.log('events_ag_rs : ', events_ag_rs.length)
 
             } else {
 
               let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false, args.event[0])
-              events_ag_rs = await models.Staff.aggregate(event_pipeline);
+              events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
               console.log('events_ag_rs : ', events_ag_rs.length)
             }
 
@@ -119,7 +119,7 @@ export default {
               })
             })
             if (ev_location_flag) {
-              newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+              newEvents = await getting_slots('Event',events_ag_rs[0], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
               newEvents ? eventResult.push(newEvents) : 0
             } else {
               console.error("ev_location_flag not match ")
@@ -138,7 +138,7 @@ export default {
 
         
         let resp_result = {}
-        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, models, args.staff_ids, args.event)
+        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, context, args.staff_ids, args.event)
         let events_availableTimes = compareTwoSlots(staffResult, eventResult)
         resp_result.start_date = eventResult[0].start_date
         resp_result.end_date = eventResult[0].end_date
@@ -167,7 +167,7 @@ export default {
         throw new Error (error)
       }
     },
-    getLocationSettings: async(parent, args, { models }, info)=> {
+    getLocationSettings: async(parent, args, context, info)=> {
       try {
         
         let displaySettings = '12'
@@ -177,7 +177,7 @@ export default {
       let selectedDate = moment(args.date, dateFormat);
       //console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
-      let settings = await models.Setting.find({})
+      let settings = await context.models.Setting.find({})
       const pre_booking_day = settings[0].advance_Booking_Period.value
       const clientSlot = settings[0].client_time_slot
 
@@ -202,11 +202,11 @@ export default {
 
       let loc_ar = []; let location_setting = [], locations = [];
       
-      let business_time = await models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id));
+      let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id));
       if(business_time){
-        loc_ar = await models.Staff.aggregate(get_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
+        loc_ar = await context.models.Staff.aggregate(get_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
       } else {
-        loc_ar = await models.Staff.aggregate(get_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
+        loc_ar = await context.models.Staff.aggregate(get_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
       }
         
         location_setting = loc_ar[0].locationsetting
@@ -240,9 +240,9 @@ export default {
       }
 
     },
-    getstaffdetailbyservice: async (parent, args, { models }, info) => {
+    getstaffdetailbyservice: async (parent, args, context, info) => {
       try {
-        let staffDetails = await models.StaffDetails.find({ site_id: args.site_id, workspace_id: args.workspace_id, event_ids: args.event_ids })
+        let staffDetails = await context.models.StaffDetails.find({ site_id: args.site_id, workspace_id: args.workspace_id, event_ids: args.event_ids })
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
@@ -251,35 +251,35 @@ export default {
     }
   },
   StaffDetails: {
-    site_id: async (locsetting, args, { models }) => {
+    site_id: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('site_id').execPopulate();
       return resultStaffDetails.site_id
     },
-    workspace_id: async (locsetting, args, { models }) => {
+    workspace_id: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('workspace_id').execPopulate();
       return resultStaffDetails.workspace_id
     },
-    business_id: async (locsetting, args, { models }) => {
+    business_id: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('business_id').execPopulate();
       return resultStaffDetails.business_id
     },
-    address_ids: async (locsetting, args, { models }) => {
+    address_ids: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('address_ids').execPopulate();
       return resultStaffDetails.address_ids
     },
-    timing_ids: async (locsetting, args, { models }) => {
+    timing_ids: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('timing_ids').execPopulate();
       return resultStaffDetails.timing_ids
     },
-    sorting_id: async (locsetting, args, { models }) => {
+    sorting_id: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('sorting_id').execPopulate();
       return resultStaffDetails.sorting_id
     },
-    event_ids: async (locsetting, args, { models }) => {
+    event_ids: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('event_ids').execPopulate();
       return resultStaffDetails.event_ids
     },
-    location_setting_ids: async (locsetting, args, { models }) => {
+    location_setting_ids: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('location_setting_ids').execPopulate();
       return resultStaffDetails.location_setting_ids
     }
@@ -482,7 +482,7 @@ let compareTwoSlots = (list_one, list_two) => {
 
 }
 
-let checkBooking = async (list_one, select_date, models, args_staff_ids, args_event_id) => {
+let checkBooking = async (list_one, select_date, context, args_staff_ids, args_event_id) => {
   try {
 
     let selectedDate = moment(new Date(select_date), "YYYY-MM-DDTHH:mm:ss").toISOString() //moment.utc('2021-09-29T12:00:14.000+00:00') moment(new Date ('2021-09-29T12:00:00.000+00:00'), "YYYY-MM-DDTHH:mm:sss").toUTCString();
@@ -492,7 +492,7 @@ let checkBooking = async (list_one, select_date, models, args_staff_ids, args_ev
     //console.log(`selectedDate.isValid() : ${selectedDate.isValid()}  : ${selectedDate.toISOString()}`) // 
     //console.log(`selectedDatePlus.isValid() : ${selectedDatePlus.isValid()}  : ${selectedDatePlus.toISOString()}`) // 
 
-    let bookingDetails = await models.Booking.find({staff_id: args_staff_ids, event_id: args_event_id, Is_cancelled:false, deleted:false, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }})//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
+    let bookingDetails = await context.models.Booking.find({staff_id: args_staff_ids, event_id: args_event_id, Is_cancelled:false, deleted:false, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }})//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
     //{staff_id: args_staff_ids, event_id: args_event_id, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }}
 
     //Staff

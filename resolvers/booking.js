@@ -2,36 +2,36 @@ import { MyError } from '../helpers/helper'
 import moment from 'moment-timezone';
 export default {
   Query: {
-    getBooking: async (parent, args, { models }, info) => {
+    getBooking: async (parent, args, context, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id })
+        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
         throw new Error(error)
       }
     },
-    getBookingById: async (parent, args, { models }, info) => {
+    getBookingById: async (parent, args, context, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, _id: args.booking_id })
+        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, _id: args.booking_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
         throw new Error(error)
       }
     },
-    getBookingByStaff: async (parent, args, { models }, info) => {
+    getBookingByStaff: async (parent, args, context, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, staff_id: args.staff_id })
+        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, staff_id: args.staff_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
         throw new Error(error)
       }
     },
-    getBookingByEvent: async (parent, args, { models }, info) => {
+    getBookingByEvent: async (parent, args, context, info) => {
       try {
-        let Booking = await models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, event_id: args.event_id })
+        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, event_id: args.event_id })
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -40,7 +40,7 @@ export default {
     }
   },
   Mutation: {
-    addBooking: async (parent, args, { models }, info) => {
+    addBooking: async (parent, args, context, info) => {
       try {
         let newBooking = new models.Booking();
         let newCustomer = new models.Customer();
@@ -62,7 +62,7 @@ export default {
           i++
         }
         let customer_ids = []
-        let customerResult = await models.Customer.find({ email: customer.email })
+        let customerResult = await context.models.Customer.find({ email: customer.email })
 
         if (customerResult.length > 0 && customerResult[0].email) {
           console.log("Customer already exist")
@@ -72,7 +72,7 @@ export default {
           //   for (var param in bookingInput) {
           //     updateObj.$set[param] = bookingInput[param];
           //   }
-          //   newBooking = await models.Booking.findOneAndUpdate({ customer_ids: customerResult[0]._id }, updateObj, { new: true });    
+          //   newBooking = await context.models.Booking.findOneAndUpdate({ customer_ids: customerResult[0]._id }, updateObj, { new: true });    
           //   console.log("Booking updated : ", newBooking)
 
           // } catch (error) {
@@ -287,7 +287,7 @@ let checkBook = async (models, staffid, eventid,  appointmentstarttime) => {
     let bookingDetails = [];
     const bookdate   = moment(new Date(appointmentstarttime), "YYYY-MM-DDTHH:mm:ss").toISOString() 
     console.log('bookdate : ', bookdate);
-    bookingDetails = await models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate)  })
+    bookingDetails = await context.models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate)  })
     console.log('bookingDetails length: ', bookingDetails.length );
     if (bookingDetails.length > 0) {
       return true
@@ -309,13 +309,13 @@ guest_ids: async (booking) => {
  */
 /*
 ,
-    updateBooking: async (parent, args, { models }, info) => {
+    updateBooking: async (parent, args, context, info) => {
       try {
         let updateObj = { $set: {} };
         for (var param in args.input) {
           updateObj.$set[param] = args.input[param];
         }
-        const resultBooking = await models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
+        const resultBooking = await context.models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
 
         console.log("resultBooking created : ", resultBooking)
 
@@ -325,13 +325,13 @@ guest_ids: async (booking) => {
       }
 
     },
-    deleteBooking: async (parent, args, { models }, info) => {
+    deleteBooking: async (parent, args, context, info) => {
       try {
         args = args.bookingID;
         const deleteStatus = true;
         let updateObj = { deleted: deleteStatus }
 
-        let resultBooking = await models.Booking.findOneAndUpdate({ _id: args }, updateObj, { new: true });
+        let resultBooking = await context.models.Booking.findOneAndUpdate({ _id: args }, updateObj, { new: true });
         if (resultBooking) {
           return resultBooking;
         } else {

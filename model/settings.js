@@ -11,4 +11,4 @@ const settingSchema = new mongoose.Schema({
 })
 
 const Setting = mongoose.model('settings', settingSchema, 'settings')
-module.exports = Setting;
+export default Setting;

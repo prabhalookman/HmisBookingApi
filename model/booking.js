@@ -41,7 +41,7 @@ const bookingSchema = new mongoose.Schema({
 })
 
 const Booking = mongoose.model('booking', bookingSchema, 'booking')
-module.exports = Booking;
+export default Booking;
 
 // arrival_status: String,
 // assignee_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}],

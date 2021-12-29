@@ -1,8 +1,8 @@
 export default {
     Query: {
-        getSite: async (parent, args, { models }, info) => {
+        getSite: async (parent, args, context, info) => {
             try {
-                let Site = await models.Site.find({})
+                let Site = await context.models.Site.find({})
                 return Site
             } catch (error) {
                 console.error("Error : ", error)

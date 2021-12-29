@@ -1,17 +1,17 @@
 export default {
     Query: {
-        getStaffs: async (parent, args, { models }, info) => {
+        getStaffs: async (parent, args, context, info) => {
             try {
-                let staff = await models.Staff.find({ workspace_ids: args.workspace_ids, site_id:args.site_id})
+                let staff = await context.models.Staff.find({ workspace_ids: args.workspace_ids, site_id:args.site_id})
                 //workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id 
                 return staff
             } catch (error) {
                 console.error("Error : ", error)
             }
         },
-        getLocationByStaffId: async (parent, args, { models }, info) => {
+        getLocationByStaffId: async (parent, args, context, info) => {
           try {
-            let resultStaff = await models.Staff.find({  workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id })
+            let resultStaff = await context.models.Staff.find({  workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id })
             return resultStaff
           } catch (error) {
             console.error("Error : ", error)

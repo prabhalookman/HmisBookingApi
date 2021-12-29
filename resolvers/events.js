@@ -2,16 +2,16 @@ import { ObjectId } from 'bson';
 import moment from 'moment';
 export default {
   Query: {
-    getEvents: async (parent, args, { models }, info) => {
+    getEvents: async (parent, args, context, info) => {
       try {
-        let event = await models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff_ids})
+        let event = await context.models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff_ids})
         //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
       } catch (error) {
         console.error("Error : ", error)
       }
     },
-    getAvailabilityByEvents: async (parent, args, { models }, info) => {
+    getAvailabilityByEvents: async (parent, args, context, info) => {
       try {       
         let result = {
           start_date: "",
@@ -33,11 +33,11 @@ export default {
         let dayEndTime = '';
 
         //Event
-        let event = await models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event_id })
+        let event = await context.models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event_id })
         console.log("Event  id : ", event[0].timing_ids)
 
         //StaffDetails
-        // let staffdetail = await models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
+        // let staffdetail = await context.models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
         // console.log("Staff Details id : ", event[0]._id)
 
         //2. Business Hours => False
@@ -46,7 +46,7 @@ export default {
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
         let selectedDate = moment(args.date, "YYYY-MM-DD").format("YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
 
-        let settings = await models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
+        let settings = await context.models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
         const pre_booking_day = settings[0].advance_Booking_Period.value
         const clientSlot = settings[0].client_time_slot
         //console.log("settings-advance_Booking_Period : ", pre_booking_day)
@@ -60,14 +60,14 @@ export default {
 
         if (event[0].business_timings == false) {
           //Timing
-          let timingsResult = await models.Timing.find({ _id: event[0].timing_ids })
+          let timingsResult = await context.models.Timing.find({ _id: event[0].timing_ids })
           console.log("timingsResult id: ", timingsResult[0]._id)
           //console.log("timingsResult id stringify: ", JSON.stringify(timingsResult[0]))
 
           //Locationsettings
           console.log("location_settings id : ", timingsResult[0].location_setting_ids)
 
-          let locationSettingsResult = await models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids })
+          let locationSettingsResult = await context.models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids })
           //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
           locationSettingsResult.forEach((elem) => {
             if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
@@ -171,18 +171,18 @@ export default {
         console.error("Error : ", error)
       }
     },
-    getEventsDetailByStaff: async (parent, args, { models }, info) => {
+    getEventsDetailByStaff: async (parent, args, context, info) => {
       try {
-        let staffEvent = await models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff})
+        let staffEvent = await context.models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff})
         console.log(`staffEvent Count : `, staffEvent.length)
         return staffEvent
       } catch (error) {
         console.error("Error : ", error)
       }
     },
-    getLocationByServiceId: async (parent, args, { models }, info) => {
+    getLocationByServiceId: async (parent, args, context, info) => {
       try {
-        let locationEvents = await models.Event.find({  workspace_id: args.workspace_id, site_id:args.site_id, _id:args.event_id })
+        let locationEvents = await context.models.Event.find({  workspace_id: args.workspace_id, site_id:args.site_id, _id:args.event_id })
         return locationEvents        
       } catch (error) {
         console.error("Error : ", error)

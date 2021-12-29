@@ -33,4 +33,4 @@ const timingtimingSchema = new mongoose.Schema({
 })
 
 const Timing = mongoose.model('timings', timingtimingSchema, 'timings')
-module.exports = Timing;
+export default Timing;

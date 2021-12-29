@@ -1,8 +1,8 @@
 export default {
   Query: {
-    getAddress: async (parent, args, { models }, info) => {
+    getAddress: async (parent, args, context, info) => {
       try {
-        let adress = await models.Address.find({ delete: false })
+        let adress = await context.models.Address.find({ delete: false })
         return adress
       } catch (error) {
         console.error("Error : ", error)

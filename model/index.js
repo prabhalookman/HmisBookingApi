@@ -22,7 +22,7 @@ import Setting from './settings';
 // import TimeFormat  from './timeformat'
 
 const connectMongo = () => {
-  return mongoose.connect(process.env.MONGO_URL, {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
+  return mongoose.connect("mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority", {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
 }
 
 const models = {

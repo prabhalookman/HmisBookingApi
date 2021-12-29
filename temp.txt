@@ -81,3 +81,4 @@ selectedDate,
 dateFormat, 
 args.date,
 
+serverless config credentials --provider aws --key AKIA5MURUWYPIBN57WZF --secret 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

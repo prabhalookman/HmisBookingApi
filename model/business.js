@@ -9,7 +9,7 @@ const businessSchema = new mongoose.Schema({
 })
 
 const Business = mongoose.model('business', businessSchema, 'business')
-module.exports = Business;
+export default Business;
 
 /*
 social_network: [BusinessSocial_network],
