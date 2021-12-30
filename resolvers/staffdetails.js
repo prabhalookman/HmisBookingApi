@@ -13,7 +13,8 @@ export default {
   Query: {
     getStaffDetails: async (parent, args, context, info) => {
       try {
-        let staffDetails = await context.models.StaffDetails.find({ site_id: args.site_id, workspace_ids: args.workspace_id })
+        let findObj = { site_id: ObjectId(args.site_id) , workspace_ids: ObjectId(args.workspace_id)  }
+        let staffDetails = await context.models.StaffDetails.find(findObj)
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
@@ -90,51 +91,61 @@ export default {
         let events_ag_rs = [];
 
         if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
-          for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
-            console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k].events._id)
-            if(args.event[0] == staffDetail_ar[0].events[k].events._id){
-
-              console.log("staffDetail_ar[0] staff id : ", staffDetail_ar[0].events[k]._id)
-            if (staffDetail_ar[0].events[k].event_business_timings) {
-
-              let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
-              events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
-              console.log('events_ag_rs : ', events_ag_rs.length)
-
-            } else {
-
-              let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false, args.event[0])
-              events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
-              console.log('events_ag_rs : ', events_ag_rs.length)
-            }
-
-            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            ///
-            let ev_location_flag = false
-            events_ag_rs[0].location_name.forEach((evt)=>{
-              args.locationName.forEach((loc)=>{
-                if(loc == evt){
-                  ev_location_flag = true
-                }
-              })
+          let is_eventMatched = false;
+            staffDetail_ar[0].events.forEach((elem)=>{
+              if(args.event[0] == elem.events._id){
+                is_eventMatched = true
+                staffDetail_ar[0].events = removeByAttr(staffDetail_ar[0].events, 'id', elem.events._id)
+              }
             })
-            if (ev_location_flag) {
-              newEvents = await getting_slots('Event',events_ag_rs[0], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-              newEvents ? eventResult.push(newEvents) : 0
-            } else {
-              console.error("ev_location_flag not match ")
-              throw new Error ("Location Name not match with Event location ")
+            if(is_eventMatched){
+              for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
+                console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k].events._id)
+                
+                
+                  console.log("staffDetail_ar[0] staff id : ", staffDetail_ar[0].events[k]._id)
+                  if (staffDetail_ar[0].events[k].event_business_timings) {
+      
+                    let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
+                    events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
+                    console.log('events_ag_rs : ', events_ag_rs.length)
+      
+                  } else {
+      
+                    let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false, args.event[0])
+                    events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
+                    console.log('events_ag_rs : ', events_ag_rs.length)
+                  }
+      
+                  let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+                  ///
+                  let ev_location_flag = false
+                  events_ag_rs[0].location_name.forEach((evt)=>{
+                    args.locationName.forEach((loc)=>{
+                      if(loc == evt){
+                        ev_location_flag = true
+                      }
+                    })
+                  })
+                  if (ev_location_flag) {
+                    newEvents = await getting_slots('Event',events_ag_rs[0], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+                    newEvents ? eventResult.push(newEvents) : 0
+                  } else {
+                    console.error("ev_location_flag not match ")
+                    throw new Error ("Location Name not match with Event location ")
+                  }
+                  ///
+                  // newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+                  // newEvents ? eventResult.push(newEvents) : 0
+                  break;
+              }
             }
-            ///
-            // newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-            // newEvents ? eventResult.push(newEvents) : 0
-
-            } else {
+            else {
               console.error("Event Id not associated with staff ")
               throw new Error ("Event Id not associated with staff ")
             }
-          }
         }
+
 
         
         let resp_result = {}
@@ -167,7 +178,7 @@ export default {
         throw new Error (error)
       }
     },
-    getLocationSettings: async(parent, args, context, info)=> {
+    getStaffLocationSettings: async(parent, args, context, info)=> {
       try {
         
         let displaySettings = '12'
@@ -242,7 +253,7 @@ export default {
     },
     getstaffdetailbyservice: async (parent, args, context, info) => {
       try {
-        let staffDetails = await context.models.StaffDetails.find({ site_id: args.site_id, workspace_id: args.workspace_id, event_ids: args.event_ids })
+        let staffDetails = await context.models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), events_ids: ObjectId(args.event_ids)  })
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)
@@ -472,8 +483,8 @@ let compareTwoSlots = (list_one, list_two) => {
         }
       }
     }
-    console.log('staff_ar[q] Loop Count  : ', i)
-    console.log('events.availableTimes[k] Loop Count  : ', j)
+    // console.log('staff_ar[q] Loop Count  : ', i)
+    // console.log('events.availableTimes[k] Loop Count  : ', j)
     list_availTimes = events_ar
     console.log('eventResultCount : ', eventResultCount)
     eventResultCount++;
@@ -505,7 +516,7 @@ let checkBooking = async (list_one, select_date, context, args_staff_ids, args_e
     // let s_end_sec;
     console.log('staff_ar.length  : ', staff_ar.length)
     for (let q = 0; q < staff_ar.length; q++) {
-      console.log('staff_ar[q] Loop Count  : ', q)
+      //console.log('staff_ar[q] Loop Count  : ', q)
       // console.log('staff_ar[q].slotStartTime  : ', staff_ar[q].slotStartTime)
       // console.log('typeOf  : ', typeof(staff_ar[q].slotStartTime))
 
@@ -571,4 +582,16 @@ function result(start_date, end_date, pre_booking_day, available_date, disable_d
   this.locationAvailable = locationAvailable;
   this.dayStartTime = dayStartTime;
   this.dayEndTime = dayEndTime
+}
+
+var removeByAttr = function(arr, attr, value){
+  var i = arr.length;
+  while(i--){
+     if( arr[i] 
+         && arr[i].events.hasOwnProperty(attr) 
+         && (arguments.length > 2 && arr[i].events.toString() == value ) ){ 
+         arr.splice(i,1);
+     }
+  }
+  return arr;
 }

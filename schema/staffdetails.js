@@ -67,17 +67,17 @@ input getAvailInput {
 
 
 extend type Query {
-  getStaffDetails(workspace_id: ID, site_id: ID): [StaffDetails]
-  getstaffdetailbyservice(workspace_id: ID, site_id: ID,event_ids: ID):[StaffDetails]
+  getStaffDetails(workspace_id: ID!, site_id: ID!): [StaffDetails]
+  getstaffdetailbyservice(workspace_id: ID!, site_id: ID!,event_ids: ID!):[StaffDetails]
   getAvailabilityByStaff(
-  workspace_id: ID, 
-  site_id: ID, 
-  staff_ids: ID, 
-  event: [ID], 
-  date: String, 
-  locationName: [String],
+  workspace_id: ID!, 
+  site_id: ID!, 
+  staff_ids: ID!, 
+  event: [ID!], 
+  date: String!, 
+  locationName: [String!],
   locationSettingId: [ID]): Availablilities
-  getLocationSettings(workspace_id: ID, site_id: ID, staff_id: ID, date: String): AvailLocations
+  getStaffLocationSettings(workspace_id: ID!, site_id: ID!, staff_id: ID!, date: String!): AvailLocations
 }
 
 `

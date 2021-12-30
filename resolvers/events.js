@@ -4,7 +4,8 @@ export default {
   Query: {
     getEvents: async (parent, args, context, info) => {
       try {
-        let event = await context.models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff_ids})
+        let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.staff_ids) }
+        let event = await context.models.Event.find(findObj)
         //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
       } catch (error) {
@@ -173,7 +174,8 @@ export default {
     },
     getEventsDetailByStaff: async (parent, args, context, info) => {
       try {
-        let staffEvent = await context.models.Event.find({workspace_id: args.workspace_id, site_id:args.site_id, staff: args.staff})
+        let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.staff_ids) }
+        let staffEvent = await context.models.Event.find(findObj)
         console.log(`staffEvent Count : `, staffEvent.length)
         return staffEvent
       } catch (error) {

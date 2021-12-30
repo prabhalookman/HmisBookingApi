@@ -31,9 +31,9 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
             'as': 'events'
           }
         },
-        {
-          '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
-        },
+        // {
+        //   '$unwind': { path: '$events', preserveNullAndEmptyArrays: false }
+        // },
         {
           '$lookup': {
             'localField': 'events.timing_ids',

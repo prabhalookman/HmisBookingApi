@@ -1,5 +1,6 @@
 import { MyError } from '../helpers/helper'
 import moment from 'moment-timezone';
+import { ObjectId } from 'bson';
 export default {
   Query: {
     getBooking: async (parent, args, context, info) => {
@@ -22,7 +23,8 @@ export default {
     },
     getBookingByStaff: async (parent, args, context, info) => {
       try {
-        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, staff_id: args.staff_id })
+        let findObj = { workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id), staff_id: ObjectId(args.staff_id) }
+        let Booking = await context.models.Booking.find(findObj)
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -31,7 +33,8 @@ export default {
     },
     getBookingByEvent: async (parent, args, context, info) => {
       try {
-        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id, event_id: args.event_id })
+        let findObj = { workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , event_id: ObjectId(args.event_id)  }
+        let Booking = await context.models.Booking.find(findObj)
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -42,8 +45,8 @@ export default {
   Mutation: {
     addBooking: async (parent, args, context, info) => {
       try {
-        let newBooking = new models.Booking();
-        let newCustomer = new models.Customer();
+        let newBooking = new context.models.Booking();
+        let newCustomer = new context.models.Customer();
 
         let bookingInput = args.input.availablity
         let bookingInputKeys = Object.keys(bookingInput)
@@ -136,13 +139,13 @@ export default {
         if (args.input["availablity"].is_recurring == true) {
          
           if (args.input["availablity"].repeat_on == 'Daily') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, models,disable_date, args.input["availablity"], 1)
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, args.input["availablity"], 1)
           } 
           else if (args.input["availablity"].repeat_on == 'Weekly') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, models,disable_date, args.input["availablity"], 7)
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, args.input["availablity"], 7)
 
           } else if (args.input["availablity"].repeat_on == 'Monthly') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, models,disable_date, args.input["availablity"], 30)
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, args.input["availablity"], 30)
           }
         } else {
           newBooking = await newBooking.save();
@@ -200,7 +203,7 @@ export default {
   }
 }
 
-let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, models, disable_date, input, days_count) =>{
+let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, context, disable_date, input, days_count) =>{
   let i = 0;
   let res = {};
   let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
@@ -217,7 +220,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       newBooking.appointment_booking_time = arg_appointment_booking_time
       newBooking.Is_cancelled = false
       newBooking.deleted = false
-      const checkbook = await checkBook(models, input.staff_id, input.event_id, input.appointment_start_time)
+      const checkbook = await checkBook(context, input.staff_id, input.event_id, input.appointment_start_time)
       
       if (checkbook) {
         throw new Error(`Booking not available in this slot ${arg_appointment_start_time}, please select another slot`)
@@ -229,7 +232,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       console.log('i ' + i + ' - ' + newBooking._id)
     } else {
       res = dateCreate(res.bookingStartTime.add(days_count, 'days'), res.bookingEndTime.add(days_count, 'days'))
-      const checkbook = await checkBook(models, input.staff_id, input.event_id, res.bookingStartTime)
+      const checkbook = await checkBook(context, input.staff_id, input.event_id, res.bookingStartTime)
       
       if (checkbook) {
         throw new Error(`Booking not available in this slot ${res.bookingStartTime}, please select another slot`)
@@ -237,7 +240,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       if(disable_date.includes(moment(arg_appointment_start_time).format('YYYY-MM-DD'))){
         throw new Error(`Can not book in this disabled day ${arg_appointment_start_time}, please select another slot`)
       }
-      newBooking = new models.Booking();
+      newBooking = new context.models.Booking();
       newBooking.appointment_start_time = res.bookingStartTime
       newBooking.appointment_end_time = res.bookingEndTime
       newBooking.appointment_booking_time = arg_appointment_booking_time
@@ -282,7 +285,7 @@ let dateCreate = (start_time, end_time) => {
 
 }
 
-let checkBook = async (models, staffid, eventid,  appointmentstarttime) => {
+let checkBook = async (context, staffid, eventid,  appointmentstarttime) => {
   try {
     let bookingDetails = [];
     const bookdate   = moment(new Date(appointmentstarttime), "YYYY-MM-DDTHH:mm:ss").toISOString() 
@@ -297,8 +300,6 @@ let checkBook = async (models, staffid, eventid,  appointmentstarttime) => {
   } catch (error) {
     throw new Error(error)
   }
-
-
 }
 
 /*

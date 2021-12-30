@@ -66,7 +66,7 @@ query {
 }
 ----
 query {
-  getLocationSettings(
+  getStaffLocationSettings(
     staff_id: "614d6350b3df7dad03d6cdb1"
     workspace_id: "614d63c649a63250a673d1a3"
     site_id: "614d6350b3df7dad03d6cdb2"
