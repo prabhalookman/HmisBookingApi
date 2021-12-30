@@ -57,10 +57,7 @@ console.log(currentDate.format('DD-MM-YYYY'));
 console.log(futureMonth.format('DD-MM-YYYY'));
 */
 
-env old :
-MONGO_LOCAL=mongodb://localhost:27017/HMISV3
-MONGO_URL=mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority
-PORT =4000
+
 
 
 staffdetail_ag_rs[k], 
@@ -81,4 +78,3 @@ selectedDate,
 dateFormat, 
 args.date,
 
-serverless config credentials --provider aws --key AKIA5MURUWYPIBN57WZF --secret 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

@@ -104,8 +104,7 @@ slot you have to provide like this "booking_date":
 http://52.172.97.26:4000/graphql
 http://52.172.97.26:4000/ApiSample/index.html (edited) 
 
-Mongo Compass : 
-mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?authSource=admin&replicaSet=atlas-fyf4l0-shard-0&w=majority&readPreference=primary&appname=MongoDB%20Compass&retryWrites=true&ssl=true
+
 
 http://52.172.97.26:4000/graphql
 http://52.172.97.26:4000/ApiSample/index.html (edited) 
