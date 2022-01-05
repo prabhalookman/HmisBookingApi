@@ -253,7 +253,8 @@ export default {
     },
     getstaffdetailbyservice: async (parent, args, context, info) => {
       try {
-        let staffDetails = await context.models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), events_ids: ObjectId(args.event_ids)  })
+        let findObj = { site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), events_ids: ObjectId(args.event_ids)  }
+        let staffDetails = await context.models.StaffDetails.find(findObj)
         return staffDetails
       } catch (error) {
         console.error("Error : ", error)

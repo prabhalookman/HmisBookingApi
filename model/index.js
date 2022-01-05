@@ -20,9 +20,10 @@ import Setting from './settings';
 // import Role  from './role'
 // import User  from './user'
 // import TimeFormat  from './timeformat'
+//mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority
 
 const connectMongo = () => {
-  return mongoose.connect("mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority", {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
+  return mongoose.connect("mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster1.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority", {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
 }
 
 const models = {
