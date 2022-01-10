@@ -87,3 +87,30 @@ query {
     }
   }
 }
+query {
+  getStaffLocationSettings(
+    staff_id: "61d2c395766161a449af5f70"
+    workspace_id: "614d63c649a63250a673d1a3"
+    site_id: "614d6350b3df7dad03d6cdb2"
+    date: "2022-01-07"
+  ) {
+    displaySettings
+    selectedDate
+    start_date
+    end_date
+    pre_booking_day
+    clientSlot
+    available_date
+    disable_date
+    locationAvailable {
+      locationsetting_id
+      appintegration_id
+      is_installed
+      app_name
+      location_id
+      location_type
+      location_name
+      location_app_integration_need
+    }
+  }
+}

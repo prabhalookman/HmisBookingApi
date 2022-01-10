@@ -64,90 +64,140 @@ export default {
         let staffResult = [];
 
         if (staffdetail_ag_rs && staffdetail_ag_rs.length > 0) {
-          for (let k = 0; k < staffdetail_ag_rs.length; k++) {
-            console.log("staffdetail_ag_rs  id : ", staffdetail_ag_rs[k]._id)
-            let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-            let location_flag = false
-            staffdetail_ag_rs[k].location_name.forEach((stf)=>{
-              args.locationName.forEach((loc)=>{
-                if(loc == stf){
-                  location_flag = true
-                }
-              })
-            })
-            if (location_flag) {
-              newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-              newStaffs ? staffResult.push(newStaffs) : 0
-            } else {
-              console.error("location_flag not match ")
-              throw new Error ("Location Name  not match with staff location ")
-            }
+          let k = staffdetail_ag_rs.length;
+          for(let j =0; j< staffdetail_ag_rs.length; j++){
+            staffdetail_ag_rs[j].locationsetting_id = staffdetail_ag_rs[j].locationsetting_id
+            staffdetail_ag_rs[j].appintegration_id = staffdetail_ag_rs[j].appintegration_id
+            staffdetail_ag_rs[j].is_installed = staffdetail_ag_rs[j].is_installed ? staffdetail_ag_rs[j].is_installed[0]:[]
+            staffdetail_ag_rs[j].app_name = staffdetail_ag_rs[j].app_name ? staffdetail_ag_rs[j].app_name[0]:[]
+            staffdetail_ag_rs[j].location_name = staffdetail_ag_rs[j].location_name ? staffdetail_ag_rs[j].location_name[0]:[]
+            staffdetail_ag_rs[j].location_type = staffdetail_ag_rs[j].location_type ? staffdetail_ag_rs[j].location_type[0]:[]
+            staffdetail_ag_rs[j].location_app_integration_need = staffdetail_ag_rs[j].location_app_integration_need ? staffdetail_ag_rs[j].location_app_integration_need[0]:[]
           }
+          while(k--){
+            //for (let k = 0; k < staffdetail_ag_rs.length; k++) {
+              
+              
+              console.log("staffdetail_ag_rs  id : ", staffdetail_ag_rs[k])
+              let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+              let location_flag = false
+              //staffdetail_ag_rs[k].location_name.forEach((stf)=>{
+                args.locationName.forEach((loc)=>{
+                  if(loc == staffdetail_ag_rs[k].app_name){
+                    location_flag = true
+                  }
+                })
+              //})
+              if (location_flag) {
+                newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+                newStaffs ? staffResult.push(newStaffs) : 0
+              } else {
+                staffdetail_ag_rs.splice(staffdetail_ag_rs.indexOf(staffdetail_ag_rs[k]._id),1)
+                console.error("location_flag not match ")
+                //throw new Error ("Location Name  not match with staff location ")
+              }
+            //}
+          }
+          
         }
         
         let newEvents = null;
         let eventList = []
         let eventResult = [];
         let events_ag_rs = [];
+        let events = [];
 
-        if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
-          let is_eventMatched = false;
-            staffDetail_ar[0].events.forEach((elem)=>{
-              if(args.event[0] == elem.events._id){
-                is_eventMatched = true
-                staffDetail_ar[0].events = removeByAttr(staffDetail_ar[0].events, 'id', elem.events._id)
-              }
-            })
-            if(is_eventMatched){
-              for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
-                console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k].events._id)
-                
-                
-                  console.log("staffDetail_ar[0] staff id : ", staffDetail_ar[0].events[k]._id)
-                  if (staffDetail_ar[0].events[k].event_business_timings) {
-      
-                    let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
-                    events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
-                    console.log('events_ag_rs : ', events_ag_rs.length)
-      
-                  } else {
-      
-                    let event_pipeline = aggregate_bhf(args.staff_ids, 'event', false, args.event[0])
-                    events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
-                    console.log('events_ag_rs : ', events_ag_rs.length)
-                  }
-      
-                  let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-                  ///
-                  let ev_location_flag = false
-                  events_ag_rs[0].location_name.forEach((evt)=>{
-                    args.locationName.forEach((loc)=>{
-                      if(loc == evt){
-                        ev_location_flag = true
-                      }
-                    })
-                  })
-                  if (ev_location_flag) {
-                    newEvents = await getting_slots('Event',events_ag_rs[0], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-                    newEvents ? eventResult.push(newEvents) : 0
-                  } else {
-                    console.error("ev_location_flag not match ")
-                    throw new Error ("Location Name not match with Event location ")
-                  }
-                  ///
-                  // newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-                  // newEvents ? eventResult.push(newEvents) : 0
-                  break;
-              }
-            }
-            else {
-              console.error("Event Id not associated with staff ")
-              throw new Error ("Event Id not associated with staff ")
-            }
+        for (let q = 0; q < args.event.length; q++) {
+          events = await context.models.Event.find({ _id: ObjectId(args.event[q])  })
+          if (events[0].business_timings) {
+            let event_pipeline = aggregate_bht(args.event[0], 'event')
+            events_ag_rs = await context.models.Event.aggregate(event_pipeline);
+            console.log('events_ag_rs BHT : ', events_ag_rs.length)
+          } else {
+            let event_pipeline = aggregate_bhf(args.event[0], 'event')
+            events_ag_rs = await context.models.Event.aggregate(event_pipeline);
+            console.log('events_ag_rs BHF : ', events_ag_rs.length)
+          }
+        }
+        for(let j =0; j< events_ag_rs.length; j++){
+          events_ag_rs[j].locationsetting_id = events_ag_rs[j].locationsetting_id
+          events_ag_rs[j].appintegration_id = events_ag_rs[j].appintegration_id
+          events_ag_rs[j].is_installed = events_ag_rs[j].is_installed ? events_ag_rs[j].is_installed[0]:[]
+          events_ag_rs[j].app_name = events_ag_rs[j].app_name ? events_ag_rs[j].app_name[0]:[]
+          events_ag_rs[j].location_name = events_ag_rs[j].location_name ? events_ag_rs[j].location_name[0]:[]
+          events_ag_rs[j].location_type = events_ag_rs[j].location_type ? events_ag_rs[j].location_type[0]:[]
+          events_ag_rs[j].location_app_integration_need = events_ag_rs[j].location_app_integration_need ? events_ag_rs[j].location_app_integration_need[0]:[]
         }
 
-
+        // events_ag_rs[0].location_name.forEach((evt)=>{
+        //   args.locationName.forEach((loc)=>{
+        //     if(loc == evt){
+        //       ev_location_flag = true
+        //     }
+        //   })
+        // })
+        for(let y=0; y<events_ag_rs.length; y++){
+          let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+          newEvents = await getting_slots('Event',events_ag_rs[y], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+          newEvents ? eventResult.push(newEvents) : 0
+        }
         
+        // if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
+        //   let is_eventMatched = false;
+        //     staffDetail_ar[0].events.forEach((elem)=>{
+        //       if(args.event[0] == elem.events._id){
+        //         is_eventMatched = true
+        //         staffDetail_ar[0].events = removeByAttr(staffDetail_ar[0].events, 'id', elem.events._id)
+        //       }
+        //     })
+        //     if(is_eventMatched){
+        //       for (let k = 0; k < staffDetail_ar[0].events.length; k++) {
+        //         console.log("staffDetail_ar[0].events  id : ", staffDetail_ar[0].events[k].events._id)
+                
+                
+        //           console.log("staffDetail_ar[0] staff id : ", staffDetail_ar[0].events[k]._id)
+        //           if (staffDetail_ar[0].events[k].event_business_timings) {
+      
+        //             let event_pipeline = aggregate_bht(args.staff_ids, 'event', true,args.event[0])
+        //             events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
+        //             console.log('events_ag_rs : ', events_ag_rs.length)
+      
+        //           } else {
+      
+        //             let event_pipeline = aggregate_bhf(args.event[0], 'event', false, args.event[0])
+        //             events_ag_rs = await context.models.Staff.aggregate(event_pipeline);
+        //             console.log('events_ag_rs : ', events_ag_rs.length)
+        //           }
+      
+        //           let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+        //           ///
+        //           let ev_location_flag = false
+        //           events_ag_rs[0].location_name.forEach((evt)=>{
+        //             args.locationName.forEach((loc)=>{
+        //               if(loc == evt){
+        //                 ev_location_flag = true
+        //               }
+        //             })
+        //           })
+        //           if (ev_location_flag) {
+        //             newEvents = await getting_slots('Event',events_ag_rs[0], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+        //             newEvents ? eventResult.push(newEvents) : 0
+        //           } else {
+        //             console.error("ev_location_flag not match ")
+        //             throw new Error ("Location Name not match with Event location ")
+        //           }
+        //           ///
+        //           // newEvents = await getting_slots('Event',events_ag_rs[0], models, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+        //           // newEvents ? eventResult.push(newEvents) : 0
+        //           break;
+        //       }
+        //     }
+        //     else {
+        //       console.error("Event Id not associated with staff ")
+        //       throw new Error ("Event Id not associated with staff ")
+        //     }
+        // }
+
         let resp_result = {}
         staffResult.availableTimes = await checkBooking(staffResult[0], args.date, context, args.staff_ids, args.event)
         let events_availableTimes = compareTwoSlots(staffResult, eventResult)
@@ -214,22 +264,37 @@ export default {
       let loc_ar = []; let location_setting = [], locations = [];
       
       let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id));
-      if(business_time){
+      if(business_time[0].business_hours){
         loc_ar = await context.models.Staff.aggregate(get_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
       } else {
         loc_ar = await context.models.Staff.aggregate(get_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
+      }
+      if(loc_ar.length<1){
+        throw new Error('Location setting not available')
       }
         
         location_setting = loc_ar[0].locationsetting
         locations = loc_ar[0].location_type
         let loc = [];
         location_setting.forEach((elem)=>{
-          let ls_id = elem.locationsetting_id
-          locations.forEach((obj)=>{
-            if(elem.location_id.toString() == obj.location_id.toString()){
-              loc.push({location_setting_id: ls_id, location_name: obj.location_name, location_type: obj.location_type}) 
-            }
-          })
+          let ls_value = {...elem}
+          let rs = {
+            locationsetting_id:ls_value.locationsetting_id,
+            appintegration_id: ls_value.appintegration_id,
+            is_installed:ls_value.is_installed ? ls_value.is_installed[0] : ls_value.is_installed,
+            app_name: ls_value.app_name ? ls_value.app_name[0] : ls_value.app_name,
+            location_id: ls_value.location_id ? ls_value.location_id[0] : ls_value.location_id,
+            location_type: ls_value.location_type ? ls_value.location_type[0] : ls_value.location_type,
+            location_name: ls_value.location_name ? ls_value.location_name[0] : ls_value.location_name ,
+            location_app_integration_need: ls_value.location_app_integration_need ? ls_value.location_app_integration_need[0] : ls_value.location_app_integration_need 
+          }
+          loc.push(rs)
+          // let ls_id = elem.locationsetting_id
+          // locations.forEach((obj)=>{
+          //   if(elem.location_id.toString() == obj.location_id.toString()){
+          //     loc.push({location_setting_id: ls_id, location_name: obj.location_name, location_type: obj.location_type}) 
+          //   }
+          // })
         })
 
         let result = {

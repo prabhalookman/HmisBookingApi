@@ -51,9 +51,14 @@ type AvailLocations {
 }
 
 type Avail_Location_Settings {
-  location_setting_id: String, 
-  location_name: String, 
-  location_type: String
+  locationsetting_id: String,
+  appintegration_id: String,
+  is_installed: Boolean,
+  app_name: String,
+  location_id: String,
+  location_type: String,
+  location_name: String,
+  location_app_integration_need: Boolean
   }
 input getAvailInput {
   workspace_id: ID, 
