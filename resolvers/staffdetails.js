@@ -5,8 +5,8 @@ import {
   aggregate_bhf,
   aggregate_bht,
   get_staffdetail_agg,
-  get_locationsettings_agg_bht,
-  get_locationsettings_agg_bhf,
+  get_staff_locationsettings_agg_bht,
+  get_staff_locationsettings_agg_bhf,
   bushiness_timings_agg
 } from '../helpers/aggregateFunctions'
 export default {
@@ -58,7 +58,10 @@ export default {
           staffdetail_ag_rs = await context.models.Staff.aggregate(staff_pipeline);
           console.log('staffdetail_ag_rs : ', staffdetail_ag_rs.length)
         }
-
+        if(staffdetail_ag_rs.length == 0){
+          console.error("Staff is empty : ", error)
+          throw new Error ("Staff is empty")
+        }
         let newStaffs = null;
         let staffList = []
         let staffResult = [];
@@ -83,7 +86,7 @@ export default {
               let location_flag = false
               //staffdetail_ag_rs[k].location_name.forEach((stf)=>{
                 args.locationName.forEach((loc)=>{
-                  if(loc == staffdetail_ag_rs[k].app_name){
+                  if(loc == staffdetail_ag_rs[k].location_name){
                     location_flag = true
                   }
                 })
@@ -109,6 +112,10 @@ export default {
 
         for (let q = 0; q < args.event.length; q++) {
           events = await context.models.Event.find({ _id: ObjectId(args.event[q])  })
+          if(events.length == 0){
+            console.error("Event id is not available")
+            throw new Error ("Event id is not available")
+          }
           if (events[0].business_timings) {
             let event_pipeline = aggregate_bht(args.event[0], 'event')
             events_ag_rs = await context.models.Event.aggregate(event_pipeline);
@@ -118,6 +125,10 @@ export default {
             events_ag_rs = await context.models.Event.aggregate(event_pipeline);
             console.log('events_ag_rs BHF : ', events_ag_rs.length)
           }
+        }
+        if(events_ag_rs.length == 0){
+          console.error("Event is empty")
+          throw new Error ("Event is empty")
         }
         for(let j =0; j< events_ag_rs.length; j++){
           events_ag_rs[j].locationsetting_id = events_ag_rs[j].locationsetting_id
@@ -265,9 +276,9 @@ export default {
       
       let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id));
       if(business_time[0].business_hours){
-        loc_ar = await context.models.Staff.aggregate(get_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
+        loc_ar = await context.models.Staff.aggregate(get_staff_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
       } else {
-        loc_ar = await context.models.Staff.aggregate(get_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
+        loc_ar = await context.models.Staff.aggregate(get_staff_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
       }
       if(loc_ar.length<1){
         throw new Error('Location setting not available')
@@ -352,9 +363,9 @@ export default {
       const resultStaffDetails = await locsetting.populate('sorting_id').execPopulate();
       return resultStaffDetails.sorting_id
     },
-    event_ids: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('event_ids').execPopulate();
-      return resultStaffDetails.event_ids
+    events_ids: async (locsetting, args, context) => {
+      const resultStaffDetails = await locsetting.populate('events_ids').execPopulate();
+      return resultStaffDetails.events_ids
     },
     location_setting_ids: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('location_setting_ids').execPopulate();

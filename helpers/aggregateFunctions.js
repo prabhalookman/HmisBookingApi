@@ -5,7 +5,7 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
     if (root == 'event') {
       let match = {}
   
-    match["events._id"] = ObjectId(eventid)
+    match["events._id"] = ObjectId(_ids)
     match['events.business_timings'] = false
     const bhf = event_business_hours_false ()
     pipeline = [...bhf]
@@ -27,7 +27,7 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
               "location_app_integration_need": "$location.app_integration_need"
           }
         })
-        console.log(`aggregate_bhf pipeline  EVENT ID ${eventid} :: ${JSON.stringify(pipeline)} `);
+        console.log(`aggregate_bhf pipeline  EVENT ID ${_ids} :: ${JSON.stringify(pipeline)} `);
     } else {
       let match = {}
   
@@ -85,7 +85,7 @@ export function aggregate_bht(_ids, root, bizhours) {
               "location_app_integration_need": "$location.app_integration_need"
           }
         })
-        console.log('aggregate_bht pipeline EVENT : ', JSON.stringify(pipeline));
+        console.log(`aggregate_bht pipeline EVENT ${_ids} : `, JSON.stringify(pipeline));
     } else {
       const bht = staff_business_hours_true()
     pipeline = [...bht]
@@ -192,7 +192,7 @@ export  function get_staffdetail_agg(_ids,workspace_id,site_id) {
     return pipeline
   }
   
-export  function get_locationsettings_agg_bht(_ids,workspace_id,site_id) {
+export  function get_staff_locationsettings_agg_bht(_ids,workspace_id,site_id) {
     let match = {}
     match["staff._id"] = ObjectId(_ids)
     match["staff.workspace_ids"] = ObjectId(workspace_id)
@@ -245,11 +245,11 @@ export  function get_locationsettings_agg_bht(_ids,workspace_id,site_id) {
   
       }
   })
-  console.log('get_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  console.log('get_staff_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
   return pipeline
   }
   
-export  function get_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
+export  function get_staff_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
     let match = {}
     match["staff._id"] = ObjectId(_ids)
     match["staff.workspace_ids"] = ObjectId(workspace_id)
@@ -304,7 +304,124 @@ export  function get_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
       
           }
       })
-    console.log('get_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('get_staff_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+
+  export  function get_event_locationsettings_agg_bht(_ids,workspace_id,site_id) {
+    let match = {}
+    match["events._id"] = ObjectId(_ids)
+    match["events.workspace_ids"] = ObjectId(workspace_id)
+    match["events.site_id"] = ObjectId(site_id)
+    let pipeline = []
+    const bht = events_business_hours_true ()
+    pipeline = [...bht]
+    pipeline.push(
+  {
+     '$match': match ,
+  },
+  { 
+    "$facet" : { 
+        "locationSetting" : [
+            
+            { 
+                "$project" : { 
+                    "locationsetting_id" : "$locationsetting._id", 
+                    "appintegration_id" : "$locationsetting.integration_id", 
+                    "is_installed" : "$appintegration.is_installed",
+                    "app_name": "$app.name",
+                    "location_id" : "$location._id", 
+                    "location_type" : "$location.type", 
+                    "location_name" : "$location.name",
+                    "location_app_integration_need" : "$location.app_integration_need"
+                }
+            }
+        ], 
+        "location" : [
+            { 
+                "$unwind" : { 
+                    "path" : "$location", 
+                    "preserveNullAndEmptyArrays" : false
+                }
+            }, 
+            { 
+                "$project" : { 
+                    "location_id" : "$location._id", 
+                    "location_type" : "$location.type", 
+                    "location_name" : "$location.name"
+                }
+            }
+        ]
+    }
+}, 
+  {
+      "$project": {
+          "locationsetting": "$locationSetting",
+          "location_type": "$location"
+  
+      }
+  })
+  console.log('get_event_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  return pipeline
+  }
+  
+export  function get_events_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
+    let match = {}
+    match["events._id"] = ObjectId(_ids)
+    match["events.workspace_ids"] = ObjectId(workspace_id)
+    match["events.site_id"] = ObjectId(site_id)
+    let pipeline = []
+    const bht = events_business_hours_false ()
+    pipeline = [...bht]
+    pipeline.push(
+      {
+         '$match': match ,
+      },
+      {
+          "$facet": {
+              "locationSetting": [
+                  
+                  {
+                      "$project": {
+                        "locationsetting_id": "$locationsetting._id",
+                        "appintegration_id": "$locationsetting.integration_id",
+                        "is_installed": "$appintegration.is_installed",
+                        "app_name": "$app.name",
+                        "location_id": "$location._id",
+                        "location_type": "$location.type",
+                        "location_name": "$location.name",
+                        "location_app_integration_need": "$location.app_integration_need"
+      
+                      }
+                  }
+              ],
+      
+              "location": [
+                  {
+                      "$unwind": {
+                          "path": "$location",
+                          "preserveNullAndEmptyArrays": false
+                      }
+                  },
+                  {
+                      "$project": {
+                          "location_id": "$location._id",
+                          "location_type": "$location.type",
+                          "location_name": "$location.name"
+                      }
+                  }
+              ]
+          }
+      },
+      {
+          "$project": {
+              "locationsetting": "$locationSetting",
+              "location_type": "$location"
+      
+          }
+      })
+    console.log('get_events_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
     return pipeline
       
   }

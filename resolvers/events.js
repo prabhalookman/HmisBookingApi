@@ -5,6 +5,7 @@ export default {
     getEvents: async (parent, args, context, info) => {
       try {
         let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.staff_ids) }
+        console.log(findObj)
         let event = await context.models.Event.find(findObj)
         //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
