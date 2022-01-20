@@ -87,6 +87,9 @@ export function aggregate_bht(_ids, root, bizhours) {
         })
         console.log(`aggregate_bht pipeline EVENT ${_ids} : `, JSON.stringify(pipeline));
     } else {
+      let match = {}
+  
+    match["staff._id"] = ObjectId(_ids)
       const bht = staff_business_hours_true()
     pipeline = [...bht]
       pipeline.push(
@@ -612,7 +615,7 @@ export function event_business_hours_true() {
 }, 
 { 
     "$lookup" : { 
-        "localField" : "events.Location_setting_ids", 
+        "localField" : "events.location_setting_ids", 
         "from" : "locationsetting", 
         "foreignField" : "_id", 
         "as" : "locationsetting"

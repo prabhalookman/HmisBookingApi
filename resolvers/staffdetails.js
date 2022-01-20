@@ -35,9 +35,11 @@ export default {
         const clientSlot = settings[0].client_time_slot
 
         let minDate = moment(new Date(), dateFormat)
+        let cr_date = moment(new Date()).startOf('day');
+      
         let bookingStartDate = moment(new Date(), dateFormat)
         let maxDate = moment(new Date(), dateFormat).add(pre_booking_day - 1, 'days');
-        if(selectedDate<minDate){
+        if(selectedDate<cr_date){
           throw new Error('Selected date should be greater than current date')
         }
 
@@ -67,7 +69,7 @@ export default {
         let staffResult = [];
 
         if (staffdetail_ag_rs && staffdetail_ag_rs.length > 0) {
-          let k = staffdetail_ag_rs.length;
+          
           for(let j =0; j< staffdetail_ag_rs.length; j++){
             staffdetail_ag_rs[j].locationsetting_id = staffdetail_ag_rs[j].locationsetting_id
             staffdetail_ag_rs[j].appintegration_id = staffdetail_ag_rs[j].appintegration_id
@@ -77,11 +79,11 @@ export default {
             staffdetail_ag_rs[j].location_type = staffdetail_ag_rs[j].location_type ? staffdetail_ag_rs[j].location_type[0]:[]
             staffdetail_ag_rs[j].location_app_integration_need = staffdetail_ag_rs[j].location_app_integration_need ? staffdetail_ag_rs[j].location_app_integration_need[0]:[]
           }
+          let k = staffdetail_ag_rs.length;
+          console.log("staffdetail_ag_rs  count : ", k)
           while(k--){
-            //for (let k = 0; k < staffdetail_ag_rs.length; k++) {
-              
-              
-              console.log("staffdetail_ag_rs  id : ", staffdetail_ag_rs[k])
+          //for (let k = 0; k < staffdetail_ag_rs.length; k++) {
+            
               let newRes = new result("", "", 0, [], [], "", [], [], "", "")
               let location_flag = false
               //staffdetail_ag_rs[k].location_name.forEach((stf)=>{
@@ -95,13 +97,18 @@ export default {
                 newStaffs = await getting_slots('Staff',staffdetail_ag_rs[k], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
                 newStaffs ? staffResult.push(newStaffs) : 0
               } else {
-                staffdetail_ag_rs.splice(staffdetail_ag_rs.indexOf(staffdetail_ag_rs[k]._id),1)
+                //staffdetail_ag_rs.splice(staffdetail_ag_rs.indexOf(staffdetail_ag_rs[k]._id),1)
+                staffdetail_ag_rs =  removeByAttr(staffdetail_ag_rs,'location_name',staffdetail_ag_rs[k].location_name.toString() )
                 console.error("location_flag not match ")
                 //throw new Error ("Location Name  not match with staff location ")
               }
             //}
           }
           
+        }
+        if(staffdetail_ag_rs.length == 0) {
+          console.error("Staff location does not match with selected location.")
+          throw new Error ("Staff location does not match with selected location.")
         }
         
         let newEvents = null;
@@ -130,28 +137,52 @@ export default {
           console.error("Event is empty")
           throw new Error ("Event is empty")
         }
-        for(let j =0; j< events_ag_rs.length; j++){
-          events_ag_rs[j].locationsetting_id = events_ag_rs[j].locationsetting_id
-          events_ag_rs[j].appintegration_id = events_ag_rs[j].appintegration_id
-          events_ag_rs[j].is_installed = events_ag_rs[j].is_installed ? events_ag_rs[j].is_installed[0]:[]
-          events_ag_rs[j].app_name = events_ag_rs[j].app_name ? events_ag_rs[j].app_name[0]:[]
-          events_ag_rs[j].location_name = events_ag_rs[j].location_name ? events_ag_rs[j].location_name[0]:[]
-          events_ag_rs[j].location_type = events_ag_rs[j].location_type ? events_ag_rs[j].location_type[0]:[]
-          events_ag_rs[j].location_app_integration_need = events_ag_rs[j].location_app_integration_need ? events_ag_rs[j].location_app_integration_need[0]:[]
+        
+        if(events_ag_rs && events_ag_rs.length > 0){
+          for(let j =0; j< events_ag_rs.length; j++){
+            events_ag_rs[j].locationsetting_id = events_ag_rs[j].locationsetting_id
+            events_ag_rs[j].appintegration_id = events_ag_rs[j].appintegration_id
+            events_ag_rs[j].is_installed = events_ag_rs[j].is_installed ? events_ag_rs[j].is_installed[0]:[]
+            events_ag_rs[j].app_name = events_ag_rs[j].app_name ? events_ag_rs[j].app_name[0]:[]
+            events_ag_rs[j].location_name = events_ag_rs[j].location_name ? events_ag_rs[j].location_name[0]:[]
+            events_ag_rs[j].location_type = events_ag_rs[j].location_type ? events_ag_rs[j].location_type[0]:[]
+            events_ag_rs[j].location_app_integration_need = events_ag_rs[j].location_app_integration_need ? events_ag_rs[j].location_app_integration_need[0]:[]
+          }
+          let k = events_ag_rs.length;
+          console.log("events_ag_rs  count : ", k)
+          while(k--){
+            //for (let k = 0; k < events_ag_rs.length; k++) {
+              
+                let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+                let location_flag = false
+                //events_ag_rs[k].location_name.forEach((stf)=>{
+                  args.locationName.forEach((loc)=>{
+                    if(loc == events_ag_rs[k].location_name){
+                      location_flag = true
+                    }
+                  })
+                //})
+                if (location_flag) {
+                  newEvents = await getting_slots('Event',events_ag_rs[k], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+                  newEvents ? eventResult.push(newEvents) : 0
+                } else {
+                  //events_ag_rs.splice(events_ag_rs.indexOf(events_ag_rs[k]._id),1)
+                  events_ag_rs =  removeByAttr(events_ag_rs,'location_name',events_ag_rs[k].location_name.toString() )
+                  console.error("location_flag not match ")
+                  //throw new Error ("Location Name  not match with staff location ")
+                }
+              //}
+            }
         }
-
-        // events_ag_rs[0].location_name.forEach((evt)=>{
-        //   args.locationName.forEach((loc)=>{
-        //     if(loc == evt){
-        //       ev_location_flag = true
-        //     }
-        //   })
-        // })
-        for(let y=0; y<events_ag_rs.length; y++){
-          let newRes = new result("", "", 0, [], [], "", [], [], "", "")
-          newEvents = await getting_slots('Event',events_ag_rs[y], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
-          newEvents ? eventResult.push(newEvents) : 0
-        }
+        if(events_ag_rs.length == 0) {
+            console.error("Event location does not match with selected location.")
+            throw new Error ("Event location does not match with selected location.")
+          }
+        // for(let y=0; y<events_ag_rs.length; y++){
+        //   let newRes = new result("", "", 0, [], [], "", [], [], "", "")
+        //   newEvents = await getting_slots('Event',events_ag_rs[y], context, newRes, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, args.date, dateFormat, pre_booking_day)
+        //   newEvents ? eventResult.push(newEvents) : 0
+        // }
         
         // if (staffDetail_ar[0].events && staffDetail_ar[0].events.length > 0) {
         //   let is_eventMatched = false;
@@ -225,9 +256,9 @@ export default {
         // console.log(' Final eventResult: ', eventResult.availableTimes.length )
         if(events_availableTimes.length>0){
           events_availableTimes.forEach(e => {
-            e.forEach(e1 => {
-              resp_result.availableTimes.push(e1)
-            })
+            //e.forEach(e1 => {
+              resp_result.availableTimes.push(e)
+            //})
             
           })
         }
@@ -254,8 +285,10 @@ export default {
       const clientSlot = settings[0].client_time_slot
 
       let minDate = moment(new Date(), secondsFormat)
+      let cr_date = moment(new Date()).startOf('day');
+
       let maxDate = moment(new Date(), secondsFormat).add(pre_booking_day - 1, 'days');
-      if(selectedDate<minDate){
+      if(selectedDate<cr_date){
         throw new Error('Selected date should be greater than current date')
       }
 
@@ -516,56 +549,86 @@ let compareTwoSlots = (list_one, list_two) => {
   let list_availTimes = [];
   let eventResultCount = 1;
   //list_two.forEach((events) => {
-  let events_ar = list_two[0].availableTimes
-  let staff_ar = list_one.availableTimes//[0]
+  let events_ar = list_two[0].availableTimes[0]
+  let staff_ar = list_one[0].availableTimes[0]
+
+  console.log('Event AvailableTimes Count : ', events_ar.length)
+  console.log('Staff AvailableTimes Count : ', staff_ar.length)
 
   // console.log('events_ar : ', events_ar)
   // console.log('staff_ar : ', staff_ar)
 
-  for (let r = 0; r < events_ar.length; r++) {
+  let matched_slots = [];
+
+  for (let q = 0; q < staff_ar.length; q++) {
     let s_start;
     let s_start_sec;
     let e_start
     let e_start_sec
+
+    let e_end
+    let e_end_sec
 
     let i = 0;
     let j = 0;
 
 
     //list_one.availableTimes.forEach((list_one.availableTimes[q]) => {
-    for (let q = 0; q < staff_ar.length; q++) {
+    //for (let r = 0; r < events_ar.length; r++){
       i++;
       
       s_start = moment(new Date(staff_ar[q].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
       s_start_sec = moment.duration(s_start).asSeconds()
 
       //console.log(`Staff slotStartTime : ${staff_ar[q].slotStartTime} - as seconds ${s_start_sec} `)
-      for (let k = 0; k < events_ar.length; k++) {
+      //for (let k = 0; k < events_ar.length; k++) {
         j++;
         
-        for (let l = 0; l < events_ar[k].length; l++) {
-          e_start = moment(new Date(events_ar[k][l].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
+        for (let l = 0; l < events_ar.length; l++) {
+          e_start = moment(new Date(events_ar[l].slotStartTime), "YYYY-MM-DDTHH:mm:ss")
           e_start_sec = moment.duration(e_start).asSeconds()
 
-          if (s_start_sec == e_start_sec && staff_ar[q].isBooking == true) {
-            console.log(`True : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
-            events_ar[k][l].isBooking = true
-            const tindex = staff_ar.map(e => e.slotStartTime).indexOf(staff_ar[q].slotStartTime);
-            staff_ar.splice(tindex, 1)
+          e_end = moment(new Date(events_ar[l].slotEndTime), "YYYY-MM-DDTHH:mm:ss")
+          e_end_sec = moment.duration(e_end).asSeconds()
+          let e_end_secTo_time = moment(e_end_sec, "YYYY-MM-DDTHH:mm:ss")
+
+          if(s_start_sec >= e_start_sec && s_start_sec < e_end_sec){
+            matched_slots.push(staff_ar[q].slot)
+            //events_ar = removeByAttr(events_ar, "slotStartTime", events_ar[l].slotStartTime)
           }
+
+          // if (s_start_sec == e_start_sec && staff_ar[q].isBooking == true) {
+          //   console.log(`True : Staff slotStartTime : ${staff_ar[l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          //   staff_ar[l].isBooking = true
+          //   const tindex = events_ar.map(e => e.slotStartTime).indexOf(events_ar[q].slotStartTime);
+          //   events_ar.splice(tindex, 1)
+          // }
           // else {
-          //   console.log(`False : Event slotStartTime : ${events_ar[k][l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
+          //   console.log(`False : Event slotStartTime : ${events_ar[l].slotStartTime} - Staff slotStartTime : ${staff_ar[q].slotStartTime} `)
           //   staff_ar[q].isBooking = false
           // }
         }
-      }
-    }
+      //}
+    //}
     // console.log('staff_ar[q] Loop Count  : ', i)
-    // console.log('events.availableTimes[k] Loop Count  : ', j)
-    list_availTimes = events_ar
+    // console.log('events.availableTimes Loop Count  : ', j)
+    //list_availTimes = staff_ar
     console.log('eventResultCount : ', eventResultCount)
     eventResultCount++;
   }
+  let matched_staff = []
+  console.log("Matched Staff slots : ", matched_slots)
+  for(let x=0; x<staff_ar.length; x++){
+    if(matched_slots.includes(staff_ar[x].slot)) {
+      //console.log('Slot match  : ', staff_ar[x].slot)
+    } else {
+      //console.log('Slot not match  : ', staff_ar[x].slot)
+      staff_ar = removeByAttr(staff_ar, "slot", staff_ar[x].slot)
+    }
+     
+  }
+  
+  list_availTimes = staff_ar
   return list_availTimes;
 
 }
@@ -665,8 +728,8 @@ var removeByAttr = function(arr, attr, value){
   var i = arr.length;
   while(i--){
      if( arr[i] 
-         && arr[i].events.hasOwnProperty(attr) 
-         && (arguments.length > 2 && arr[i].events.toString() == value ) ){ 
+         && arr[i].hasOwnProperty(attr) 
+         && (arguments.length > 2 && arr[i][attr] == value ) ){ 
          arr.splice(i,1);
      }
   }
