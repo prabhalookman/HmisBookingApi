@@ -521,7 +521,7 @@ let slots = (params) => {
   let slotCount = 0;
   let slotStartTime = '';
   let slotEndTime = '';
-  while (bookingStartTime <= bookingEndTime) {
+  while (bookingStartTime < bookingEndTime) {
     slotCount++;
     displaySettings == '12' ? slotStartTime = moment(bookingStartTime, [secondsFormat]).format(secondsFormat) : slotStartTime = bookingStartTime.format(secondsFormat)
     bookingStartTime.add(clientSlot, 'minutes');
@@ -537,6 +537,7 @@ let slots = (params) => {
       slot: slotCount
     });
   }
+  //availTimes = availTimes.splice(availTimes.lengh,1)
   result.locationAvailable = availLocations
   result.availableTimes = availTimes
   result.dayStartTime = dayStartTime.format(dateFormat)
@@ -613,20 +614,21 @@ let compareTwoSlots = (list_one, list_two) => {
     // console.log('staff_ar[q] Loop Count  : ', i)
     // console.log('events.availableTimes Loop Count  : ', j)
     //list_availTimes = staff_ar
-    console.log('eventResultCount : ', eventResultCount)
+    //console.log('eventResultCount : ', eventResultCount)
     eventResultCount++;
   }
   let matched_staff = []
   console.log("Matched Staff slots : ", matched_slots)
-  for(let x=0; x<staff_ar.length; x++){
-    if(matched_slots.includes(staff_ar[x].slot)) {
-      //console.log('Slot match  : ', staff_ar[x].slot)
-    } else {
-      //console.log('Slot not match  : ', staff_ar[x].slot)
-      staff_ar = removeByAttr(staff_ar, "slot", staff_ar[x].slot)
-    }
-     
-  }
+  //for(let x=0; x<staff_ar.length; x++)
+  
+  staff_ar = staff_ar.filter(function(st) {
+    return matched_slots.some(
+      function(ms) { 
+      return st.slot === ms; 
+    });
+  })
+  
+  
   
   list_availTimes = staff_ar
   return list_availTimes;
@@ -735,3 +737,29 @@ var removeByAttr = function(arr, attr, value){
   }
   return arr;
 }
+
+function recur_ar(staff_ar,matched_slots) {
+  //staff_ar.forEach((e)=>{
+    if(matched_slots.includes(staff_ar[0].slot)) {
+      console.log('Slot match  : ', staff_ar[0].slot)
+      staff_ar = removeByAttr(staff_ar, "slot", staff_ar[0].slot)
+       //matched_slots = arrayRemove(matched_slots, staff_ar[0].slot);
+    } else {
+      console.log('Slot not match  : ', staff_ar[0].slot)
+      //staff_ar = removeByAttr(staff_ar, "slot", staff_ar[0].slot)
+    }
+  //})
+  
+  if(matched_slots.length == 0) {
+    return staff_ar;
+  }
+  recur_ar(staff_ar,matched_slots)
+}
+
+function arrayRemove(arr, value) { 
+    
+  return arr.filter(function(ele){ 
+      return ele != value; 
+  });
+}
+
