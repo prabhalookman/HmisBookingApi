@@ -14,6 +14,7 @@ import staffSchema  from './staff'
 import staffDetailsSchema  from './staffdetails'
 import timingsSchema  from './timings'
 import workspaceSchema from './workspace'
+import settingSchema from './setting'
 
 // import businessInfoSchema  from './businessinfo'
 // import eventCategorySchema  from './eventcategory'
@@ -48,5 +49,6 @@ siteSchema,
 staffSchema,
 staffDetailsSchema,
 timingsSchema,
-workspaceSchema
+workspaceSchema,
+settingSchema
 ]

@@ -315,10 +315,10 @@ export  function get_staff_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
   export  function get_event_locationsettings_agg_bht(_ids,workspace_id,site_id) {
     let match = {}
     match["events._id"] = ObjectId(_ids)
-    match["events.workspace_ids"] = ObjectId(workspace_id)
+    match["events.workspace_id"] = ObjectId(workspace_id)
     match["events.site_id"] = ObjectId(site_id)
     let pipeline = []
-    const bht = events_business_hours_true ()
+    const bht = event_business_hours_true ()
     pipeline = [...bht]
     pipeline.push(
   {
@@ -369,13 +369,13 @@ export  function get_staff_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
   return pipeline
   }
   
-export  function get_events_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
+export  function get_event_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
     let match = {}
     match["events._id"] = ObjectId(_ids)
-    match["events.workspace_ids"] = ObjectId(workspace_id)
+    match["events.workspace_id"] = ObjectId(workspace_id)
     match["events.site_id"] = ObjectId(site_id)
     let pipeline = []
-    const bht = events_business_hours_false ()
+    const bht = event_business_hours_false ()
     pipeline = [...bht]
     pipeline.push(
       {
@@ -652,8 +652,9 @@ export function event_business_hours_true() {
     }
 }
     )
+    console.log(`event_business_hours_true : ${JSON.stringify(pipline) } `)
   return pipline
-  //console.log(`staff_business_hours_true : ${JSON.stringify(pipline) } `)
+  
 }
 
 export function event_business_hours_false() {
@@ -711,19 +712,20 @@ export function event_business_hours_false() {
             "as": "location"
         }
     },)
-  return pipline
     console.log(`event_business_hours_false : ${JSON.stringify(pipline) } `)
+  return pipline
+    
 }
   
   //To check staff_id is business_hours true or false
-export  function bushiness_timings_agg(staff_id,workspace_id,site_id) {
+export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
     let pipline = [];
     let match = {}
-  
-    match["staff._id"] = ObjectId(staff_id)
+  if(type_o == 'staff') {
+    match["staff._id"] = ObjectId(_id)
     match["staff.workspace_ids"] = ObjectId(workspace_id)
     match["staff.site_id"] = ObjectId(site_id)
-    pipline.push([
+    pipline.push(
       {
           "$project": {
               "staff": "$$ROOT"
@@ -749,6 +751,26 @@ export  function bushiness_timings_agg(staff_id,workspace_id,site_id) {
           "$project": {
               "business_hours": "$staffdetails.business_timings"
           }
-      }])
+      })
+  } else {
+    match["events._id"] = ObjectId(_id)
+    match["events.workspace_id"] = ObjectId(workspace_id)
+    match["events.site_id"] = ObjectId(site_id)
+    pipline.push(
+      {
+          "$project": {
+              "events": "$$ROOT"
+          }
+      },
+      
+      {
+          "$match": match
+      }, {
+          "$project": {
+              "business_hours": "$events.business_timings"
+          }
+      })
+  }
+    console.log(`bushiness_timings_agg ${type_o} :  ${JSON.stringify(pipline)}` )
     return pipline
   }

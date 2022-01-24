@@ -82,7 +82,9 @@ extend type Query {
   date: String!, 
   locationName: [String!],
   locationSettingId: [ID]): Availablilities
-  getStaffLocationSettings(workspace_id: ID!, site_id: ID!, staff_id: ID!, date: String!): AvailLocations
+  getStaffEventLocationSettings(workspace_id: ID!, site_id: ID!, event_id: ID!,staff_id: ID!, date: String!): AvailLocations
+  getEventLocationSettings(workspace_id: ID!, site_id: ID!, event_id: ID!, date: String!): AvailLocations
+  
 }
 
 `
