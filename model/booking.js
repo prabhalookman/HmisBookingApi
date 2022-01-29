@@ -16,8 +16,8 @@ const bookingSchema = new mongoose.Schema({
   customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer'}],
   customer_mood: String,
   customer_status: String,
-  Is_cancelled: Boolean,
-  deleted: Boolean,
+  Is_cancelled: { type: Boolean, default: false },
+  deleted: { type: Boolean, default: false },
   deleted_at: Date,
 
   duration_minutes: Number,

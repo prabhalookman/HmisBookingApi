@@ -87,25 +87,27 @@ export default {
           newCustomer = await newCustomer.save();
           customer_ids.push(newCustomer._id)
         }
+        let arg_input = args.input["availablity"]
         //Booking
         if (!bookingInputKeys)
           console.log("Error Booking keys")
         let j = 0;
         while (j < bookingInputKeys.length) {
           if (bookingInputKeys[j] in newBooking) {
-            newBooking[bookingInputKeys[j]] = args.input["availablity"][bookingInputKeys[j]]
+            newBooking[bookingInputKeys[j]] = arg_input[bookingInputKeys[j]]
           }
           j++
         }
         newBooking.customer_ids = customer_ids
 
         let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
+        
         //let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
-        const timingsStartTime = moment(new Date(args.input["availablity"].appointment_start_time), secondsFormat)
-        const timingsEndTime = moment(new Date(args.input["availablity"].repeat_upto_date), secondsFormat)
+        const timingsStartTime = moment(arg_input.appointment_start_time, secondsFormat)
+        const timingsEndTime = arg_input.is_recurring == false ? moment(arg_input.appointment_end_time, secondsFormat) : moment(arg_input.repeat_upto_date, secondsFormat)
 
-        const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date()
-        const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date()
+        const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date()+ 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
+        const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date()+ 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
 
         const selectedStartTime = moment(startDateStr, secondsFormat).format(secondsFormat);
         const selectedEndTime = moment(endDateStr, secondsFormat).format(secondsFormat);
@@ -119,44 +121,48 @@ export default {
 
         let available_date = [];
         let disable_date = [];
-        //if (details.business_timings == false || details.business_timings == true) {
 
-        let bookStartDate = moment(timingsStartTime, "YYYY-MM-DD HH:mm:ss")
-        let maxDate = moment(selectedEndTime, dateFormat)
+        // let b_start_sec = moment.duration(bookStartDate).asSeconds()
+        // let max_date_sec = moment.duration(maxDate).asSeconds()
 
-        while (bookStartDate <= maxDate) {
-          if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
-            disable_date.push(new moment(bookStartDate).format('YYYY-MM-DD'))
+        
+          if (bookingStartTime.isoWeekday() == 6 || bookingStartTime.isoWeekday() == 7) {
+            disable_date.push(new moment(bookingStartTime).format('YYYY-MM-DD'))
           } else {
-            available_date.push(new moment(bookStartDate).format('YYYY-MM-DD'))
+            available_date.push(new moment(bookingStartTime).format('YYYY-MM-DD'))
           }
-          bookStartDate.add(1, 'days');
-        }
 
         console.log('disable_date : ', disable_date)
         console.log('available_date : ', available_date)
 
-        if (args.input["availablity"].is_recurring == true) {
+        if (arg_input.is_recurring == true) {
          
-          if (args.input["availablity"].repeat_on == 'Daily') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, args.input["availablity"], 1)
+          if (arg_input.repeat_on == 'Daily') {
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, arg_input, 1)
           } 
-          else if (args.input["availablity"].repeat_on == 'Weekly') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, args.input["availablity"], 7)
+          else if (arg_input.repeat_on == 'Weekly') {
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, arg_input, 7)
 
-          } else if (args.input["availablity"].repeat_on == 'Monthly') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, args.input["availablity"], 30)
+          } else if (arg_input.repeat_on == 'Monthly') {
+            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, arg_input, 30)
           }
         } else {
+          const checkbook = await checkBook(context, arg_input.staff_id, arg_input.event_id, arg_input.appointment_start_time)
+          if (checkbook) {
+            throw new Error(`Booking not available in this slot ${arg_input.appointment_start_time}, please select another slot`)
+          }
+          if(disable_date.includes(moment(arg_input.appointment_start_time).format('YYYY-MM-DD'))){
+            throw new Error(`Can not book in this disabled day ${arg_input.appointment_start_time}, please select another slot`)
+          }
           newBooking = await newBooking.save();
         }
 
         //RESPONSE
-        if (newBooking) {
-          newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time)
-          newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time)
-          newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)
-        }
+        // if (newBooking) {
+        //   newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time)
+        //   newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time)
+        //   newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)
+        // }
 
         return newBooking
       } catch (error) {

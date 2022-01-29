@@ -688,6 +688,12 @@ export function event_business_hours_false() {
             "as": "locationsetting"
         }
     },
+    {
+      "$unwind": {
+        "path": "$locationsetting",
+        "preserveNullAndEmptyArrays": false
+      }
+    },
      {
         "$lookup": {
             "localField": "locationsetting.integration_id",

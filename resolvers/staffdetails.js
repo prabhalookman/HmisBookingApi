@@ -243,7 +243,7 @@ export default {
         // }
 
         let resp_result = {}
-        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, context, args.staff_ids, args.event)
+        staffResult.availableTimes = await checkBooking(staffResult[0], args.date, context.models, args.staff_ids, args.event)
         let events_availableTimes = compareTwoSlots(staffResult, eventResult)
         resp_result.start_date = eventResult[0].start_date
         resp_result.end_date = eventResult[0].end_date
@@ -311,13 +311,18 @@ export default {
       let stf_loc = locations_arr(staff_loc_ar)
       let ev_loc = locations_arr(event_loc_ar)
       let matched_loc = []
-      stf_loc.forEach((stf)=>{
-        ev_loc.forEach((ev)=>{
-          if(stf.location_name.toLowerCase() == ev.location_name.toLowerCase()){
-            matched_loc.push(stf)
-          }
+      if(stf_loc.length > 0 && ev_loc.length > 0){
+        stf_loc.forEach((stf)=>{
+          ev_loc.forEach((ev)=>{
+            if(stf.location_name && ev.location_name) {
+              if(stf.location_name.toLowerCase() == ev.location_name.toLowerCase()){
+                matched_loc.push(stf)
+              }
+            }
+            
+          })
         })
-      })
+      }
       if(matched_loc.length == 0){
         console.log('Staff and Event location name does not match')
         throw new Error('Staff and Event location names does not match')
@@ -578,11 +583,7 @@ let slots = (params) => {
   const bookingStartTime = moment(selectedStartTime)
   const bookingEndTime = moment(selectedEndTime)
 
-  const startEndDiff = endSeconds - startSeconds
-  var myMinutes = Math.floor(startEndDiff / 60);
   
-  //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
-  const slotDuration = (myMinutes) / clientSlot
 
   let slotCount = 0;
   let slotStartTime = '';
@@ -595,13 +596,28 @@ let slots = (params) => {
 
     //moment.utc(slotStartTime).format(),
     //moment.utc(slotEndTime).format()
-    availTimes.push({
-      _id: _id,
-      slotStartTime: slotStartTime,
-      slotEndTime: slotEndTime,
-      isBooking: false,
-      slot: slotCount
-    });
+    let current_time = moment(new Date(), secondsFormat)
+    const cur_time_seconds = moment.duration(current_time).asSeconds()
+    let _slotStartTime = moment(new Date(slotStartTime), secondsFormat) 
+    const slot_start_time_seconds = moment.duration(_slotStartTime).asSeconds()
+    if(slot_start_time_seconds<cur_time_seconds){
+      availTimes.push({
+        _id: _id,
+        slotStartTime: slotStartTime,
+        slotEndTime: slotEndTime,
+        isBooking: true,
+        slot: slotCount
+      });
+    } else {
+      availTimes.push({
+        _id: _id,
+        slotStartTime: slotStartTime,
+        slotEndTime: slotEndTime,
+        isBooking: false,
+        slot: slotCount
+      });
+    }
+    
   }
   //availTimes = availTimes.splice(availTimes.lengh,1)
   result.locationAvailable = availLocations
@@ -701,7 +717,7 @@ let compareTwoSlots = (list_one, list_two) => {
 
 }
 
-let checkBooking = async (list_one, select_date, context, args_staff_ids, args_event_id) => {
+let checkBooking = async (list_one, select_date, models, args_staff_ids, args_event_id) => {
   try {
 
     let selectedDate = moment(new Date(select_date), "YYYY-MM-DDTHH:mm:ss").toISOString() //moment.utc('2021-09-29T12:00:14.000+00:00') moment(new Date ('2021-09-29T12:00:00.000+00:00'), "YYYY-MM-DDTHH:mm:sss").toUTCString();
@@ -710,8 +726,9 @@ let checkBooking = async (list_one, select_date, context, args_staff_ids, args_e
     //console.log('selectedDate : ', selectedDate)
     //console.log(`selectedDate.isValid() : ${selectedDate.isValid()}  : ${selectedDate.toISOString()}`) // 
     //console.log(`selectedDatePlus.isValid() : ${selectedDatePlus.isValid()}  : ${selectedDatePlus.toISOString()}`) // 
-
-    let bookingDetails = await context.models.Booking.find({staff_id: args_staff_ids, event_id: args_event_id, Is_cancelled:false, deleted:false, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }})//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
+let findObj = {staff_id: ObjectId(args_staff_ids) , event_id: ObjectId(args_event_id[0]) , appointment_start_time: { $gte: new Date(selectedDate), $lte: new Date(selectedDatePlus)  }} //Is_cancelled:false, deleted:false, 
+console.log(`booking find obj : ${JSON.stringify(findObj)}`)
+    let bookingDetails = await models.Booking.find(findObj).lean()//appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
     //{staff_id: args_staff_ids, event_id: args_event_id, appointment_start_time: { $gte: selectedDate, $lte: selectedDatePlus }}
 
     //Staff
