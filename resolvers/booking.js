@@ -5,7 +5,7 @@ export default {
   Query: {
     getBooking: async (parent, args, context, info) => {
       try {
-        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id })
+        let Booking = await context.models.Booking.find({ workspace_id: args.workspace_id, site_id: args.site_id }).lean()
         return Booking
       } catch (error) {
         console.error("Error : ", error)
@@ -103,8 +103,8 @@ export default {
         let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
         
         //let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
-        const timingsStartTime = moment(arg_input.appointment_start_time, secondsFormat)
-        const timingsEndTime = arg_input.is_recurring == false ? moment(arg_input.appointment_end_time, secondsFormat) : moment(arg_input.repeat_upto_date, secondsFormat)
+        const timingsStartTime = moment(new Date(arg_input.appointment_start_time), secondsFormat)
+        const timingsEndTime = arg_input.is_recurring == false ? moment(new Date(arg_input.appointment_end_time), secondsFormat) : moment(new Date(arg_input.repeat_upto_date), secondsFormat)
 
         const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date()+ 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
         const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date()+ 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
@@ -156,13 +156,6 @@ export default {
           }
           newBooking = await newBooking.save();
         }
-
-        //RESPONSE
-        // if (newBooking) {
-        //   newBooking.appointment_start_time = moment.utc(newBooking.appointment_start_time)
-        //   newBooking.appointment_end_time = moment.utc(newBooking.appointment_end_time)
-        //   newBooking.appointment_booking_time = moment.utc(newBooking.appointment_booking_time)
-        // }
 
         return newBooking
       } catch (error) {

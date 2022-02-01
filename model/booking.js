@@ -4,7 +4,7 @@ import Double from '@mongoosejs/double';
 const bookingSchema = new mongoose.Schema({  
   add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addon'}],
   amount_paid: Number,
-  appointment_booking_time: Date,
+  appointment_booking_time: {type: Date, default: Date.now},
   appointment_end_time: Date,
   appointment_start_time: Date,
   appointment_time_before_reschedule: [String],
