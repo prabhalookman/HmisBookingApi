@@ -172,3 +172,32 @@ mutation {
   }
 }
 ------
+
+mutation{
+  rescheduleBooking(
+  appointment_id:"61f8c85398d41218fc423157"
+  appointment_start_time: "2022-02-01T12:00:00+05:30"
+  booking_id: "61f8c85398d41218fc423157"
+  workspace_id: "614d63c649a63250a673d1a3", 
+  site_id: "614d6350b3df7dad03d6cdb2", 
+  staff_ids: "61d2c395766161a449af5f70", 
+  event: ["61d3de476ce5d97556f84310"], 
+  date: "2022-02-01", 
+  locationName: ["Client Will call you"]){
+    start_date
+    end_date
+    pre_booking_day
+    selectedDate
+    available_date
+    disable_date
+    selectedDate
+    locationAvailable
+    availableTimes {
+      _id
+      slot
+      slotStartTime
+      slotEndTime
+      isBooking
+    }
+  }
+}

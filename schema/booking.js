@@ -9,7 +9,7 @@ type Booking {
   appointment_booking_time: Date
   appointment_end_time: Date
   appointment_start_time: Date
-  appointment_time_before_reschedule: [String]
+  appointment_time_before_reschedule: [Date]
   repeat_upto_date:Date
   repeat_on: String
 
@@ -50,7 +50,7 @@ type Booking {
   appointment_booking_time: String
   appointment_end_time: String
   appointment_start_time: String
-  appointment_time_before_reschedule: [String]
+  appointment_time_before_reschedule: [Date]
   repeat_upto_date:Date
   repeat_on: String
 
@@ -107,10 +107,29 @@ getBookingByEvent(workspace_id: ID!, site_id:ID!, event_id: ID! ):[Booking]
 
 extend type Mutation {
 addBooking(input: bookingIn): Booking  
+rescheduleBooking(
+  appointment_id: String!,
+  appointment_start_time: String!
+  appointment_end_time: String!
+  ): Booking
 }
  `
 
 // /*
+
+// rescheduleBooking(
+//   appointment_id: String!,
+//   appointment_start_time: String!
+//   booking_id: ID!
+//   workspace_id: ID!, 
+//   site_id: ID!, 
+//   staff_ids: ID!, 
+//   event: [ID!], 
+//   date: String!, 
+//   locationName: [String!],
+//   locationSettingId: [ID]): Availablilities
+// }
+
 // arrival_status: String
 // assignee_id: [Staff]
 // booked_by: String

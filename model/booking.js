@@ -7,7 +7,7 @@ const bookingSchema = new mongoose.Schema({
   appointment_booking_time: {type: Date, default: Date.now},
   appointment_end_time: Date,
   appointment_start_time: Date,
-  appointment_time_before_reschedule: [String],
+  appointment_time_before_reschedule: [Date],
 
   cost: Double,
   created_at: Date,

@@ -1,6 +1,7 @@
 import { MyError } from '../helpers/helper'
 import moment from 'moment-timezone';
 import { ObjectId } from 'bson';
+import{ getAvailability, is_bookingExist } from '../helpers/slotcreation'
 export default {
   Query: {
     getBooking: async (parent, args, context, info) => {
@@ -163,7 +164,46 @@ export default {
         throw new Error(error)
       }
 
-    }
+    },
+    rescheduleBooking: async (parent, args, context, info) =>{
+      try {
+        let findObj = { _id: ObjectId(args.appointment_id), Is_cancelled:false, deleted:false  } //, workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , 
+        console.log(`booking find obj : ${JSON.stringify(findObj)}`)
+        let bookingDetails = await context.models.Booking.find(findObj).lean()
+        if(bookingDetails.length == 0){
+          console.error("Error : appointment does not exist ")
+          throw new Error ("Appointment does not exist")
+        }
+        console.log('book start  : ', moment(bookingDetails[0].appointment_start_time).format())
+        let db_start_time = moment(bookingDetails[0].appointment_start_time).format()
+        let arg_start_time = moment(args.appointment_start_time).format()
+        if(db_start_time === arg_start_time){
+          console.error("Already appointment time and new time are same")
+          throw new Error ("Already appointment time and new time are same")
+        }
+        let updateObj = { $set: {} };
+        for (var param in args) {
+          if(param != 'appointment_id') {
+            updateObj.$set[param] = args[param];
+          }
+          
+        }
+        updateObj.$set["appointment_time_before_reschedule"] = args.appointment_start_time
+        const resultBooking = await context.models.Booking.findOneAndUpdate({ _id: ObjectId(args.appointment_id) }, updateObj, { new: true });
+
+        console.log("resultBooking created : ", resultBooking)
+
+        return resultBooking
+
+        // let available_result = await getAvailability(args, context)
+        // let resp_result = await is_bookingExist(available_result.availableTimes, bookingDetails, 'reschedule')
+        // available_result.availableTimes = resp_result
+        // return available_result;
+      } catch (error) {
+        console.error("Error : ", error)
+        throw new Error (error)
+      }
+    } 
   },
   Booking: {
     event_id: async (booking) => {
