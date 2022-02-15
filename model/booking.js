@@ -1,6 +1,10 @@
 import mongoose from 'mongoose'
 import Double from '@mongoosejs/double';
 
+var progressSchema = new mongoose.Schema({
+  date_time: {type: Date, default: Date.now},
+  status: {type: String, default: "Booked"}
+});
 const bookingSchema = new mongoose.Schema({  
   add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addon'}],
   amount_paid: Number,
@@ -19,6 +23,11 @@ const bookingSchema = new mongoose.Schema({
   Is_cancelled: { type: Boolean, default: false },
   deleted: { type: Boolean, default: false },
   deleted_at: Date,
+  booked_by: String,
+  progress: [{
+    date_time: {type: Date, default: Date.now},
+    status: {type: String, default: "Booked"}
+  }],
 
   duration_minutes: Number,
   event_id: { type: mongoose.Schema.Types.ObjectId, ref: 'events'},
@@ -42,6 +51,8 @@ const bookingSchema = new mongoose.Schema({
 
 const Booking = mongoose.model('booking', bookingSchema, 'booking')
 export default Booking;
+
+
 
 // arrival_status: String,
 // assignee_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}],

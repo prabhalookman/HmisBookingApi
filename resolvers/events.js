@@ -1,5 +1,10 @@
 import { ObjectId } from 'bson';
 import moment from 'moment';
+import {
+  getServicesbyStaffId,
+  uniqueFromArr,
+  avail_date_filter
+} from '../helpers/slotcreation'
 export default {
   Query: {
     getEvents: async (parent, args, context, info) => {
@@ -7,180 +12,44 @@ export default {
         let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.staff_ids) }
         console.log(findObj)
         let event = await context.models.Event.find(findObj)
-        //workspace_ids: args.workspace_id, site_id:args.site_id
         return event
       } catch (error) {
         console.error("Error : ", error)
-      }
-    },
-    getAvailabilityByEvents: async (parent, args, context, info) => {
-      try {       
-        let result = {
-          start_date: "",
-          end_date: "",
-          pre_booking_day: 0,
-          available_date: [],
-          disable_date: [],
-          selectedDate: "",
-          availableTimes: [],
-          locationAvailable: [],
-          dayStartTime: "",
-          dayEndTime:""
-        }
-        let availTimes = [];
-        let availLocations = [];
-        let available_date = [];
-        let disable_date = [];
-        let dayStartTime = '';
-        let dayEndTime = '';
-
-        //Event
-        let event = await context.models.Event.find({ site_id: args.site_id, workspace_id: args.workspace_id, _id: args.event_id })
-        console.log("Event  id : ", event[0].timing_ids)
-
-        //StaffDetails
-        // let staffdetail = await context.models.StaffDetails.find({ site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), _id: staff[0].staff_detail_id })
-        // console.log("Staff Details id : ", event[0]._id)
-
-        //2. Business Hours => False
-        let displaySettings = '12'
-        let minutesFormat = "HH:mm";
-        const dateFormat = "YYYY-MM-DD HH:mm:ss";
-        let selectedDate = moment(args.date, "YYYY-MM-DD").format("YYYY-MM-DD"); //moment(new Date(), "YYYY-MM-DD").format("YYYY-MM-DD");
-
-        let settings = await context.models.Setting.find({}) //site_id: args.site_id, workspace_id: args.workspace_id
-        const pre_booking_day = settings[0].advance_Booking_Period.value
-        const clientSlot = settings[0].client_time_slot
-        //console.log("settings-advance_Booking_Period : ", pre_booking_day)
-
-        let minDate = moment(new Date(), dateFormat)
-        let bookingStartDate = moment(new Date(), dateFormat)
-        let maxDate = moment(new Date(), dateFormat).add(pre_booking_day-1, 'days');
-
-        console.log('minDate : ', minDate.format(dateFormat));
-        console.log('maxDate : ', maxDate.format(dateFormat));
-
-        if (event[0].business_timings == false) {
-          //Timing
-          let timingsResult = await context.models.Timing.find({ _id: event[0].timing_ids })
-          console.log("timingsResult id: ", timingsResult[0]._id)
-          //console.log("timingsResult id stringify: ", JSON.stringify(timingsResult[0]))
-
-          //Locationsettings
-          console.log("location_settings id : ", timingsResult[0].location_setting_ids)
-
-          let locationSettingsResult = await context.models.LocationSetting.find({ _id: timingsResult[0].location_setting_ids })
-          //console.log("locationSettingsResult id : ", JSON.stringify(locationSettingsResult))
-          locationSettingsResult.forEach((elem) => {
-            if (elem.inperson.buinsess_address) { availLocations.push({ _id: elem._id, type: "inperson" }) }
-            if (elem.oncall.client_will_call) { availLocations.push({ _id: elem._id, type: "oncall" }) }
-            if (elem.video) { availLocations.push({ _id: elem._id, type: "video" }) }
-          })
-
-          while (bookingStartDate <= maxDate) {
-            if (bookingStartDate.isoWeekday() == 6 || bookingStartDate.isoWeekday() == 7) {
-              disable_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
-            } else {
-              available_date.push(new moment(bookingStartDate).format('YYYY-MM-DD'))
-            }
-            bookingStartDate.add(1, 'days');
-          }
-
-          /**************** */
-          //Test Date address
-          // console.log(`moment().toISOString() Default UTC: ${moment().toISOString()}`)
-          // console.log(`moment().toISOString(true) : ${moment().toISOString(true)}`)
-          // console.log(`moment().format() ISO 8601, no fractional seconds : ${moment().format()}`)
-          // console.log(`moment().toObject() : ${moment().toObject()}`)
-          // console.log(`moment().toString() : ${moment().toString()}`)
-
-          // moment().toISOString() Default UTC : 2021-09-15T11:05:12.077Z
-          // moment().toISOString(true) : 2021-09-15T16:35:12.374+05:30
-          // moment().format() : 2021-09-15T16:35:12+05:30
-          // moment().toObject() : [object Object]
-          // moment().toString() : Wed Sep 15 2021 16:35:13 GMT+0530
-
-          //moment('2010-10-20').isSame('2010-10-20'); // true
-
-          // var contractMoment = moment(new Date(), dateFormat);
-          // var start = moment(contractMoment).add(19, 'days');
-          // var end = moment(contractMoment).add(51, 'days');        
-
-          timingsResult[0].timings.forEach((elem) => {
-            let timingsDay = moment(new Date(elem.start_time), "YYYY-MM-DD").format("YYYY-MM-DD")
-              console.log(`moment(new Date(elem.start_time),"YYYY-MM-DD") - ${timingsDay}`)
-
-            if (selectedDate == timingsDay) {
-              console.log(`selected date ${selectedDate} match with start time ${elem.start_time} -> ${timingsDay}`)
-
-              console.log(`elem.start_time - ${elem.start_time}`)
-              console.log(`new Date(elem.start_time) - ${new Date(elem.start_time)}`)
-              
-              console.log(`selectedDate - ${selectedDate}`)
-              console.log(`new Date() - ${new Date()}`)
-
-              dayStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
-              dayEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
-
-              const timingsStartTime = moment(new Date(elem.start_time), "YYYY-MM-DDTHH:mm:ss")
-              const timingsEndTime = moment(new Date(elem.end_time), "YYYY-MM-DDTHH:mm:ss")
-
-              console.log('timingsStartTime : ', timingsStartTime);
-              console.log('timingsEndTime : ', timingsEndTime);
-
-              const startEndDiff = timingsEndTime.diff(timingsStartTime, 'minutes')
-
-              //console.log('Minutes Diff : ', startEndDiff + ` - clientSlot : ${clientSlot}`)
-              const slotDuration = (startEndDiff) / clientSlot
-
-              let slotCount = 0;
-              let time = '';
-              while (timingsStartTime <= timingsEndTime) {
-                slotCount++;
-                displaySettings == '12' ? time = moment(timingsStartTime, ["HH.mm"]).format("hh:mm A") : time = timingsStartTime.format(minutesFormat)
-                availTimes.push({
-                  _id: timingsResult[0]._id,
-                  time: time,
-                  isBooking: true
-                });
-
-                timingsStartTime.add(slotDuration, 'minutes');
-              }
-              //console.log('availLocations : ', availLocations);
-              //console.log('availTimes : ', availTimes);
-              result.locationAvailable = availLocations
-          result.availableTimes = availTimes
-          result.dayStartTime = dayStartTime.format(dateFormat)
-          result.dayEndTime = dayEndTime.format(dateFormat)
-
-            } else {
-              console.log(`selected date ${selectedDate} DOES NOT match with start time ${elem.start_time} -> ${timingsDay}`)
-            }
-
-          }) //Timings ForEach End
-          result.start_date = minDate.format('YYYY-MM-DD')
-          result.end_date = maxDate.format('YYYY-MM-DD')
-          result.pre_booking_day = pre_booking_day
-          result.available_date = available_date
-          result.disable_date = disable_date          
-          result.selectedDate = selectedDate
-
-          
-        }
-        //console.log('result : ', result)
-        return result
-      } catch (error) {
-        console.error("Error : ", error)
+        throw new Error (error)
       }
     },
     getEventsDetailByStaff: async (parent, args, context, info) => {
       try {
         let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.staff_ids) }
-        let staffEvent = await context.models.Event.find(findObj)
-        console.log(`staffEvent Count : `, staffEvent.length)
-        return staffEvent
+        let staffEvent = await context.models.Staff.find(findObj)
+        console.log(`\n staffEvent Count : `, staffEvent.length)
+        let result_events = await getServicesbyStaffId(args, context)
+
+        let timings_day=uniqueFromArr('timings_day', result_events)
+        let dates_arr = await avail_date_filter ({timings_day: timings_day}, context)
+        let uniqueEvent_id=uniqueFromArr('_id', result_events)
+        let uniqueEvent = []
+        let matched_events = {events:[]};
+        //uniqueEvent_id.forEach((elem_id)=>
+        for(let i=0; i< uniqueEvent_id.length; i++){
+          const event = await context.models.Event.find({_id: ObjectId(uniqueEvent_id[i])}).lean()
+          matched_events.events.push(event[0])
+        }
+        matched_events.timings_day = timings_day;
+        matched_events.available_dates = dates_arr;
+        matched_events.services = result_events
+        return matched_events
       } catch (error) {
         console.error("Error : ", error)
+        throw new Error (error)
+      }
+    },
+    getEnabledDate: async (parent, args, context, info) => {
+      try{
+        let result = await avail_date_filter(args, context);
+        return result;
+      } catch(error) {
+        throw new Error(error)
       }
     },
     getLocationByServiceId: async (parent, args, context, info) => {
@@ -191,7 +60,7 @@ export default {
         console.error("Error : ", error)
       }
     } 
-  },
+  }, //Query End
   Event: {
       timing_ids: async (event) => {
           let resultEvent = await event.populate('timing_ids').execPopulate();
@@ -218,4 +87,41 @@ export default {
       return resultEvent.add_on_ids
   },
   }
+}
+
+function testDate(){
+  var format = "HH:mm:ss";
+var hourFormat = "HH:mm";
+var maxStartHour = moment("07:00:00", format);
+var minEndHour = moment("19:00:00", format);
+console.log('maxStartHour : ', maxStartHour)
+var arrayOfWorkDates = [
+
+  {
+    start: "2018-02-24T14:00:00",
+    end: "2018-02-24T15:00:00"
+  },
+  {
+    start: "2018-02-24T05:00:00",
+    end: "2018-02-24T06:00:00"
+  },
+  {
+    start: "2018-02-24T20:00:00",
+    end: "2018-02-24T21:00:00"
+  }
+];
+
+
+var filteredWokrHours = arrayOfWorkDates.filter(function(el) {
+
+  var start = moment(el.start).format(hourFormat);
+  var end = moment(el.end).format(hourFormat);
+
+  var checkHourStart = moment(start, format);
+  var checkHourEnd = moment(end, format);
+
+  return checkHourStart.isBefore(maxStartHour) || checkHourEnd.isAfter(minEndHour);
+});
+
+if(filteredWokrHours.length > 0){console.log("success: " + filteredWokrHours.length);}else{console.log("fail");}
 }

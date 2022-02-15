@@ -24,10 +24,22 @@ type Event {
   add_on_ids: [AddOn]
 }
 
+type StaffEvents {
+  _id: ID,
+  events: Event,
+  timings_day: String
+}
+
+type EventWithAvailDate {
+  available_dates: [String],
+  timings_day: [String],
+  events: [Event]
+}
+
 extend type Query {
   getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Event]
-  getAvailabilityByEvents(workspace_id: ID, site_id: ID, staff_ids: ID, event_id: [ID], date: String): Availablilities
-  getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [Event]
+  getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): EventWithAvailDate
+  getEnabledDate(workspace_id: ID, site_id: ID, staff_ids: ID,timings_day: [String] ) : [String]
   getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Event]
 }
 `

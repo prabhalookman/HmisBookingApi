@@ -11,7 +11,9 @@ type Booking {
   appointment_start_time: Date
   appointment_time_before_reschedule: [Date]
   repeat_upto_date:Date
-  repeat_on: String
+  repeat_on: String,
+  booked_by: String,
+  progress: [book_progress],
 
   cost: Int
   created_at: String
@@ -44,6 +46,11 @@ type Booking {
   workspace_id: Workspace
   }
 
+  type book_progress {
+    date_time: Date,
+    status: String
+  }
+
   input bookingInput {  
   add_on_ids: [ID]
   amount_paid: Int
@@ -52,7 +59,9 @@ type Booking {
   appointment_start_time: String
   appointment_time_before_reschedule: [Date]
   repeat_upto_date:Date
-  repeat_on: String
+  repeat_on: String,
+  booked_by: String,
+  progress: [book_progress_input],
 
   cost: Float
   created_at: String
@@ -89,6 +98,10 @@ input bookingIn {
   availablity:bookingInput
   customer:customerInput
 }
+input book_progress_input {
+  date_time: Date,
+  status: String
+}
 
 input booking_available_in {
   location_setting_id:ID
@@ -108,7 +121,7 @@ getBookingByEvent(workspace_id: ID!, site_id:ID!, event_id: ID! ):[Booking]
 extend type Mutation {
 addBooking(input: bookingIn): Booking  
 rescheduleBooking(
-  appointment_id: String!,
+  appointment_id: ID!,
   appointment_start_time: String!
   appointment_end_time: String!
   ): Booking

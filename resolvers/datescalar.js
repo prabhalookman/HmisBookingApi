@@ -12,9 +12,9 @@ export default {
       return value; // value from the client
     },
     serialize(value) {
-      let respo = moment.tz(value,"Asia/Kolkata").format(); //moment.tz(value,"YYYYMMDDHHmm","Asia/Kolkata");
+      //let respo = moment.tz(value,"Asia/Kolkata").format(); //moment.tz(value,"YYYYMMDDHHmm","Asia/Kolkata");
       //let respo = moment.utc(value).format();
-      return respo //value //moment(value, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss") //new Date(value); // value sent to the client
+      return  new Date(value)//moment(value, "YYYY-MM-DDTHH:mm:ss").format("YYYY-MM-DDTHH:mm:ss") //new Date(value); // value sent to the client
     },
     parseLiteral(ast) {
       if (ast.kind === Kind.STRING) {

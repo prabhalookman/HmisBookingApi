@@ -3,7 +3,12 @@ import { ObjectId } from 'bson';
 import {  
     aggregate_bhf,
     aggregate_bht,
-    get_staffdetail_agg
+    bushiness_timings_agg,
+    get_staffdetail_agg,
+    get_staff_dd_locationsettings_agg_bhf,
+    get_staff_dd_locationsettings_agg_bht,
+    get_event_dd_locationsettings_agg_bhf,
+    get_event_dd_locationsettings_agg_bht
   } from '../helpers/aggregateFunctions'
 
 export const getting_slots = async (fromObj,details, models, result, displaySettings, minutesFormat, bookingStartDate, clientSlot, minDate, maxDate, selectedDate, selected_date, dateFormat, pre_booking_day) => {
@@ -121,7 +126,7 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
       bookingStartTime.add(clientSlot, 'minutes');
       //slotEndTime = moment.tz(bookingStartTime, "Asia/Kolkata").format();
       displaySettings == '12' ? slotEndTime = moment(bookingStartTime, [secondsFormat]).format(secondsFormat) : slotEndTime = timingsStartTime.format(secondsFormat) //.format("hh:mm A")
-  console.log(`${slotStartTime} - ${slotEndTime}`)
+  //console.log(`${slotStartTime} - ${slotEndTime}`)
       let current_time = moment(new Date(), secondsFormat)
       const cur_time_seconds = moment.duration(current_time).asSeconds()
       let _slotStartTime = moment(new Date(slotStartTime), secondsFormat) 
@@ -319,12 +324,11 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
   
   export let date_check  = async (args,context) => {
     let displaySettings = '12'
-    let minutesFormat = "HH:mm";
     const secondsFormat = "YYYY-MM-DD HH:mm:ss";
     const dateFormat = "YYYY-MM-DD";
     let selectedDate = moment(args.date, dateFormat);
   
-    let Setting = await context.models.Setting.aggregate([{"$match": {}}]) //await context.models.Setting.find({})
+    let Setting = await context.models.Setting.find({}).lean() //await context.models.Setting.find({})
     const pre_booking_day = Setting[0].advance_Booking_Period
     const clientSlot = Setting[0].client_time_slot
   
@@ -362,7 +366,7 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
     console.log('_resp : ', _resp)
     return _resp
   }
-  
+
   export let locations_arr = (loc_ar) => {
     let location_setting = [], locations = [];
     location_setting = loc_ar[0].locationsetting
@@ -605,3 +609,187 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
       return staff_ar
   }
   
+  export let getStaffLocations = async(args, context) => {
+    let staff_loc_ar = [];
+      let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_ids, args.workspace_id,args.site_id, 'staff'));
+      if(business_time[0].business_hours){
+        staff_loc_ar = await context.models.Staff.aggregate(get_staff_dd_locationsettings_agg_bht(args.staff_ids, args.workspace_id,args.site_id));
+      } else {
+        staff_loc_ar = await context.models.Staff.aggregate(get_staff_dd_locationsettings_agg_bhf(args.staff_ids, args.workspace_id,args.site_id));
+      }
+      if(staff_loc_ar.length<1){
+        throw new Error('Location setting not available in staff')
+      }
+
+      return staff_loc_ar;
+  }
+
+  export let getEventLocations = async(args, context) => {
+    let event_loc_ar = [];
+    let ev_business_time = await context.models.Event.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
+      if(ev_business_time[0].business_hours){
+        event_loc_ar = await context.models.Event.aggregate(get_event_dd_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
+      } else {
+        event_loc_ar = await context.models.Event.aggregate(get_event_dd_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
+      }
+      if(event_loc_ar.length<1){
+        throw new Error('Location setting not available in event')
+      }
+
+      return event_loc_ar
+  }
+
+  export let getServicesbyStaffId = async(args, context) => {
+    let staff_loc_ar = await getStaffLocations(args, context)
+        let event_loc_ar = [];
+        if(staff_loc_ar.length > 0) {
+          if(staff_loc_ar[0].locationsetting.length > 0 ){
+            if(staff_loc_ar[0].locationsetting[0].events_id.length > 0 ){
+              let events_id = staff_loc_ar[0].locationsetting[0].events_id
+              for(let i =0; i < events_id.length; i++){
+                let event_id = events_id[i]
+                console.log('\n event id : ', event_id)
+                args = {...args, event_id}
+                let events = await getEventLocations(args, context)
+                event_loc_ar.push(...events[0].locationsetting)
+              }
+            }
+          }
+        }
+        //event_loc_ar = await getEventLocations(args, context)
+        let event_results = [];
+        let stf_loc = [...staff_loc_ar[0].locationsetting]
+        event_loc_ar.forEach((elem)=>{
+          if(elem!=undefined){
+            event_results.push({_id: elem.events_id,  location_name: elem.location_name[0], timings: elem.timings })
+          }
+        })
+      let ev_loc = [...event_results]
+      let loc_matched_events = [];
+      if(stf_loc.length > 0 && ev_loc.length > 0){
+        stf_loc.forEach((stf_elem)=>{
+          let f_Events = ev_loc.filter((elem)=>{
+            return elem.location_name == stf_elem.location_name[0]
+          })
+          if(f_Events.length > 0){
+            f_Events.forEach((elem)=>{
+              loc_matched_events.push({_id: elem._id, location_name: elem.location_name, timings: elem.timings})
+            })
+          }
+        }) 
+      }
+      //console.log('loc_matched_events : ', loc_matched_events)
+      let matched_events = [];
+      stf_loc.forEach((stf_elem)=>{
+         loc_matched_events.forEach((ev_elem)=>{
+          if (ev_elem.location_name == stf_elem.location_name[0]) {
+            stf_elem.timings[0].forEach((stf_time) => {
+              ev_elem.timings.forEach((ev_time) => {
+                if (stf_time.work_day_name == ev_time.work_day_name) {
+                  //console.log(`Matched Day  ${stf_elem.location_name} - ${ev_elem.location_name}= Staff : ${stf_time.work_day_name} - Event :  ${ev_time.work_day_name}`)
+                  const stf_startDate = moment
+                    .duration(string_to_date(stf_time.start_time))
+                    .asSeconds();
+                   // console.log('seconds to date : ', moment(stf_startDate).format("YYYY-MM-DDTHH:mm:ss"))
+                  const ev_startDate = moment
+                    .duration(string_to_date(ev_time.start_time))
+                    .asSeconds();
+                  const ev_endDate = moment
+                    .duration(string_to_date(ev_time.end_time))
+                    .asSeconds();
+        
+                  if (stf_startDate <= ev_startDate || stf_startDate <= ev_endDate) {
+                    matched_events.push({_id: ev_elem._id, timings_day: ev_time.work_day_name})
+                  }
+                }
+              });
+            });
+          }
+         })
+      }) 
+      console.log('matched_events : ', matched_events.length)
+      //matched_events.locations=uniqueFromArr(location_name, matched_events)
+      
+      //console.log('matched_events : ', matched_events)
+      if(matched_events.length == 0){
+        console.log('Staff and Event location name does not match')
+        throw new Error('Staff and Event location names does not match')
+      }
+      //console.log(matched_loc)
+
+        return matched_events
+  }
+
+  
+export let string_to_date = (start_time) => {
+  let date_format = "YYYY-MM-DDTHH:mm:ss"
+  const timingsStartTime = moment(new Date(start_time), date_format) //.format(hs_format)
+  //console.log('timingsStartTime : ', timingsStartTime.format(hs_format))
+    let default_date = moment(new Date(0), date_format)
+    const newDate = default_date.year() + '-' + (default_date.month() + 1) + '-' + default_date.date() + 'T' + + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('ss')
+    //console.log('newDate : ', newDate)
+    const strDate = moment(newDate, date_format)
+    return strDate
+}
+
+export let uniqueFromArr = (field,array) => {
+  var flags = [], output = [], l = array.length, i;
+  for( i=0; i<l; i++) {
+    if( flags[array[i][field]]) continue;
+      flags[array[i][field]] = true;
+      output.push(array[i][field]);
+  }
+  return output
+}
+
+export let avail_date_filter = async (args, context) => {
+  const secondsFormat = "YYYY-MM-DDTHH:mm:ss";
+    const dateFormat = "YYYY-MM-DD";
+    let selectedDate = moment(new Date(), dateFormat).startOf('day');
+    let day_names = args.timings_day//["Monday", "Tuesday"]
+  
+    let Setting = await context.models.Setting.find({}).lean() //await context.models.Setting.find({})
+    const pre_booking_day = Setting[0].advance_Booking_Period
+  
+    let minDate = moment(new Date(), secondsFormat).startOf('day');
+    let cr_date = moment(new Date()).startOf('day');
+  
+    let maxDate = moment(new Date(), secondsFormat).add(pre_booking_day - 1, 'days');
+    if(selectedDate<cr_date){
+      throw new Error('Selected date should be greater than current date')
+    }
+  
+    let available_date = [];
+    let disable_date = [];
+    let bookStartDate = moment(minDate, secondsFormat)
+    while (bookStartDate <= maxDate) {
+      if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
+        disable_date.push(new moment(bookStartDate).format(dateFormat))
+      } else {
+        if(day_names.includes (new moment(bookStartDate).format('dddd'))){
+          available_date.push((bookStartDate).format(dateFormat))
+        }
+      }
+      bookStartDate.add(1, 'days');
+    }
+      return available_date
+}
+
+
+/*
+let array = [
+      {
+        "_id": "61e66824a2af59cecc190555",
+        "name": "Ear-Nose-Throat",
+        "location_name": "Client Address at Booking",
+        "timings_day": "Monday"
+      },
+      {
+        "_id": "61e66824a2af59cecc190555",
+        "name": "Ear-Nose-Throat",
+        "location_name": "Client Will call you",
+        "timings_day": "Monday"
+      }
+    ]
+
+ */

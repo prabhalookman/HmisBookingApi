@@ -51,11 +51,13 @@ export default {
 
         let bookingInput = args.input.availablity
         let bookingInputKeys = Object.keys(bookingInput)
-
-        let customer = args.input.customer
-        let customerKeys = Object.keys(customer);
+        let arg_input = args.input["availablity"]
+        let customer_ids = []
 
         //Customer
+        if(args.input.customer!= undefined){
+          let customer = args.input.customer
+        let customerKeys = Object.keys(customer);
         if (!bookingInputKeys)
           console.log("Error Booking keys")
         let i = 0;
@@ -65,7 +67,7 @@ export default {
           }
           i++
         }
-        let customer_ids = []
+        
         let customerResult = await context.models.Customer.find({ email: customer.email })
 
         if (customerResult.length > 0 && customerResult[0].email) {
@@ -88,7 +90,7 @@ export default {
           newCustomer = await newCustomer.save();
           customer_ids.push(newCustomer._id)
         }
-        let arg_input = args.input["availablity"]
+      }
         //Booking
         if (!bookingInputKeys)
           console.log("Error Booking keys")
@@ -99,13 +101,14 @@ export default {
           }
           j++
         }
-        newBooking.customer_ids = customer_ids
-
+        if(customer_ids.length > 0 ){
+          newBooking.customer_ids = customer_ids
+        }
         let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
         
         //let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
         const timingsStartTime = moment(new Date(arg_input.appointment_start_time), secondsFormat)
-        const timingsEndTime = arg_input.is_recurring == false ? moment(new Date(arg_input.appointment_end_time), secondsFormat) : moment(new Date(arg_input.repeat_upto_date), secondsFormat)
+        const timingsEndTime = moment(new Date(arg_input.appointment_end_time), secondsFormat) //arg_input.is_recurring == false ?  : moment(new Date(arg_input.repeat_upto_date), secondsFormat)
 
         const startDateStr = timingsStartTime.year() + '-' + (timingsStartTime.month() + 1) + '-' + timingsStartTime.date()+ 'T' + timingsStartTime.format('HH') + ':' + timingsStartTime.format('mm') + ':' + timingsStartTime.format('sss')
         const endDateStr = timingsEndTime.year() + '-' + (timingsEndTime.month() + 1) + '-' + timingsEndTime.date()+ 'T' + timingsEndTime.format('HH') + ':' + timingsEndTime.format('mm') + ':' + timingsEndTime.format('sss')
@@ -116,8 +119,8 @@ export default {
         const bookingStartTime = moment(selectedStartTime, secondsFormat)
         const bookingEndTime = moment(selectedEndTime, secondsFormat)
 
-        console.log('bookingStartTime : ', bookingStartTime)
-        console.log('bookingEndTime : ', bookingEndTime)
+        //console.log('bookingStartTime : ', bookingStartTime)
+        //console.log('bookingEndTime : ', bookingEndTime)
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
 
         let available_date = [];
@@ -155,8 +158,11 @@ export default {
           if(disable_date.includes(moment(arg_input.appointment_start_time).format('YYYY-MM-DD'))){
             throw new Error(`Can not book in this disabled day ${arg_input.appointment_start_time}, please select another slot`)
           }
+          newBooking.progress.push({status:'Booked'})
+          newBooking.created_by = arg_input.staff_id
           newBooking = await newBooking.save();
         }
+        //console.log('newBooking', newBooking)
 
         return newBooking
       } catch (error) {
@@ -188,7 +194,7 @@ export default {
           }
           
         }
-        updateObj.$set["appointment_time_before_reschedule"] = args.appointment_start_time
+        updateObj.$set["appointment_time_before_reschedule"] = db_start_time
         const resultBooking = await context.models.Booking.findOneAndUpdate({ _id: ObjectId(args.appointment_id) }, updateObj, { new: true });
 
         console.log("resultBooking created : ", resultBooking)
