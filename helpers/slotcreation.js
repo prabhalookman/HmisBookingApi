@@ -128,10 +128,10 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
       displaySettings == '12' ? slotEndTime = moment(bookingStartTime, [secondsFormat]).format(secondsFormat) : slotEndTime = timingsStartTime.format(secondsFormat) //.format("hh:mm A")
   //console.log(`${slotStartTime} - ${slotEndTime}`)
       let current_time = moment(new Date(), secondsFormat)
-      const cur_time_seconds = moment.duration(current_time).asSeconds()
+      //const cur_time_seconds = moment.duration(current_time).asSeconds()
       let _slotStartTime = moment(new Date(slotStartTime), secondsFormat) 
-      const slot_start_time_seconds = moment.duration(_slotStartTime).asSeconds()
-      if(slot_start_time_seconds<cur_time_seconds){
+      //const slot_start_time_seconds = moment.duration(_slotStartTime).asSeconds()
+      if(_slotStartTime<current_time){
         availTimes.push({
           _id: _id,
           slotStartTime: slotStartTime,
@@ -204,12 +204,12 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
     let matched_staff = []
     console.log("Matched Staff slots : ", matched_slots)
     
-    staff_ar = staff_ar.filter(function(st) {
-      return matched_slots.some(
-        function(ms) { 
-        return st.slot === ms; 
-      });
-    })
+    // staff_ar = staff_ar.filter(function(st) {
+    //   return matched_slots.some(
+    //     function(ms) { 
+    //     return st.slot === ms; 
+    //   });
+    // })
     
     
     
@@ -232,8 +232,23 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
       let list_availTimes = [];
       let staff_ar = list_one.availableTimes[0]
   
-      console.log('staff_ar.length  : ', staff_ar.length)
-      staff_ar = await is_bookingExist(staff_ar, bookingDetails, 'slot')
+      console.log('staff_ar.length  : ', staff_ar.length)      
+      if(bookingDetails.length > 0 ){        
+        for(let j=0; j< bookingDetails.length; j++){
+          let du_result = await duration_calc(bookingDetails[j].event_id, models)
+          let { buffer_after_min, buffer_before_min, duration_hours, duration_minutes } = du_result
+          let du_hours = duration_hours = undefined ? 0 : duration_hours
+          let du_miniutes = buffer_after_min = undefined ? 0 : buffer_after_min + (buffer_before_min = undefined ? 0 : buffer_before_min )+  ( duration_minutes  = undefined ? 0 : duration_minutes )
+          
+          staff_ar = await is_bookingExist(staff_ar, bookingDetails[j],models, du_hours, du_miniutes, 'slot')
+          
+          
+        }
+      } else {
+        console.log('Booking Not available  : ', bookingDetails)
+      }
+      
+      
     //   for (let q = 0; q < staff_ar.length; q++) {
         
     //     let s_start = moment(new Date(staff_ar[q].slotStartTime))
@@ -484,18 +499,18 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
     let events = [];
 
     for (let q = 0; q < args.event.length; q++) {
-      events = await context.models.Event.find({ _id: ObjectId(args.event[q])  })
+      events = await context.models.Events.find({ _id: ObjectId(args.event[q])  })
       if(events.length == 0){
         console.error("Event id is not available")
         throw new Error ("Event id is not available")
       }
       if (events[0].business_timings) {
         let event_pipeline = aggregate_bht(args.event[0], 'event')
-        events_ag_rs = await context.models.Event.aggregate(event_pipeline);
+        events_ag_rs = await context.models.Events.aggregate(event_pipeline);
         console.log('events_ag_rs BHT : ', events_ag_rs.length)
       } else {
         let event_pipeline = aggregate_bhf(args.event[0], 'event')
-        events_ag_rs = await context.models.Event.aggregate(event_pipeline);
+        events_ag_rs = await context.models.Events.aggregate(event_pipeline);
         console.log('events_ag_rs BHF : ', events_ag_rs.length)
       }
     }
@@ -523,6 +538,7 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
             let location_flag = false
             //events_ag_rs[k].location_name.forEach((stf)=>{
               args.locationName.forEach((loc)=>{
+                console.log(`Events ${loc._id}location : ${events_ag_rs[k].location_name}`)
                 if(loc == events_ag_rs[k].location_name){
                   location_flag = true
                 }
@@ -567,46 +583,83 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
     return resp_result
   }
 
-  export let is_bookingExist = async (staff_ar, bookingDetails, callfrom) => {
-    for (let q = 0; q < staff_ar.length; q++) {
-        
-        let s_start = moment(new Date(staff_ar[q].slotStartTime))
-       let s_end = moment(new Date(staff_ar[q].slotEndTime))
-        let s_start_sec = moment.duration(s_start).asSeconds()
-        let s_end_sec = moment.duration(s_end).asSeconds()
+  export let is_bookingExist = async (staff_ar, bookingDetails, models, du_hours, du_miniutes, callfrom) => {
+    //Booking Hours Calc
+    let dayStartTime = '';
+    let dayEndHours = '';
+    let dayEndTime = '';
   
-        //Booking
-        //bookingDetails.forEach((e1) => {
-        for (let l = 0; l < bookingDetails.length; l++) {
-  
-          let dayStartTime = '';
-          let dayEndTime = '';
-        
-          dayStartTime = moment(new Date(bookingDetails[l].appointment_start_time), "YYYY-MM-DDTHH:mm:ss") //moment.utc(bookingDetails[l].appointment_start_time).format()
-          const b_start_sec = moment.duration(dayStartTime).asSeconds()
-          const timingsStartTime = moment(new Date(bookingDetails[l].appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
-  
-          if (b_start_sec == s_start_sec && b_start_sec <= s_end_sec) {
+    dayStartTime = moment(new Date(bookingDetails.appointment_start_time), "YYYY-MM-DDTHH:mm:ss") //moment.utc(bookingDetails.appointment_start_time).format()
+    dayEndHours = moment(dayStartTime, "YYYY-MM-DDTHH:mm:ss").add(du_hours, 'hours')
+    console.log(`Booking Start Time - ${dayStartTime} : After Hours - ${dayEndHours}`)
+    dayEndTime = moment(dayEndHours, "YYYY-MM-DDTHH:mm:ss").add(du_miniutes, 'minutes')
+    console.log(`Booking Start Time - ${dayStartTime} : After Minutes - ${dayEndTime}`)
+    //let resultduration = await duration_calc(bookingDetails.event_id, models);
+    // const b_start_sec = moment.duration(dayStartTime).asSeconds()
+    // const b_end_sec = moment.duration(dayEndTime).asSeconds()
+
+    staff_ar = staff_ar.map((elem)=>{
+      let s_start = moment(elem.slotStartTime)
+      let s_end = moment(elem.slotEndTime)
+      if (s_start >= dayStartTime  && s_start <= dayEndTime) {
               
-              if(callfrom == 'slot'){
-                console.log(`Booking Matched with Slot : ${staff_ar[q].slotStartTime}`)
-                staff_ar[q].isBooking = true
-                const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
-                bookingDetails.splice(tindex, 1)
-                break;
-              } else {
-                console.log(`Booking Matched with Reschedule : ${staff_ar[q].slotStartTime}`)
-                staff_ar[q].isBooking = false
-              }
-            
-          } else {
-            //staff_ar[q].isBooking = false
-          }
-  
+        if(callfrom == 'slot'){
+          console.log(`Booking Matched with Slot : ${elem.slotStartTime}`)
+          elem.isBooking = true
+          // const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
+          // bookingDetails.splice(tindex, 1)
+          //break;
+        } else {
+          console.log(`Booking Matched with Reschedule : ${elem.slotStartTime}`)
+          elem.isBooking = false
         }
-      }
+    } else {
+      //elem.isBooking = false
+    }
+    return elem
+    })
+
+    // for (let q = 0; q < staff_ar.length; q++) {
+        
+    //     let s_start = moment(staff_ar[q].slotStartTime)
+    //    let s_end = moment(staff_ar[q].slotEndTime)
+    //     let s_start_sec = moment.duration(s_start).asSeconds()
+    //     let s_end_sec = moment.duration(s_end).asSeconds()
+  
+    //     //Booking
+    //     //bookingDetails.forEach((e1) => {
+    //     //for (let l = 0; l < bookingDetails.length; l++) {
+    //       const timingsStartTime = moment(new Date(bookingDetails.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
+    //       console.log(`\n ${moment(dayStartTime).format("YYYY-MM-DDTHH:mm:ss")} - ${moment(dayEndTime).format("YYYY-MM-DDTHH:mm:ss")}`)  
+    //       //if (s_start_sec >= b_start_sec  && s_start_sec <= b_end_sec) {
+    //         if (s_start >= dayStartTime  && s_start <= dayEndTime) {
+              
+    //           if(callfrom == 'slot'){
+    //             console.log(`Booking Matched with Slot : ${staff_ar[q].slotStartTime}`)
+    //             staff_ar[q].isBooking = true
+    //             // const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
+    //             // bookingDetails.splice(tindex, 1)
+    //             //break;
+    //           } else {
+    //             console.log(`Booking Matched with Reschedule : ${staff_ar[q].slotStartTime}`)
+    //             staff_ar[q].isBooking = false
+    //           }
+            
+    //       } else {
+    //         //staff_ar[q].isBooking = false
+    //       }
+  
+    //     //}
+    //   }
 
       return staff_ar
+  }
+
+  export let duration_calc = async(event_id, models) => {
+    let day_start_end = ''
+    let event_data = await models.Events.find({_id: event_id}).lean()
+    
+    return event_data[0]
   }
   
   export let getStaffLocations = async(args, context) => {
@@ -626,11 +679,11 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
 
   export let getEventLocations = async(args, context) => {
     let event_loc_ar = [];
-    let ev_business_time = await context.models.Event.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
+    let ev_business_time = await context.models.Events.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
       if(ev_business_time[0].business_hours){
-        event_loc_ar = await context.models.Event.aggregate(get_event_dd_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
+        event_loc_ar = await context.models.Events.aggregate(get_event_dd_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
       } else {
-        event_loc_ar = await context.models.Event.aggregate(get_event_dd_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
+        event_loc_ar = await context.models.Events.aggregate(get_event_dd_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
       }
       if(event_loc_ar.length<1){
         throw new Error('Location setting not available in event')
@@ -699,7 +752,7 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
                     .asSeconds();
         
                   if (stf_startDate <= ev_startDate || stf_startDate <= ev_endDate) {
-                    matched_events.push({_id: ev_elem._id, timings_day: ev_time.work_day_name})
+                    matched_events.push({_id: ev_elem._id, timings_day: ev_time.work_day_name, location_name : ev_elem.location_name})
                   }
                 }
               });
@@ -775,21 +828,18 @@ export let avail_date_filter = async (args, context) => {
       return available_date
 }
 
-
-/*
-let array = [
-      {
-        "_id": "61e66824a2af59cecc190555",
-        "name": "Ear-Nose-Throat",
-        "location_name": "Client Address at Booking",
-        "timings_day": "Monday"
-      },
-      {
-        "_id": "61e66824a2af59cecc190555",
-        "name": "Ear-Nose-Throat",
-        "location_name": "Client Will call you",
-        "timings_day": "Monday"
-      }
-    ]
-
- */
+export let groupArray = (field,myArray) => {
+  var groups = {};
+  for (var i = 0; i < myArray.length; i++) {
+    var groupName = myArray[i][field];
+    if (!groups[groupName]) {
+      groups[groupName] = [];
+    }
+    groups[groupName].push(myArray[i]);
+  }
+  myArray = [];
+  for (var groupName in groups) {
+    myArray.push({ _id: groupName, event_details: groups[groupName] });
+  }
+  return myArray
+};

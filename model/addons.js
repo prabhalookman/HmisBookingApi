@@ -1,3 +1,4 @@
+import double from '@mongoosejs/double';
 import mongoose from 'mongoose'
 
 const addonSchema = new mongoose.Schema({
@@ -8,6 +9,9 @@ const addonSchema = new mongoose.Schema({
   once_per_order: Boolean,
   price: String,
   show_multiple_time: Boolean,
+  avatar_or_icon: String,
+  color_code: String,
+  duration_minutes: double,
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site' },
   variant: [{
     name: String,

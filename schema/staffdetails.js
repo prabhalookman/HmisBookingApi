@@ -13,7 +13,7 @@ type StaffDetails {
   address_ids: [Address],
   timing_ids: [Timing],
   sorting_id: Int,
-  events_ids: [Event],
+  events_ids: [Events],
   location_setting_ids: [LocationSetting]
 }
 

@@ -26,8 +26,11 @@ type Booking {
   deleted: Boolean
   deleted_at: String
 
-  duration_minutes: Int
-  event_id: Event
+  buffer_after_min: Int,
+  buffer_before_min: Int,
+  duration_hours: Int,
+  duration_minutes: Int,
+  event_id: Events
 
   is_recurring: Boolean
   is_rescheduled: Boolean
@@ -74,7 +77,10 @@ type Booking {
   Is_cancelled: Boolean
   deleted_at: String
 
-  duration_minutes: Int
+  buffer_after_min: Int,
+  buffer_before_min: Int,
+  duration_hours: Int,
+  duration_minutes: Int,
   event_id: ID
 
   is_recurring: Boolean

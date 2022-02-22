@@ -5,11 +5,14 @@ type AddOn {
   _id: ID
   active: Boolean
   delete: Boolean
-  event_ids: [Event]
+  event_ids: [Events]
   name: String
   once_per_order: Boolean
   price: Float
-  show_multiple_time: Boolean
+  show_multiple_time: Boolean,
+  avatar_or_icon: String,
+  color_code: String,
+  duration_minutes: Float,
   site_id: Site
   variant: [AddonVariant]
   workspace_ids: [Workspace]

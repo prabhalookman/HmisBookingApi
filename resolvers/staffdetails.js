@@ -62,11 +62,11 @@ export default {
 
       let event_loc_ar = []; 
 
-      let ev_business_time = await context.models.Event.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
+      let ev_business_time = await context.models.Events.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
       if(ev_business_time[0].business_hours){
-        event_loc_ar = await context.models.Event.aggregate(get_event_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
+        event_loc_ar = await context.models.Events.aggregate(get_event_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
       } else {
-        event_loc_ar = await context.models.Event.aggregate(get_event_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
+        event_loc_ar = await context.models.Events.aggregate(get_event_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
       }
       if(event_loc_ar.length<1){
         throw new Error('Location setting not available in event')
@@ -147,11 +147,11 @@ export default {
 
       let loc_ar = []; let location_setting = [], locations = [];
       
-      let business_time = await context.models.Event.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
+      let business_time = await context.models.Events.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
       if(business_time[0].business_hours){
-        loc_ar = await context.models.Event.aggregate(get_event_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
+        loc_ar = await context.models.Events.aggregate(get_event_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
       } else {
-        loc_ar = await context.models.Event.aggregate(get_event_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
+        loc_ar = await context.models.Events.aggregate(get_event_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
       }
       if(loc_ar.length<1){
         throw new Error('Location setting not available')

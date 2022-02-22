@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
-type Event {
+type Events {
   _id: ID
   name: String,
   description: String,
@@ -20,26 +20,35 @@ type Event {
   site_id: Site,
   timing_ids: [Timing],
   location_setting_ids: [LocationSetting],
-  staff: [Staff]
+  staff: [Staff],
   add_on_ids: [AddOn]
 }
 
 type StaffEvents {
   _id: ID,
-  events: Event,
+  events: Events,
   timings_day: String
 }
 
+
+
 type EventWithAvailDate {
-  available_dates: [String],
+  location_names: [String],
+  available_dates: [String]
   timings_day: [String],
-  events: [Event]
+  events: [Events]
 }
 
+
+
 extend type Query {
-  getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Event]
-  getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): EventWithAvailDate
+  getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Events]
+  getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_ids: ID): [EventWithAvailDate]
   getEnabledDate(workspace_id: ID, site_id: ID, staff_ids: ID,timings_day: [String] ) : [String]
-  getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Event]
+  getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Events]
 }
 `
+
+/*
+available_dates: [String],
+ */

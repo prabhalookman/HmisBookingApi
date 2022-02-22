@@ -6,7 +6,7 @@ var progressSchema = new mongoose.Schema({
   status: {type: String, default: "Booked"}
 });
 const bookingSchema = new mongoose.Schema({  
-  add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addon'}],
+  add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addons'}],
   amount_paid: Number,
   appointment_booking_time: {type: Date, default: Date.now},
   appointment_end_time: Date,
@@ -29,7 +29,10 @@ const bookingSchema = new mongoose.Schema({
     status: {type: String, default: "Booked"}
   }],
 
-  duration_minutes: Number,
+  buffer_after_min : Number,
+  buffer_before_min : Number,
+  duration_hours : Number,
+  duration_minutes : Number,
   event_id: { type: mongoose.Schema.Types.ObjectId, ref: 'events'},
 
   is_recurring: Boolean,
