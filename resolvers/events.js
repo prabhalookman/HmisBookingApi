@@ -25,20 +25,20 @@ export default {
         let staffEvent = await context.models.Staff.find(findObj)
         console.log(`\n staffEvent Count : `, staffEvent.length)
         let result_events = await getServicesbyStaffId(args, context)
-        let datas = groupArray('_id',result_events)
-        let uniqueEvent_id = []
-        let uniqueEvent = []
-        let matched_events_ids = [];
-        let matched_events = [];
-        for(let i=0; i < datas.length; i++){
-         // console.log(`${elem._id}- ${elem.timings_day}-${elem.location_name}`)
-          //uniqueEvent_id.push(datas[i]['_id'])
-          let timings_day=uniqueFromArr('timings_day', datas[i]['event_details'])
-          let location_names = uniqueFromArr ('location_name', datas[i]['event_details'])
-          let dates_arr = await avail_date_filter ({timings_day: timings_day}, context)
-          let events_result = await context.models.Events.find({_id: datas[i]['_id']})
-          matched_events.push({timings_day : timings_day, available_dates: dates_arr,location_names: location_names,  events : events_result}) ;
-        }
+        // let datas = groupArray('_id','event_details',result_events)
+        // let uniqueEvent_id = []
+        // let uniqueEvent = []
+        // let matched_events_ids = [];
+        // let matched_events = [];
+        // for(let i=0; i < datas.length; i++){
+        //  // console.log(`${elem._id}- ${elem.timings_day}-${elem.location_name}`)
+        //   //uniqueEvent_id.push(datas[i]['_id'])
+        //   let timings_day=uniqueFromArr('timings_day', datas[i]['event_details'])
+        //   let location_names = uniqueFromArr ('location_name', datas[i]['event_details'])
+        //   let dates_arr = await avail_date_filter ({timings_day: timings_day}, context)
+        //   let events_result = await context.models.Events.find({_id: result_events})
+        //   matched_events.push({timings_day : timings_day, available_dates: dates_arr,location_names: location_names,  events : events_result}) ;
+        // }
         // //let uniqueEvent_id=uniqueFromArr('_id', result_events)
         
         // //uniqueEvent_id.forEach((elem_id)=>
@@ -47,11 +47,11 @@ export default {
         //   matched_events_ids.push([uniqueEvent_id[i]])
         //   console.log('matched_events_ids : . ', matched_events_ids)
         // }
-        // const events_result = await context.models.Events.find({_id: matched_events_ids})
+         const events_result = await context.models.Events.find({_id: result_events})
         // matched_events.push({timings_day : timings_day, events : events_result}) ;
         // //matched_events.available_dates = dates_arr;
         // //matched_events.
-        return matched_events
+        return events_result
       } catch (error) {
         console.error("Error : ", error)
         throw new Error (error)
