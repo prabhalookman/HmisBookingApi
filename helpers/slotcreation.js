@@ -1,5 +1,6 @@
 import moment from 'moment-timezone';
 import { ObjectId } from 'bson';
+import _ from 'lodash'
 import {  
     aggregate_bhf,
     aggregate_bht,
@@ -664,16 +665,16 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
   
   export let getStaffLocations = async(args, context) => {
     let staff_loc_ar = [];
-      let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_ids, args.workspace_id,args.site_id, 'staff'));
+      let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id, 'staff'));
       if(business_time[0].business_hours){
-        staff_loc_ar = await context.models.Staff.aggregate(get_staff_dd_locationsettings_agg_bht(args.staff_ids, args.workspace_id,args.site_id));
+        staff_loc_ar = await context.models.Staff.aggregate(get_staff_dd_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
       } else {
-        staff_loc_ar = await context.models.Staff.aggregate(get_staff_dd_locationsettings_agg_bhf(args.staff_ids, args.workspace_id,args.site_id));
+        staff_loc_ar = await context.models.Staff.aggregate(get_staff_dd_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
       }
       if(staff_loc_ar.length<1){
         throw new Error('Location setting not available in staff')
       }
-      console.log(`\n getStaffLocations - id : ${args.staff_ids} :  , ${staff_loc_ar}`)
+      console.log(`\n getStaffLocations - id : ${args.staff_id} :  , ${staff_loc_ar}`)
       return staff_loc_ar;
   }
 
@@ -731,16 +732,17 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
       let matched_events_location = [];
       let matched_events
       if(staff_loc_ar[0].locationsetting.length > 0 && event_loc_ar.length > 0){
-        let f_Events;
         staff_loc_ar[0].locationsetting.forEach((stf_elem)=>{
            event_loc_ar.forEach((el)=>{
             //elem.forEach((el)=>{
               el.data.forEach((ev_data)=>{
-                let matc_locat = ev_data.location_name.map((i) => {
-                  if (stf_elem.location_name.includes(i)) {
-                    return i;
-                  }
-                });
+                // let matc_locat = ev_data.location_name.map((i) => {
+                //   if (stf_elem.location_name.includes(i)) {
+                //     return i;
+                //   } 
+                // });
+                //let matc_locat =_.filter(ev_data.location_name, stf_elem.location_name);
+                var matc_locat = _.intersectionWith(ev_data.location_name, stf_elem.location_name, _.isEqual);
                 //console.log('matc_locat : ', matc_locat)
                 matched_events_location.push({_id: el.event_id,  locations: matc_locat})
                 if(matc_locat.length > 0){
@@ -792,6 +794,83 @@ export const getting_slots = async (fromObj,details, models, result, displaySett
 
         return matched_events
   }
+
+export let getLocataion_workDay = async(staff_loc_ar, event_loc_ar)=>{
+  let matched_events_day = [];
+  let matched_events_location = [];
+  let matched_events
+  staff_loc_ar.forEach((stf_elem)=>{
+    if(event_loc_ar[0].locationsetting){
+      event_loc_ar[0]['data'] = event_loc_ar[0].locationsetting
+    }
+    event_loc_ar.forEach((el)=>{
+     //elem.forEach((el)=>{
+       el.data.forEach((ev_data)=>{
+         let matc_locat = ev_data.location_name.map((i) => {
+           if (stf_elem.location_name.includes(i)) {
+             return i;
+           }
+         });
+         //console.log('matc_locat : ', matc_locat)
+         //matched_events_location.push({_id: ev_data.events_id,  locations: matc_locat})
+         if(matc_locat.length > 0){
+
+         let staff_timings = []
+         if(stf_elem.timings.timings){ 
+           staff_timings = stf_elem.timings.timings //BH : False
+         } else if(stf_elem.timings.timings == undefined && stf_elem.timings.length > 0){
+           staff_timings = stf_elem.timings[0].timings  //BH : True
+         }
+
+           staff_timings.forEach((stf_time) => {
+             ev_data.timings.timings.forEach((ev_time) => {
+                 //console.log(`Matched Day  ${stf_elem.location_name} - ${ev_elem.location_name}= Staff : ${stf_time.work_day_name} - Event :  ${ev_time.work_day_name}`)
+                 const stf_startDate = moment
+                   .duration(string_to_date(stf_time.start_time))
+                   .asSeconds();
+                  // console.log('seconds to date : ', moment(stf_startDate).format("YYYY-MM-DDTHH:mm:ss"))
+                 const ev_startDate = moment
+                   .duration(string_to_date(ev_time.start_time))
+                   .asSeconds();
+                 const ev_endDate = moment
+                   .duration(string_to_date(ev_time.end_time))
+                   .asSeconds();
+       
+                 if (stf_startDate <= ev_startDate || stf_startDate <= ev_endDate) {
+                   matched_events_day.push({_id: ev_data.events_id,  day: ev_time.work_day_name, locations: matc_locat})
+                 }
+             });
+            });
+         }
+       })     
+     //})
+   })
+   
+  //  let events_locations = groupArray('_id','location',matched_events_location, 'locations')
+  //  console.log('events_day', events_locations)
+   //let events_locations = groupArray('locations','timings_day',matched_events_day,'day')
+   //let events_day = groupArray('_id','locations',matched_events_day, 'locations')
+   var selected_ids = _.filter(matched_events_day, 'day');
+   selected_ids = _.groupBy(matched_events_day, function(item) {
+    return item.day;
+  });
+  selected_ids = _.forEach(selected_ids, function(value, key) {
+    selected_ids[key] = _.groupBy(selected_ids[key], function(item) {
+      return item.locations;
+    });
+  });
+  console.log('selected_ids : ', selected_ids)
+  // let rs = _.forEach(selected_ids, function(value, key) {
+  //   selected_ids[key] = _.groupBy(selected_ids[key], function(item) {
+  //     return item.modelCode;
+  //   });
+  // });
+
+  //  matched_events = events_day.map((ev)=>{return ev._id})
+  //  console.log('matched_events', matched_events)
+   return {selected_ids}
+ })
+}
 
   
 export let string_to_date = (start_time) => {

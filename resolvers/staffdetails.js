@@ -6,12 +6,15 @@ import {
   get_staff_locationsettings_agg_bhf,
   get_event_locationsettings_agg_bht,
   get_event_locationsettings_agg_bhf,
-  bushiness_timings_agg
+  bushiness_timings_agg  
 } from '../helpers/aggregateFunctions'
 import { 
   getAvailability,
   date_check,
-  locations_arr
+  locations_arr,
+  getLocataion_workDay,
+  getStaffLocations,
+  getEventLocations
 } from '../helpers/slotcreation'
 export default {
   Query: {
@@ -49,6 +52,10 @@ export default {
         clientSlot
       } = await date_check(args,context)
 
+      // let staff_loc_ar = await getStaffLocations(args, context)      
+      // let events = await getEventLocations(args, context)
+      // let rsp = await  getLocataion_workDay(staff_loc_ar[0].locationsetting, events)
+      // console.log('rsp : '. rsp)
       let staff_loc_ar = [];
       let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id, 'staff'));
       if(business_time[0].business_hours){
