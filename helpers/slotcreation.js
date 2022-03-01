@@ -1142,6 +1142,7 @@ export let getLocataion_workDay = async (staff_loc_ar, event_loc_ar, check) => {
       if (event_loc_ar[0].locationsetting) {
         event_loc_ar[0]["data"] = event_loc_ar[0].locationsetting;
       }
+      console.log('event_loc_ar location issue : ', JSON.stringify(event_loc_ar))
       let tim_loc = [];
       event_loc_ar.forEach((el) => {
         //elem.forEach((el)=>{
@@ -1163,12 +1164,31 @@ export let getLocataion_workDay = async (staff_loc_ar, event_loc_ar, check) => {
             stf_elem.location_name,
             _.isEqual
           );
-          if (matc_locat.length > 0) {
+
+          
+          let stf_arr_arr = stf_elem.timings_day.some(Array.isArray) 
+          if(stf_arr_arr){
+            stf_elem.timings_day = stf_elem.timings_day[0]
+          }
+          let ev_arr_arr = ev_data.timings_day.some(Array.isArray) 
+          if(ev_arr_arr){
+            ev_data.timings_day = ev_data.timings_day[0]
+          }
+          
+          console.log('stf_arr_arr : ', stf_arr_arr)
+          console.log('ev_arr_arr : ', ev_arr_arr)
+          var matc_day = _.intersectionWith(
+            _.uniq(ev_data.timings_day),
+            _.uniq(stf_elem.timings_day),
+            _.isEqual
+          );
+          if (matc_locat.length > 0 && matc_day.length > 0) {
             tim_loc.push({
               timings_id: ev_data["timings"]["_id"],
               _id: ev_data["_id"],
               locat: ev_data["locationsetting_id"],
             });
+
             let staff_timings = [];
             if (stf_elem.timings.timings) {
               staff_timings = stf_elem.timings.timings; //BH : False

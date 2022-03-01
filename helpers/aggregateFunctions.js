@@ -875,6 +875,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
               $project: {
                 locationsetting_id: "$locationsetting._id",
                 location_name: "$location.name",
+                timings_day: "$timings.timings.work_day_name",
                 timings: "$timings",
                 events: "$events.name",
                 events_id: "$events._id",
@@ -979,6 +980,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                       "$project": {
                         "locationsetting_id": "$locationsetting._id",
                         "location_name": "$location.name",
+                        "timings_day": "$timings.timings.work_day_name",
                         "timings": "$timings",
                         "events_id": "$events._id"
                       }
@@ -1083,6 +1085,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                 "$project" : { 
                   "locationsetting_id": "$locationsetting._id",
                   "location_name": "$location.name",
+                  timings_day: "$timings.timings.work_day_name",
                   "timings": "$timings",
                   "events": "$events",
                   "events_id": "$events._id"
@@ -1170,6 +1173,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                       "$project": {
                         "locationsetting_id": "$locationsetting._id",
                         "location_name": "$location.name",
+                        "timings_day": "$timings.timings.work_day_name",
                         "timings": "$timings",
                         "events_id": "$events._id"
                       }
