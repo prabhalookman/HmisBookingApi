@@ -4,7 +4,10 @@ import {
   getServicesbyStaffId,
   uniqueFromArr,
   avail_date_filter,
-  groupArray
+  groupArray,
+  getLocataion_workDay,
+  getStaffLocations,
+  getEventLocations
 } from '../helpers/slotcreation'
 export default {
   Query: {
@@ -59,6 +62,13 @@ export default {
     },
     getEnabledDate: async (parent, args, context, info) => {
       try{
+        let timings_day = []
+        let staff_loc_ar = await getStaffLocations(args, context)      
+      let events = await getEventLocations(args, context)
+      timings_day = await  getLocataion_workDay(staff_loc_ar[0].locationsetting, events, 'date_get')
+      args.timings_day = timings_day
+      //console.log('rsp : '. rsp)
+      let matched_loc = []
         let result = await avail_date_filter(args, context);
         return result;
       } catch(error) {

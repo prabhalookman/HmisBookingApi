@@ -8,7 +8,7 @@ type LocationSetting {
   location_id: Location  
   inperson: LocationSettingInperson
   oncall: LocationSettingOncall
-  video: LocationSettingVideo
+  video: LocationSettingVideo  
 }
 
 type LocationSettingInperson {
@@ -29,5 +29,6 @@ type LocationSettingOncall {
 
 extend type Query {
   getLocationSetting(workspace_id: ID, site_id: ID): [LocationSetting]  
+  getStaffEventLocationSettings(workspace_id: ID!, site_id: ID!, event_id: ID!,staff_id: ID!, date: String!): [LocationSetting]
 }
 `

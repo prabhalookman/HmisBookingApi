@@ -6,6 +6,7 @@ import {
   get_staff_locationsettings_agg_bhf,
   get_event_locationsettings_agg_bht,
   get_event_locationsettings_agg_bhf,
+  get_locationsettings_agg,
   bushiness_timings_agg  
 } from '../helpers/aggregateFunctions'
 import { 
@@ -14,7 +15,8 @@ import {
   locations_arr,
   getLocataion_workDay,
   getStaffLocations,
-  getEventLocations
+  getEventLocations,
+  
 } from '../helpers/slotcreation'
 export default {
   Query: {
@@ -38,85 +40,7 @@ export default {
         throw new Error (error)
       }
     },
-    getStaffEventLocationSettings: async(parent, args, context, info)=> {
-      try {
-
-      const {
-        displaySettings,
-        selectedDate,
-        start_date,
-        end_date,
-        available_date,
-        disable_date,
-        pre_booking_day,
-        clientSlot
-      } = await date_check(args,context)
-
-      // let staff_loc_ar = await getStaffLocations(args, context)      
-      // let events = await getEventLocations(args, context)
-      // let rsp = await  getLocataion_workDay(staff_loc_ar[0].locationsetting, events)
-      // console.log('rsp : '. rsp)
-      let staff_loc_ar = [];
-      let business_time = await context.models.Staff.aggregate(bushiness_timings_agg(args.staff_id, args.workspace_id,args.site_id, 'staff'));
-      if(business_time[0].business_hours){
-        staff_loc_ar = await context.models.Staff.aggregate(get_staff_locationsettings_agg_bht(args.staff_id, args.workspace_id,args.site_id));
-      } else {
-        staff_loc_ar = await context.models.Staff.aggregate(get_staff_locationsettings_agg_bhf(args.staff_id, args.workspace_id,args.site_id));
-      }
-      if(staff_loc_ar.length<1){
-        throw new Error('Location setting not available in staff')
-      }
-
-      let event_loc_ar = []; 
-
-      let ev_business_time = await context.models.Events.aggregate(bushiness_timings_agg(args.event_id, args.workspace_id,args.site_id, 'event'));
-      if(ev_business_time[0].business_hours){
-        event_loc_ar = await context.models.Events.aggregate(get_event_locationsettings_agg_bht(args.event_id, args.workspace_id,args.site_id));
-      } else {
-        event_loc_ar = await context.models.Events.aggregate(get_event_locationsettings_agg_bhf(args.event_id, args.workspace_id,args.site_id));
-      }
-      if(event_loc_ar.length<1){
-        throw new Error('Location setting not available in event')
-      }
-      let stf_loc = locations_arr(staff_loc_ar)
-      let ev_loc = locations_arr(event_loc_ar)
-      let matched_loc = []
-      if(stf_loc.length > 0 && ev_loc.length > 0){
-        stf_loc.forEach((stf)=>{
-          ev_loc.forEach((ev)=>{
-            if(stf.location_name && ev.location_name) {
-              if(stf.location_name.toLowerCase() == ev.location_name.toLowerCase()){
-                matched_loc.push(stf)
-              }
-            }
-            
-          })
-        })
-      }
-      if(matched_loc.length == 0){
-        console.log('Staff and Event location name does not match')
-        throw new Error('Staff and Event location names does not match')
-      }
-
-      let result = {
-        displaySettings,
-        selectedDate: selectedDate,
-        start_date: start_date,
-        end_date: end_date,
-        pre_booking_day,
-        clientSlot,
-        available_date,
-        disable_date,
-        locationAvailable:matched_loc
-      }
-
-      return result
-      
-    } catch (error) {
-      throw new Error(error)
-    }
-
-    },
+    
     getEventLocationSettings: async(parent, args, context, info)=> {
       try {
         
@@ -244,6 +168,6 @@ export default {
     location_setting_ids: async (locsetting, args, context) => {
       const resultStaffDetails = await locsetting.populate('location_setting_ids').execPopulate();
       return resultStaffDetails.location_setting_ids
-    }
+    }    
   }
 }

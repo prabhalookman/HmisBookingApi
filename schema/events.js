@@ -30,8 +30,6 @@ type StaffEvents {
   timings_day: String
 }
 
-
-
 type EventWithAvailDate {
   location_names: [String],
   available_dates: [String]
@@ -39,12 +37,10 @@ type EventWithAvailDate {
   events: [Events]
 }
 
-
-
 extend type Query {
   getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Events]
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_id: ID): [Events]
-  getEnabledDate(workspace_id: ID, site_id: ID, staff_ids: ID,timings_day: [String] ) : [String]
+  getEnabledDate(workspace_id: ID, site_id: ID, staff_id: ID, event_id: ID, timings_day: [String] ) : [String]
   getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Events]
 }
 `

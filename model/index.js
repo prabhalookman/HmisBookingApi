@@ -14,6 +14,8 @@ import StaffDetails from "./staffdetails"
 import Timing  from './timings'
 import Workspace from './workspace';
 import Setting from './settings';
+import appintegration from './appintegration';
+import app from './app';
 
 // import BusinessInfo from './businessInfo';
 // import EventCategory  from "./eventcategory"
@@ -41,7 +43,9 @@ const models = {
   Timing,
   Workspace,
   Setting,
-  BusinessInfo
+  BusinessInfo,
+  appintegration,
+  app
 }
 
 export {connectMongo};

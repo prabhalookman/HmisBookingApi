@@ -1186,3 +1186,34 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
     return pipeline
       
   }
+
+  export  let get_locationsettings_agg = (_id)=>{
+    let match = {}
+    match["locationsetting._id"] = ObjectId(_id)
+    let pipeline = []
+    pipeline.push({
+      "$project": {
+          "locationsetting": "$$ROOT"
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "locationsetting.location_id",
+          "from": "location",
+          "foreignField": "_id",
+          "as": "location"
+      }
+  },
+
+  {
+      "$project": {
+          "locationsetting": "$locationsetting",
+          "location": "$location"
+      }
+  },{
+    '$match': match 
+ },)
+    console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }

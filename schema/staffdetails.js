@@ -44,10 +44,15 @@ type AvailLocations {
   pre_booking_day: Int,
   available_date: [String],
   disable_date: [String],
-	locationAvailable: [Avail_Location_Settings]
+	locationAvailable: [location_locationsetting]
   selectedDate: String
   displaySettings:String,
   clientSlot: Int
+}
+
+type location_locationsetting {
+  location: Location,
+  locationsetting: LocationSetting
 }
 
 type Avail_Location_Settings {
@@ -82,7 +87,7 @@ extend type Query {
   date: String!, 
   locationName: [String!],
   locationSettingId: [ID]): Availablilities
-  getStaffEventLocationSettings(workspace_id: ID!, site_id: ID!, event_id: ID!,staff_id: ID!, date: String!): AvailLocations
+  
   getEventLocationSettings(workspace_id: ID!, site_id: ID!, event_id: ID!, date: String!): AvailLocations
   
 }
