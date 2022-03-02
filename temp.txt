@@ -14,6 +14,7 @@ getslotdeatail() - settings
 
 basedon email-> create or link booking
 
+
 //Sample
 db.getCollection('events').find({
   workspace_ids: ObjectId("61261b5ba97d172becfc0988"), 
