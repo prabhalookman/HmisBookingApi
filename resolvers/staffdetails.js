@@ -16,6 +16,7 @@ import {
   getLocataion_workDay,
   getStaffLocations,
   getEventLocations,
+  getStaffbyServiceId
   
 } from '../helpers/slotcreation'
 export default {
@@ -125,49 +126,53 @@ export default {
       }
 
     },
+    //Get Staffs for service dropdown
     getstaffdetailbyservice: async (parent, args, context, info) => {
       try {
-        let findObj = { site_id: ObjectId(args.site_id), workspace_ids: ObjectId(args.workspace_id), events_ids: ObjectId(args.event_ids)  }
-        let staffDetails = await context.models.StaffDetails.find(findObj)
-        return staffDetails
+        let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.event_ids) }
+        let staffEvent = await context.models.Staff.find(findObj)
+        console.log(`\n staffEvent Count : `, staffEvent.length)
+        let result_staffs = await getStaffbyServiceId(args, context)
+         const staff_result = await context.models.Staff.find({_id: result_staffs})
+        return staff_result
       } catch (error) {
         console.error("Error : ", error)
         throw new Error (error)
       }
-    }
   },
-  StaffDetails: {
-    site_id: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('site_id').execPopulate();
-      return resultStaffDetails.site_id
-    },
-    workspace_id: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('workspace_id').execPopulate();
-      return resultStaffDetails.workspace_id
-    },
-    business_id: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('business_id').execPopulate();
-      return resultStaffDetails.business_id
-    },
-    address_ids: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('address_ids').execPopulate();
-      return resultStaffDetails.address_ids
-    },
-    timing_ids: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('timing_ids').execPopulate();
-      return resultStaffDetails.timing_ids
-    },
-    sorting_id: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('sorting_id').execPopulate();
-      return resultStaffDetails.sorting_id
-    },
-    events_ids: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('events_ids').execPopulate();
-      return resultStaffDetails.events_ids
-    },
-    location_setting_ids: async (locsetting, args, context) => {
-      const resultStaffDetails = await locsetting.populate('location_setting_ids').execPopulate();
-      return resultStaffDetails.location_setting_ids
-    }    
-  }
+  
+},StaffDetails: {
+  site_id: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('site_id').execPopulate();
+    return resultStaffDetails.site_id
+  },
+  workspace_id: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('workspace_id').execPopulate();
+    return resultStaffDetails.workspace_id
+  },
+  business_id: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('business_id').execPopulate();
+    return resultStaffDetails.business_id
+  },
+  address_ids: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('address_ids').execPopulate();
+    return resultStaffDetails.address_ids
+  },
+  timing_ids: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('timing_ids').execPopulate();
+    return resultStaffDetails.timing_ids
+  },
+  sorting_id: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('sorting_id').execPopulate();
+    return resultStaffDetails.sorting_id
+  },
+  events_ids: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('events_ids').execPopulate();
+    return resultStaffDetails.events_ids
+  },
+  location_setting_ids: async (locsetting, args, context) => {
+    const resultStaffDetails = await locsetting.populate('location_setting_ids').execPopulate();
+    return resultStaffDetails.location_setting_ids
+  }    
+}
 }

@@ -29,6 +29,7 @@ type LocationSettingOncall {
 
 extend type Query {
   getLocationSetting(workspace_id: ID, site_id: ID): [LocationSetting]  
+  getLocationSettingById(workspace_id: ID, site_id: ID, location_id: [ID]): [LocationSetting]  
   getStaffEventLocationSettings(workspace_id: ID!, site_id: ID!, event_id: ID!,staff_id: ID!, date: String!): [LocationSetting]
 }
 `

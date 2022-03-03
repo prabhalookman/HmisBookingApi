@@ -879,6 +879,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                 timings: "$timings",
                 events: "$events.name",
                 events_id: "$events._id",
+                "staff_id":"$staff_id"
               },
             },
           ],
@@ -982,7 +983,8 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                         "location_name": "$location.name",
                         "timings_day": "$timings.timings.work_day_name",
                         "timings": "$timings",
-                        "events_id": "$events._id"
+                        "events_id": "$events._id",
+                        "staff_id":"$staff._id"
                       }
                   }
               ],
@@ -1012,6 +1014,22 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
             "events": "$$ROOT"
         }
     },
+    {
+      "$lookup": {
+          "localField": "events.staff",
+          "from": "staff",
+          "foreignField": "_id",
+          "as": "staff"
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "staff.staff_detail_id",
+          "from": "staffdetails",
+          "foreignField": "_id",
+          "as": "staffdetails"
+      }
+  },
     { 
         "$lookup" : { 
             "localField" : "events.business_id", 
@@ -1085,10 +1103,11 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                 "$project" : { 
                   "locationsetting_id": "$locationsetting._id",
                   "location_name": "$location.name",
-                  timings_day: "$timings.timings.work_day_name",
+                  "timings_day": "$timings.timings.work_day_name",
                   "timings": "$timings",
                   "events": "$events",
-                  "events_id": "$events._id"
+                  "events_id": "$events._id",
+                  "staff_id":"$staff._id"
                 }
             }
         ]
@@ -1115,7 +1134,22 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
             "events": "$$ROOT"
         }
     },
-
+    {
+      "$lookup": {
+          "localField": "events.staff",
+          "from": "staff",
+          "foreignField": "_id",
+          "as": "staff"
+      }
+  },
+  {
+      "$lookup": {
+          "localField": "staff.staff_detail_id",
+          "from": "staffdetails",
+          "foreignField": "_id",
+          "as": "staffdetails"
+      }
+  },
     {
         "$lookup": {
             "localField": "events.timing_ids",
@@ -1175,7 +1209,8 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                         "location_name": "$location.name",
                         "timings_day": "$timings.timings.work_day_name",
                         "timings": "$timings",
-                        "events_id": "$events._id"
+                        "events_id": "$events._id",
+                        "staff_id":"$staff._id"
                       }
                   }
               ]
@@ -1217,6 +1252,39 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
   },{
     '$match': match 
  },)
+    console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+
+  export  let get_staffdetails_agg = (staff_id)=>{
+    let match = {}
+    match["staff._id"] = ObjectId(staff_id)
+    let pipeline = []
+    pipeline.push({ 
+      "$project" : { 
+          "staff" : "$$ROOT"
+      }
+  }, 
+  { 
+      "$lookup" : { 
+          "localField" : "staff.staff_detail_id", 
+          "from" : "staffdetails", 
+          "foreignField" : "_id", 
+          "as" : "staffdetails"
+      }
+  }, 
+  { 
+      "$lookup" : { 
+          "localField" : "staffdetails.events_ids", 
+          "from" : "events", 
+          "foreignField" : "_id", 
+          "as" : "events"
+      }
+  }, 
+  { 
+      "$match" : match
+  },)
     console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
     return pipeline
       

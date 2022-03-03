@@ -21,6 +21,16 @@ export default {
         console.error("Error : ", error)
         throw new Error(error)
       }
+    },getLocationSettingById: async (parent, args, context, info) => {
+      try {
+        let findObj = {workspace_id: ObjectId(args.workspace_id), site_id: ObjectId(args.site_id), _id: args.location_id}
+        console.log(findObj)
+        let loc_result = await context.models.LocationSetting.find(findObj).exec()
+        return loc_result
+      } catch (error) {
+        console.error("Error : ", error)
+        throw new Error(error)
+      }
     },
     getStaffEventLocationSettings: async(parent, args, context, info)=> {
       try {
