@@ -834,6 +834,12 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         },
       },
       {
+        "$unwind": {
+          "path": "$timings",
+          "preserveNullAndEmptyArrays": false
+        }
+      },
+      {
         $lookup: {
           localField: "staffdetails.location_setting_ids",
           from: "locationsetting",
@@ -879,7 +885,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                 timings: "$timings",
                 events: "$events.name",
                 events_id: "$events._id",
-                "staff_id":"$staff_id"
+                staff_id:"$staff._id"
               },
             },
           ],
@@ -1225,6 +1231,330 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
     return pipeline
       
   }
+  
+  export  let get_staff_locationName_bht_agg = (staff_id)=>{
+    let match = { 
+      "staff._id" : { 
+          "$in" : staff_id
+      }
+  }
+    let pipeline = []
+    pipeline.push(
+      { 
+        "$project" : { 
+            "staff" : "$$ROOT"
+        }
+    }, 
+    { 
+      "$lookup" : { 
+          "localField" : "staff.staff_detail_id", 
+          "from" : "staffdetails", 
+          "foreignField" : "_id", 
+          "as" : "staffdetails"
+      }
+  }, 
+    { 
+        "$lookup" : { 
+            "localField" : "staffdetails.location_setting_ids", 
+            "from" : "locationsetting", 
+            "foreignField" : "_id", 
+            "as" : "locationsetting"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$locationsetting", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$lookup" : { 
+            "localField" : "locationsetting.location_id", 
+            "from" : "location", 
+            "foreignField" : "_id", 
+            "as" : "location"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$location", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$match" : match
+    }, 
+    { 
+        "$project" : { 
+            "staff._id" : "$staff._id", 
+            "staff.location_setting_ids" : "$staff.location_setting_ids", 
+            "location.name" : "$location.name", 
+            "location._id" : "$location._id", 
+            "locationsetting._id": "$locationsetting._id",
+        }
+    }
+    )
+    console.log('\n get_staff_locationName_bht_agg : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+  export  let get_staff_locationName_bhf_agg = (staff_id)=>{
+    let match = { 
+      "staff._id" : { 
+          "$in" : staff_id
+      }
+  }
+    let pipeline = []
+    pipeline.push(
+      { 
+        "$project" : { 
+            "staff" : "$$ROOT"
+        }
+    }, 
+    { 
+      "$lookup" : { 
+          "localField" : "staff.staff_detail_id", 
+          "from" : "staffdetails", 
+          "foreignField" : "_id", 
+          "as" : "staffdetails"
+      }
+  },  { 
+    "$lookup" : { 
+        "localField" : "staffdetails.timing_ids", 
+        "from" : "timings", 
+        "foreignField" : "_id", 
+        "as" : "timings"
+    }
+},
+    { 
+        "$lookup" : { 
+            "localField" : "timings.location_setting_ids", 
+            "from" : "locationsetting", 
+            "foreignField" : "_id", 
+            "as" : "locationsetting"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$locationsetting", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$lookup" : { 
+            "localField" : "locationsetting.location_id", 
+            "from" : "location", 
+            "foreignField" : "_id", 
+            "as" : "location"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$location", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$match" : match
+    }, 
+    { 
+        "$project" : { 
+            "staff._id" : "$staff._id", 
+            "staff.location_setting_ids" : "$staff.location_setting_ids", 
+            "location.name" : "$location.name", 
+            "location._id" : "$location._id", 
+            "locationsetting._id": "$locationsetting._id",
+        }
+    }
+    )
+    console.log('\n get_staff_locationName_bhf_agg : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+  export  let get_event_locationName_bht_agg = (event_ids)=>{
+    let match = { 
+      "events._id" : { 
+          "$in" : event_ids
+      }
+  }
+    let pipeline = []
+    pipeline.push(
+      { 
+        "$project" : { 
+            "events" : "$$ROOT"
+        }
+    },
+    { 
+        "$lookup" : { 
+            "localField" : "events.location_setting_ids", 
+            "from" : "locationsetting", 
+            "foreignField" : "_id", 
+            "as" : "locationsetting"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$locationsetting", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$lookup" : { 
+            "localField" : "locationsetting.location_id", 
+            "from" : "location", 
+            "foreignField" : "_id", 
+            "as" : "location"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$location", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$match" : match
+    }, 
+    { 
+        "$project" : { 
+            "events._id" : "$events._id", 
+            "events.location_setting_ids" : "$events.location_setting_ids", 
+            "location.name" : "$location.name", 
+            "location._id" : "$location._id", 
+            "locationsetting._id": "$locationsetting._id",
+        }
+    }
+    )
+    console.log('\n get_event_locationName_bht_agg : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+  export  let get_event_locationName_bhf_agg = (event_ids)=>{
+    let match = { 
+      "events._id" : { 
+          "$in" : event_ids
+      }
+  }
+    let pipeline = []
+    pipeline.push(
+      { 
+        "$project" : { 
+            "events" : "$$ROOT"
+        }
+    },
+    {
+      "$lookup": {
+        "localField": "events.timing_ids",
+        "from": "timings",
+        "foreignField": "_id",
+        "as": "timings"
+      }
+    },
+    {
+      "$lookup": {
+        "localField": "timings.location_setting_ids",
+        "from": "locationsetting",
+        "foreignField": "_id",
+        "as": "locationsetting"
+      }
+    },
+    {
+      "$unwind": {
+        "path": "$locationsetting",
+        "preserveNullAndEmptyArrays": false
+      }
+    },
+    { 
+        "$lookup" : { 
+            "localField" : "locationsetting.location_id", 
+            "from" : "location", 
+            "foreignField" : "_id", 
+            "as" : "location"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$location", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$match" : match
+    }, 
+    { 
+        "$project" : { 
+            "events._id" : "$events._id", 
+            "events.location_setting_ids" : "$events.location_setting_ids", 
+            "location.name" : "$location.name", 
+            "location._id" : "$location._id", 
+            "locationsetting._id": "$locationsetting._id",
+        }
+    }
+    )
+    console.log('\n get_event_locationName_bhf_agg : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
+  export  let get_staff_event_locationName_bhf_agg = (locationsett_ids)=>{
+    //let match = {}
+    //match["staff._id"] = ObjectId(staff_id)
+    let match = { 
+      "timings._id" : { 
+          "$in" : locationsett_ids
+      }
+  }
+    let pipeline = []
+    pipeline.push(
+      { 
+        "$project" : { 
+            "timings" : "$$ROOT"
+        }
+    }, 
+    { 
+        "$lookup" : { 
+            "localField" : "timings.location_setting_ids", 
+            "from" : "locationsetting", 
+            "foreignField" : "_id", 
+            "as" : "locationsetting"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$locationsetting", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$lookup" : { 
+            "localField" : "locationsetting.location_id", 
+            "from" : "location", 
+            "foreignField" : "_id", 
+            "as" : "location"
+        }
+    }, 
+    { 
+        "$unwind" : { 
+            "path" : "$location", 
+            "preserveNullAndEmptyArrays" : false
+        }
+    }, 
+    { 
+        "$match" : match
+    }, 
+    { 
+        "$project" : { 
+            "timings._id" : "$timings._id", 
+            "timings.location_setting_ids" : "$timings.location_setting_ids", 
+            "location.name" : "$location.name", 
+            "location._id" : "$location._id", 
+            "locationsetting._id": "$locationsetting._id",
+        }
+    }
+    )
+    console.log('\n get_staff_event_locationName_bhf_agg : ', JSON.stringify(pipeline) )
+    return pipeline
+      
+  }
 
   export  let get_locationsettings_agg = (_id)=>{
     let match = {}
@@ -1252,7 +1582,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
   },{
     '$match': match 
  },)
-    console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('\n get_locationsettings_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1285,7 +1615,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
   { 
       "$match" : match
   },)
-    console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('\n get_staffdetails_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
