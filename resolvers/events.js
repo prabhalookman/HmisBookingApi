@@ -40,17 +40,29 @@ export default {
         let timings_day = []
         let event_loc_ar = []
         let staff_loc_ar = await getStaffLocations(args, context)
-        let events = await getEventLocations(args, context)
-        let event_id = events[0].locationsetting[0].events_id;
+   
+    if (staff_loc_ar.length > 0) {
+      if (staff_loc_ar[0].locationsetting.length > 0) {
+        if (staff_loc_ar[0].locationsetting[0].events_id.length > 0) {
+          let event_ids = [];
+          staff_loc_ar[0].locationsetting[0].events_id.forEach((el) => {
+            event_ids.push(el.toString());
+          });
+          console.log("getEnabledDate events_id Before loop : ", event_ids);
+          if (event_ids.includes(args.event_id)) {
+            let events = await getEventLocations(args, context); //getEventLocation group by timings
+            console.log("events : ", events);
+            event_loc_ar.push({
+              event_id: args.event_id,
+              data: events[0].locationsetting,
+            });
+          }
+          console.log(`getEnabledDate : , ${event_loc_ar}`);
+        }
+      }
+    }
 
-        console.log("events : ", events);
-        event_loc_ar.push({
-          event_id: event_id,
-          data: events[0].locationsetting,
-        });
-        console.log(`getEnabledDate event_loc_ar  : , ${event_loc_ar}`);
-
-        timings_day = await getLocataion_workDay(context, staff_loc_ar, event_loc_ar, 'date_get')
+        timings_day = await getLocataion_workDay(args,context, staff_loc_ar[0].locationsetting, event_loc_ar, 'date_get')
         args.timings_day = timings_day
         //console.log('rsp : '. rsp)
         let matched_loc = []

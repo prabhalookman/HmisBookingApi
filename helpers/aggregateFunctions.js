@@ -1233,11 +1233,18 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
   }
   
   export  let get_staff_locationName_bht_agg = (staff_id)=>{
-    let match = { 
-      "staff._id" : { 
-          "$in" : staff_id
-      }
-  }
+    let match = {
+      $and: [
+        {
+          "staff._id": {
+            $in: staff_id,
+          },
+        },
+        {
+          "locationsetting.active": true,
+        },
+      ],
+    };
     let pipeline = []
     pipeline.push(
       { 
@@ -1299,11 +1306,19 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
       
   }
   export  let get_staff_locationName_bhf_agg = (staff_id)=>{
-    let match = { 
-      "staff._id" : { 
-          "$in" : staff_id
-      }
-  }
+
+  let match = {
+    $and: [
+      {
+        "staff._id": {
+          $in: staff_id,
+        },
+      },
+      {
+        "locationsetting.active": true,
+      },
+    ],
+  };
     let pipeline = []
     pipeline.push(
       { 
@@ -1372,11 +1387,18 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
       
   }
   export  let get_event_locationName_bht_agg = (event_ids)=>{
-    let match = { 
-      "events._id" : { 
-          "$in" : event_ids
-      }
-  }
+    let match = {
+      $and: [
+        {
+          "events._id": {
+            $in: event_ids,
+          },
+        },
+        {
+          "locationsetting.active": true,
+        },
+      ],
+    };
     let pipeline = []
     pipeline.push(
       { 
@@ -1430,11 +1452,18 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
       
   }
   export  let get_event_locationName_bhf_agg = (event_ids)=>{
-    let match = { 
-      "events._id" : { 
-          "$in" : event_ids
-      }
-  }
+    let match = {
+      $and: [
+        {
+          "events._id": {
+            $in: event_ids,
+          },
+        },
+        {
+          "locationsetting.active": true,
+        },
+      ],
+    };
     let pipeline = []
     pipeline.push(
       { 

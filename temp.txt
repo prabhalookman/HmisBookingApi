@@ -78,4 +78,3 @@ pre_booking_day,
 selectedDate,
 dateFormat, 
 args.date,
-

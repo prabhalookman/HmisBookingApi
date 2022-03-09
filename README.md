@@ -135,10 +135,57 @@ layers:
   None
 
   -----
-  Cloud sls Deployment During local running state :
+  Cloud sls Deployment During local running state : Windows
   nvm ls
   v12.16.0
   -> v12.20.2
   v15.2.1
 
+package.json
+dev{
+  "serverless": "^1.83.3",
+    "serverless-http": "^2.7.0",
+    "serverless-offline": "^5.12.1",
+    "serverless-webpack": "^5.6.0"
+}
+"devDependencies": {
+  "@babel/core": "^7.15.0",
+  "@babel/node": "^7.14.9",
+  "@babel/preset-env": "^7.15.0",
+  "@babel/register": "^7.10.3",
+  "babel-loader": "^8.2.3",
+  "babel-preset-es2015": "^6.24.1",
+  "nodemon": "^2.0.15",
+  "webpack": "^5.65.0",
+  "webpack-node-externals": "^3.0.0"
+}
   Local : http://localhost:4000/graphql
+----
+09-March-2022
+Cloud sls Deployment During local running state : Windows
+nvm ls
+
+14.14.0
+14.1.0
+* 12.20.2 (Currently using 64-bit executable)
+12.20.0
+12.19.0
+
+package.json
+dev{
+ serverless": "^3.1.1",
+  "serverless-http": "^2.7.0",
+  "serverless-offline": "^5.12.1",
+  "serverless-webpack": "^5.6.0",
+  "webpack": "^5.70.0",
+  "webpack-node-externals": "^3.0.0"
+}
+"devDependencies": {
+  "@babel/core": "^7.15.0",
+    "@babel/node": "^7.14.9",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/register": "^7.10.3",
+    "babel-loader": "^8.2.3",
+    "babel-preset-es2015": "^6.24.1",
+    "nodemon": "^2.0.15"
+}

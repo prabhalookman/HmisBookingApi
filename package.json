@@ -31,10 +31,12 @@
     "mongodb-client-encryption": "^2.0.0-beta.2",
     "mongoose": "^5.13.14",
     "querystring": "^0.2.0",
-    "serverless": "^1.83.3",
+    "serverless": "^3.1.1",
     "serverless-http": "^2.7.0",
     "serverless-offline": "^5.12.1",
-    "serverless-webpack": "^5.6.0"
+    "serverless-webpack": "^5.6.0",
+    "webpack": "^5.70.0",
+    "webpack-node-externals": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
@@ -43,8 +45,6 @@
     "@babel/register": "^7.10.3",
     "babel-loader": "^8.2.3",
     "babel-preset-es2015": "^6.24.1",
-    "nodemon": "^2.0.15",
-    "webpack": "^5.65.0",
-    "webpack-node-externals": "^3.0.0"
+    "nodemon": "^2.0.15"
   }
 }
