@@ -72,20 +72,23 @@ export const getting_slots = async (
         ).format("dddd");
         let timingsStartTimeDay = e1.work_day_name; //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
         console.log(`Timings Day - ${timingsStartTimeDay}`);
-        let slotArguments = {
-          result: {},
-          _id: details._id,
-          start_time: e1.start_time,
-          end_time: e1.end_time,
-          clientSlot: clientSlot,
-          selectedDate: selectedDate,
-          displaySettings: displaySettings,
-          dateFormat: dateFormat,
-        };
+        
 
         if (selectedDayName == timingsStartTimeDay) {
+          let slotArguments = {
+            result: {},
+            _id: details._id,
+            start_time: e1.start_time,
+            end_time: e1.end_time,
+            clientSlot: clientSlot,
+            selectedDate: selectedDate,
+            displaySettings: displaySettings,
+            dateFormat: dateFormat,
+          };
           let tresult = slots(slotArguments);
-          result.availableTimes.push(tresult.availableTimes);
+          result.availableTimes.push(...tresult.availableTimes);
+          //result.availableTimes = [result.availableTimes, ...tresult.availableTimes]
+          console.log('result.availableTimes : ', JSON.stringify(result.availableTimes))
           is_matched = true;
           console.log("Match");
         } else {
@@ -238,8 +241,8 @@ export let compareTwoSlots = (list_one, list_two) => {
   try {
     let list_availTimes = [];
     let eventResultCount = 1;
-    let events_ar = list_two[0].availableTimes[0];
-    let staff_ar = list_one[0].availableTimes[0];
+    let events_ar = list_two[0].availableTimes;
+    let staff_ar = list_one[0].availableTimes;
 
     console.log("Event AvailableTimes Count : ", events_ar.length);
     console.log("Staff AvailableTimes Count : ", staff_ar.length);
@@ -280,14 +283,14 @@ export let compareTwoSlots = (list_one, list_two) => {
         e_end_sec = moment.duration(e_end).asSeconds();
         let e_end_secTo_time = moment(e_end_sec, "YYYY-MM-DDTHH:mm:ss");
 
-        if (s_start_sec >= e_start_sec && s_start_sec < e_end_sec) {
-          matched_slots.push(staff_ar[q].slot);
+        if (s_start >= e_start && s_start < e_end) {
+          matched_slots.push(staff_ar[q]);
         }
       }
       eventResultCount++;
     }
     let matched_staff = [];
-    console.log("Matched Staff slots : ", matched_slots);
+    //console.log("Matched Staff slots : ", matched_slots);
 
     // staff_ar = staff_ar.filter(function(st) {
     //   return matched_slots.some(
@@ -296,7 +299,7 @@ export let compareTwoSlots = (list_one, list_two) => {
     //   });
     // })
 
-    list_availTimes = staff_ar;
+    list_availTimes = matched_slots;
     return list_availTimes;
   } catch (error) {
     console.log(error);
@@ -333,7 +336,7 @@ export let checkBooking = async (
 
     //Staff
     let list_availTimes = [];
-    let staff_ar = list_one.availableTimes[0];
+    let staff_ar = list_one.availableTimes;
 
     console.log("staff_ar.length  : ", staff_ar.length);
     if (bookingDetails.length > 0) {
