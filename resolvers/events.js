@@ -7,7 +7,8 @@ import {
   groupArray,
   getLocataion_workDay,
   getStaffLocations,
-  getEventLocations
+  getEventLocations,
+  getStaffbyServiceId
 } from '../helpers/slotcreation'
 export default {
   Query: {
@@ -31,7 +32,26 @@ export default {
          const events_result = await context.models.Events.find({_id: result_events})
         return events_result
       } catch (error) {
-        console.error("Error : ", error)
+        console.error("Error getEventsDetailByStaff : ", error)
+        throw new Error (error)
+      }
+    },
+    getStaffToTransfer: async (parent, args, context, info) => {
+      try {
+        let result_events = await getServicesbyStaffId(args, context)
+        let result_staffs = [];
+        for(let item of result_events){
+          args.event_id = item
+          let result = await getStaffbyServiceId(args, context)
+          result_staffs.push(...result)  
+          console.log('result_staffs : ', result_staffs)
+        }
+        //let result_staffs = await getStaffbyServiceId(args, context)
+         const staff_result = await context.models.Staff.find({_id: result_staffs})
+        return staff_result
+
+      } catch (error) {
+        console.error("Error getStaffToTransfer : ", error)
         throw new Error (error)
       }
     },
@@ -105,7 +125,11 @@ export default {
 add_on_ids: async (evens, args, context) => {
   let resultEvent = await evens.populate('add_on_ids').execPopulate();
   return resultEvent.add_on_ids
-}
+},
+form_id: async (evens, args, context) => {
+  let resultEvent = await evens.populate('form_id').execPopulate();
+  return resultEvent.form_id
+},
 
     
   }

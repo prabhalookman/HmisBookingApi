@@ -17,6 +17,8 @@ import workspaceSchema from './workspace'
 import settingSchema from './setting'
 import appintegrationSchema from './appintegration'
 import appSchema from './app'
+import formSchema from './form'
+import answerSchema from './answer'
 
 // import businessInfoSchema  from './businessinfo'
 // import eventCategorySchema  from './eventcategory'
@@ -54,5 +56,7 @@ timingsSchema,
 workspaceSchema,
 settingSchema,
 appintegrationSchema,
-appSchema
+appSchema,
+formSchema,
+answerSchema
 ]

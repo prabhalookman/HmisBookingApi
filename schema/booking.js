@@ -14,6 +14,7 @@ type Booking {
   repeat_on: String,
   booked_by: String,
   progress: [book_progress],
+  answer_id:[Answer],
 
   cost: Int
   created_at: String
@@ -65,6 +66,7 @@ type Booking {
   repeat_on: String,
   booked_by: String,
   progress: [book_progress_input],
+  answer_id: ID
 
   cost: Float
   created_at: String

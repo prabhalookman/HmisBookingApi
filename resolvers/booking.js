@@ -244,6 +244,10 @@ export default {
       let resultBooking = await booking.populate('location_setting_id').execPopulate();
       return resultBooking.location_setting_id
     },
+    answer_id: async (booking) => {
+      let resultBooking = await booking.populate('answer_id').execPopulate();
+      return resultBooking.answer_id
+    }
 
   }
 }

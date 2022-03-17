@@ -1,0 +1,80 @@
+getEventsDetailByStaff
+getstaffdetailbyservice
+getStaffToTransfer
+getLocation
+getEnabledDate
+getStaffEventLocationSettings
+===
+query {
+  getEventsDetailByStaff(
+    workspace_id: "61e666eca4a8d8c16e56f431"
+    site_id: "61cabd4dd4ab64500d0c6f7e"
+    staff_id: "61e66825a2af59cecc1905aa"
+  ) {
+    _id
+    name
+  }
+}
+-----
+query {
+  getstaffdetailbyservice(
+    workspace_id: "61e666eca4a8d8c16e56f431"
+    site_id: "61cabd4dd4ab64500d0c6f7e"
+    event_id: "61e66824a2af59cecc190555"
+  ) {
+    _id
+    name
+  }
+}
+-----
+query {
+  getStaffToTransfer(
+    workspace_id: "61e666eca4a8d8c16e56f431"
+    site_id: "61cabd4dd4ab64500d0c6f7e"
+    staff_id: "61e66825a2af59cecc1905ab"
+  ) {
+    _id
+    name
+  }
+}
+----
+query {
+  getLocation(
+    workspace_id: "61e666eca4a8d8c16e56f431"
+    site_id: "61cabd4dd4ab64500d0c6f7e"
+  ) {
+    _id
+    name
+    app_id {
+      _id
+      name
+    }
+  }
+}
+----
+query{
+  getEnabledDate(
+   site_id:"61cabd4dd4ab64500d0c6f7e"
+    workspace_id:"61e666eca4a8d8c16e56f431"
+    staff_id:"61e6dc05a2af59cecc2f99a7"
+    event_id:"61e6d7f2a2af59cecc2f0e28"
+  )
+}
+----
+query {
+  getStaffEventLocationSettings(
+    site_id:"61cabd4dd4ab64500d0c6f7e"
+    workspace_id:"61e666eca4a8d8c16e56f431"
+    staff_id:"61e66825a2af59cecc1905ab"
+    event_id:"6214ac2e953be0b6688e2f7d"
+    date:"2022-03-10"
+  ) {
+
+    _id
+    location_id{
+      _id
+      name
+      
+    }
+  }
+}

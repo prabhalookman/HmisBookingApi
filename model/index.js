@@ -16,6 +16,8 @@ import Workspace from './workspace';
 import Setting from './settings';
 import appintegration from './appintegration';
 import app from './app';
+import form from './form';
+import answer from './answer';
 
 // import BusinessInfo from './businessInfo';
 // import EventCategory  from "./eventcategory"
@@ -45,7 +47,9 @@ const models = {
   Setting,
   BusinessInfo,
   appintegration,
-  app
+  app,
+  form,
+  answer
 }
 
 export {connectMongo};

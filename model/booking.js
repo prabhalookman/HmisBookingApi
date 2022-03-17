@@ -15,6 +15,7 @@ const bookingSchema = new mongoose.Schema({
 
   cost: Double,
   created_at: Date,
+  answer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'answer'},
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'staff'},
   created_from: String,
   customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer'}],

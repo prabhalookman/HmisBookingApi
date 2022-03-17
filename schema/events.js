@@ -15,6 +15,9 @@ type Events {
   duration_minutes: Int,
   business_id: [Business],
   business_timings: Boolean,
+  isformrequired: Boolean,
+  isform: Boolean,
+  form_id: Form,
 
   workspace_id: Workspace,
   site_id: Site,
@@ -41,6 +44,7 @@ extend type Query {
   getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Events]
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_id: ID): [Events]
   getEnabledDate(workspace_id: ID, site_id: ID, staff_id: ID, event_id: ID, timings_day: [String] ) : [String]
+  getStaffToTransfer(workspace_id: ID, site_id: ID, staff_id: ID): [Staff]
   getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Events]
 }
 `
