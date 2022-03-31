@@ -88,7 +88,7 @@ export const getting_slots = async (
           let tresult = slots(slotArguments);
           result.availableTimes.push(...tresult.availableTimes);
           //result.availableTimes = [result.availableTimes, ...tresult.availableTimes]
-          console.log('result.availableTimes : ', JSON.stringify(result.availableTimes))
+          //console.log('result.availableTimes : ', JSON.stringify(result.availableTimes))
           is_matched = true;
           console.log("Match");
         } else {
@@ -1137,15 +1137,15 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                 loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id })
               }
             }
-            console.log('loc_obj : ', loc_obj)
+            //console.log('loc_obj : ', loc_obj)
             let matc_locat = [];
             arr_left_elem.location_name.forEach((se)=>{
               loc_obj.forEach((le)=>{
                 
                 if(le.loc_name == se){
                   matc_locat.push(le)
-                  console.log(`${le.locset_id.toString()} - ${le.loc_name} - ${le.event_id} - ${le.staff_id}`)
-                  console.log('matc_locat : ', matc_locat)
+                  console.log(`location_day_check le : ${le.locset_id.toString()} - ${le.loc_name} - Event : ${le.event_id} - Staff :  ${le.staff_id}`)
+                  //console.log('matc_locat : ', matc_locat)
 
                   /* Business Hours Classification  */
 
@@ -1174,18 +1174,20 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                       .asSeconds();
 
                     if (
-                      lft_startDate <= rgt_startDate ||
+                      lft_startDate >= rgt_startDate &&
                       lft_startDate <= ev_endDate
                     ) {
                       if(process_for == 'get_service'){
-                        let index = matched_right.findIndex(x => x._id === el.event_id);
+                        let index = matched_right.findIndex(x => x._id === arr_right._id);
+                        console.log(`location_day_check get_service arr_right.event_id : ${arr_right._id} `)
                         if(index == -1){
                           matched_days.push({
-                            _id: le.event_id,
+                            _id: arr_right._id ,
                           day: rgt_time.work_day_name,
                           });
                         }
                       } else if(process_for == 'get_staff'){
+                        console.log(`location_day_check get_staff arr_left_elem._id : ${le.staff_id} `)
                         let index = matched_days.findIndex(x => x._id === le.staff_id);
                         if(index == -1){
                           matched_days.push({
@@ -1195,6 +1197,7 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                         }
                         
                       } else if (process_for == 'get_service_date'){
+                        console.log(`location_day_check get_service_date arr_right.event_id : ${el.event_id} `)
                         let bhrscheck = arr_right.timings.constructor.name
                         if(bhrscheck == 'Object'){
                           matched_days.push({
@@ -1375,7 +1378,7 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                 }
               }
             //}
-            console.log('loc_obj : ', loc_obj)
+            //console.log('loc_obj : ', loc_obj)
             let event_locations = []
             let staff_locations = []
             loc_obj.forEach((obj)=>{
@@ -1393,8 +1396,8 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
               event_locations.forEach((le)=>{
                 if(le.loc_name == se.loc_name){
                   matc_locat.push(le)
-                  console.log(`${le.locset_id.toString()} - ${le.loc_name} - ${le.event_id} - ${le.staff_id}`)
-                  console.log('matc_locat : ', matc_locat)
+                  console.log(`getLocataion_workDay ${le.locset_id.toString()} - ${le.loc_name} - ${le.event_id} - ${le.staff_id}`)
+                  //console.log('matc_locat : ', matc_locat)
 
                   /* Business Hours Classification  */
 
@@ -1421,21 +1424,22 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                     const ev_endDate = moment
                       .duration(string_to_date(rgt_time.end_time))
                       .asSeconds();
-
                     if (
-                      lft_startDate <= rgt_startDate ||
+                      lft_startDate >= rgt_startDate &&
                       lft_startDate <= ev_endDate
                     ) {
-                      if(process_for == 'get_service'){
-                        let index = matched_right.findIndex(x => x._id === el.event_id);
+                      if(process_for == 'get_service'){                        
+                        let index = matched_right.findIndex(x => x._id === arr_right._id);
+                        console.log(`getLocataion_workDay get_service arr_right.event_id : ${arr_right._id} `)
                         if(index == -1){
                           matched_days.push({
-                            _id: le.event_id,
+                            _id: arr_right._id ,
                           day: rgt_time.work_day_name,
                           });
                         }
                       } else if(process_for == 'get_staff'){
                         let index = matched_days.findIndex(x => x._id === le.staff_id);
+                        console.log(`getLocataion_workDay get_staff arr_right.event_id : ${le.staff_id} `)
                         if(index == -1){
                           matched_days.push({
                             _id: le.staff_id,
@@ -1447,6 +1451,7 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                          // let s_index = matched_days.findIndex(x => ((x._id === le.event_id) && (x.loc_name === le.loc_name)));
                          // let l_index = matched_days.findIndex(x => x.loc_name === le.loc_name); && l_index == -1
                           //if(s_index == -1 ){
+                            console.log(`getLocataion_workDay date_get location_get arr_right.event_id : ${le.event_id} `)
                             matched_days.push({
                               _id: le.event_id,
                               day: rgt_time.work_day_name,
