@@ -1165,6 +1165,9 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                     const lft_startDate = moment
                       .duration(string_to_date(lft_time.start_time))
                       .asSeconds();
+                      const lft_endDate = moment
+                      .duration(string_to_date(lft_time.end_time))
+                      .asSeconds();
                     // console.log('seconds to date : ', moment(lft_startDate).format("YYYY-MM-DDTHH:mm:ss"))
                     const rgt_startDate = moment
                       .duration(string_to_date(rgt_time.start_time))
@@ -1174,8 +1177,10 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                       .asSeconds();
 
                     if (
-                      lft_startDate >= rgt_startDate &&
-                      lft_startDate <= ev_endDate
+                      (lft_startDate >= rgt_startDate &&
+                      lft_startDate <= ev_endDate) ||
+                      (rgt_startDate >= lft_startDate &&
+                        rgt_startDate <= lft_endDate)
                     ) {
                       if(process_for == 'get_service'){
                         let index = matched_right.findIndex(x => x._id === arr_right._id);
@@ -1417,6 +1422,9 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                     const lft_startDate = moment
                       .duration(string_to_date(lft_time.start_time))
                       .asSeconds();
+                      const lft_endDate = moment
+                      .duration(string_to_date(lft_time.end_time))
+                      .asSeconds();
                     // console.log('seconds to date : ', moment(lft_startDate).format("YYYY-MM-DDTHH:mm:ss"))
                     const rgt_startDate = moment
                       .duration(string_to_date(rgt_time.start_time))
@@ -1425,8 +1433,10 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                       .duration(string_to_date(rgt_time.end_time))
                       .asSeconds();
                     if (
-                      lft_startDate >= rgt_startDate &&
-                      lft_startDate <= ev_endDate
+                      (lft_startDate >= rgt_startDate &&
+                      lft_startDate <= ev_endDate) ||
+                      (rgt_startDate >= lft_startDate &&
+                        rgt_startDate <= lft_endDate)
                     ) {
                       if(process_for == 'get_service'){                        
                         let index = matched_right.findIndex(x => x._id === arr_right._id);
