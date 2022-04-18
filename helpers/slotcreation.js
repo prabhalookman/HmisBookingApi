@@ -1103,6 +1103,7 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
     let matched_arr = [];
     if (loc_arr_left.length > 0 && loc_arr_right.length > 0) {
       for (let arr_left_elem of loc_arr_left){
+        // loc_arr_right will have data and its id by getStaff/eventLocations
         for (let el of loc_arr_right){
           let loc_obj = []
             for (let arr_right of el.data){
@@ -1121,15 +1122,21 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                 }
                 
               } else if(process_for == 'get_staff'){
-                for(let right_elem of loc_arr_right){
-                  args.staff_id = right_elem.staff_id
+                // for(let right_elem of loc_arr_right){
+                //   args.staff_id = right_elem.staff_id
+                // let loc_details = await getStaffLocations_loc_day(args, context)
+                // //let loc_details = await context.models.Staff.aggregate(get_staff_locationName_bht_agg([ObjectId(loc_arr_right[0].staff_id) ]))
+                // for(let item of loc_details) {
+                //   loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
+                // }
+                // }
+                //arr_right.staff_id.toString()
+                args.staff_id = arr_right.staff_id
                 let loc_details = await getStaffLocations_loc_day(args, context)
                 //let loc_details = await context.models.Staff.aggregate(get_staff_locationName_bht_agg([ObjectId(loc_arr_right[0].staff_id) ]))
                 for(let item of loc_details) {
                   loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
                 }
-                }
-                
               }
             } else {
               let loc_details = await context.models.Timing.aggregate(get_staff_event_locationName_bhf_agg([arr_right.timings._id]))
@@ -1345,18 +1352,12 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                   }
                 }
               } else if (process_for == "get_staff") {
-                for (let right_elem of loc_arr_right) {
-                  args.staff_id = right_elem.staff_id;
+                //arr_right.staff_id.toString()
+                args.staff_id = arr_right.staff_id;
                   let loc_details = await getStaffLocations_loc_day(args,context);
                   for (let item of loc_details) {
-                    // loc_obj.push({
-                    //   loc_name: item.location.name,
-                    //   locset_id: item.locationsetting._id,
-                    //   staff_id: right_elem.staff_id,
-                    // });
                     loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
                   }
-                }
               } else {
                 for (let left_elem of loc_arr_left) {
                   args.staff_id = left_elem.staff_id;

@@ -27,7 +27,7 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
               "location_app_integration_need": "$location.app_integration_need"
           }
         })
-        //console.log(`\n aggregate_bhf pipeline  EVENT ID ${_ids} :: ${JSON.stringify(pipeline)} `);
+        console.log(`\n aggregate_bhf pipeline  EVENT ID ${_ids} :: ${JSON.stringify(pipeline)} `);
     } else {
       let match = {}
   
@@ -50,7 +50,7 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
           }
         }
       )
-      //console.log(`\n aggregate_bhf pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
+      console.log(`\n aggregate_bhf pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
     }
     
     return pipeline
@@ -85,7 +85,7 @@ export function aggregate_bht(_ids, root, bizhours) {
               "location_app_integration_need": "$location.app_integration_need"
           }
         })
-        //console.log(`\n aggregate_bht pipeline EVENT ${_ids} : `, JSON.stringify(pipeline));
+        console.log(`\n aggregate_bht pipeline EVENT ${_ids} : `, JSON.stringify(pipeline));
     } else {
       let match = {}
   
@@ -111,7 +111,7 @@ export function aggregate_bht(_ids, root, bizhours) {
           }
         }
       )
-      //console.log(`\n aggregate_bht pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
+      console.log(`\n aggregate_bht pipeline  STAFF ID ${_ids} :: ${JSON.stringify(pipeline)} `);
       
     }
     
@@ -190,7 +190,7 @@ export  function get_staffdetail_agg(_ids,workspace_id,site_id) {
         }
       })
   
-    //console.log('\n get_staffdetail_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_staffdetail_agg : ', JSON.stringify(pipeline) )
   
     return pipeline
   }
@@ -248,7 +248,7 @@ export  function get_staff_locationsettings_agg_bht(_ids,workspace_id,site_id) {
   
       }
   })
-  //console.log('\n get_staff_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  console.log('\n get_staff_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
   return pipeline
   }
   
@@ -307,7 +307,7 @@ export  function get_staff_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
       
           }
       })
-    //console.log('\n get_staff_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('\n get_staff_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -365,7 +365,7 @@ export  function get_staff_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
   
       }
   })
-  //console.log('\n get_event_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  console.log('\n get_event_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
   return pipeline
   }
   
@@ -424,7 +424,7 @@ export  function get_event_locationsettings_agg_bhf(_ids,workspace_id,site_id) {
       
           }
       })
-    //console.log('\n get_events_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('\n get_events_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -508,7 +508,7 @@ export  function staff_business_hours_true() {
   }
       )
     return pipline
-    ////console.log(`\n staff_business_hours_true : ${JSON.stringify(pipline) } `)
+    //console.log(`\n staff_business_hours_true : ${JSON.stringify(pipline) } `)
   }
   
 export  function staff_business_hours_false() {
@@ -579,7 +579,7 @@ export  function staff_business_hours_false() {
       }
   })
     return pipline
-    ////console.log(`\n staff_business_hours_false : ${JSON.stringify(pipline) } `)
+    //console.log(`\n staff_business_hours_false : ${JSON.stringify(pipline) } `)
   }
 
 export function event_business_hours_true() {
@@ -652,7 +652,7 @@ export function event_business_hours_true() {
     }
 }
     )
-    //console.log(`\n event_business_hours_true : ${JSON.stringify(pipline) } `)
+    console.log(`\n event_business_hours_true : ${JSON.stringify(pipline) } `)
   return pipline
   
 }
@@ -718,7 +718,7 @@ export function event_business_hours_false() {
             "as": "location"
         }
     },)
-    //console.log(`\n event_business_hours_false : ${JSON.stringify(pipline) } `)
+    console.log(`\n event_business_hours_false : ${JSON.stringify(pipline) } `)
   return pipline
     
 }
@@ -777,7 +777,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
           }
       })
   }
-    //console.log(`\n bushiness_timings_agg ${type_o} :  ${JSON.stringify(pipline)}` )
+    console.log(`\n bushiness_timings_agg ${type_o} :  ${JSON.stringify(pipline)}` )
     return pipline
   }
 
@@ -885,7 +885,8 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                 timings: "$timings",
                 events: "$events.name",
                 events_id: "$events._id",
-                staff_id:"$staff._id"
+                staff_id:"$staff._id",
+                staff_name:"$staff.name"
               },
             },
           ],
@@ -897,7 +898,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         },
       }
     );
-  //console.log('\n get_staff_dd_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  console.log('\n get_staff_dd_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
   return pipeline
   }
 
@@ -990,7 +991,9 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                         "timings_day": "$timings.timings.work_day_name",
                         "timings": "$timings",
                         "events_id": "$events._id",
-                        "staff_id":"$staff._id"
+                        "events_name": "$events.name",
+                        "staff_id":"$staff._id",
+                        "staff_name":"$staff.name"
                       }
                   }
               ],
@@ -1003,7 +1006,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
           "locationsetting": "$locationSetting"
         }
       })
-    //console.log('\n get_staff_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('\n get_staff_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1113,7 +1116,9 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                   "timings": "$timings",
                   "events": "$events",
                   "events_id": "$events._id",
-                  "staff_id":"$staff._id"
+                  "events_name": "$events.name",
+                  "staff_id":"$staff._id",
+                  "staff_name":"$staff.name"
                 }
             }
         ]
@@ -1124,7 +1129,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
           "locationsetting": "$locationSetting",
       }
   })
-  //console.log('\n get_event_dd_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
+  console.log('\n get_event_dd_locationsettings_agg_bht : ', JSON.stringify(pipeline) )
   return pipeline
   }
 
@@ -1216,7 +1221,9 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
                         "timings_day": "$timings.timings.work_day_name",
                         "timings": "$timings",
                         "events_id": "$events._id",
-                        "staff_id":"$staff._id"
+                        "events_name": "$events.name",
+                        "staff_id":"$staff._id",
+                        "staff_name":"$staff.name"
                       }
                   }
               ]
@@ -1227,7 +1234,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
               "locationsetting": "$locationSetting"
           }
       })
-    //console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
+    console.log('\n get_events_dd_locationsettings_agg_bhf : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1301,7 +1308,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         }
     }
     )
-    //console.log('\n get_staff_locationName_bht_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_staff_locationName_bht_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1382,7 +1389,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         }
     }
     )
-    //console.log('\n get_staff_locationName_bhf_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_staff_locationName_bhf_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1447,7 +1454,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         }
     }
     )
-    //console.log('\n get_event_locationName_bht_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_event_locationName_bht_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1520,7 +1527,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         }
     }
     )
-    //console.log('\n get_event_locationName_bhf_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_event_locationName_bhf_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1580,7 +1587,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
         }
     }
     )
-    //console.log('\n get_staff_event_locationName_bhf_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_staff_event_locationName_bhf_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1611,7 +1618,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
   },{
     '$match': match 
  },)
-    //console.log('\n get_locationsettings_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_locationsettings_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }
@@ -1644,7 +1651,7 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
   { 
       "$match" : match
   },)
-    //console.log('\n get_staffdetails_agg : ', JSON.stringify(pipeline) )
+    console.log('\n get_staffdetails_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
   }

@@ -37,17 +37,46 @@ export default {
       }
     },
     getStaffToTransfer: async (parent, args, context, info) => {
-      try {
-        let result_events = await getServicesbyStaffId(args, context)
+      try {        
         let result_staffs = [];
-        for(let item of result_events){
-          args.event_id = item
-          let result = await getStaffbyServiceId(args, context)
-          result_staffs.push(...result)  
-          console.log('result_staffs : ', result_staffs)
+        let book_rec = await context.models.Booking.find({_id: ObjectId(args.booking_id) }).lean()
+        args.staff_id = book_rec[0].staff_id
+        args.event_id = book_rec[0].event_id
+        
+        let bookingDetails = [];
+        let bookingExist = false;
+        const bookingData   = moment(new Date(book_rec[0].appointment_start_time), "YYYY-MM-DDTHH:mm:ss").toISOString() 
+        
+        let result = await getStaffbyServiceId(args, context)
+        result_staffs.push(...result)  
+        console.log('result_staffs : ', result_staffs)
+        // Remove source staff from result staffs
+        const indx = result_staffs.indexOf(args.staff_id.toString())
+        if (indx > -1) {
+          result_staffs.splice(indx, 1); // 2nd parameter means remove one item only
+        } 
+        let search_staffs = result_staffs.map((x)=> ObjectId(x))
+        console.log('search_staffs : ', search_staffs);
+        console.log('result_staffs : ', result_staffs);
+        //
+        //check each avilable staff have any bookins on same timings
+        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time: new Date(bookingData) }) //
+        
+        console.log('bookingData : ', bookingData);
+        
+        bookingDetails.forEach((b_elem)=>{
+          console.log(`appointment start time :  ${b_elem.appointment_start_time} - ${b_elem.staff_id.toString()}`);          
+          const indx = result_staffs.indexOf(b_elem.staff_id.toString())
+          if (indx > -1) {
+            result_staffs.splice(indx, 1); // 2nd parameter means remove one item only
+          } 
+        })
+
+        if(result_staffs.length == 0 ){
+          console.error("Matched staff is not avilable for transer")
+          throw new Error ("Matched staff is not avilable for transer")
         }
-        //let result_staffs = await getStaffbyServiceId(args, context)
-         const staff_result = await context.models.Staff.find({_id: result_staffs})
+        const staff_result = await context.models.Staff.find({_id: result_staffs})
         return staff_result
 
       } catch (error) {

@@ -44,7 +44,7 @@ extend type Query {
   getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Events]
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_id: ID): [Events]
   getEnabledDate(workspace_id: ID, site_id: ID, staff_id: ID, event_id: ID, timings_day: [String] ) : [String]
-  getStaffToTransfer(workspace_id: ID, site_id: ID, staff_id: ID): [Staff]
+  getStaffToTransfer(workspace_id: ID, site_id: ID, staff_id: ID, event_id: ID, appointment_date: String, booking_id: ID): [Staff]
   getLocationByServiceId(workspace_id: ID, site_id: ID,event_id: ID):[Events]
 }
 `
