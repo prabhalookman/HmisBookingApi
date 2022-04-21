@@ -40,8 +40,8 @@ export default {
       try {        
         let result_staffs = [];
         let book_rec = await context.models.Booking.find({_id: ObjectId(args.booking_id) }).lean()
-        args.staff_id = book_rec[0].staff_id
-        args.event_id = book_rec[0].event_id
+        args.staff_id = book_rec[0].staff_id.toString()
+        args.event_id = book_rec[0].event_id.toString()
         
         let bookingDetails = [];
         let bookingExist = false;
@@ -49,20 +49,34 @@ export default {
         
         let result = await getStaffbyServiceId(args, context)
         result_staffs.push(...result)  
-        console.log('result_staffs : ', result_staffs)
+        //console.log('getStaffbyServiceId staffs : ', result_staffs)
         // Remove source staff from result staffs
         const indx = result_staffs.indexOf(args.staff_id.toString())
         if (indx > -1) {
           result_staffs.splice(indx, 1); // 2nd parameter means remove one item only
         } 
         let search_staffs = result_staffs.map((x)=> ObjectId(x))
-        console.log('search_staffs : ', search_staffs);
-        console.log('result_staffs : ', result_staffs);
+        //console.log('search_staffs : ', search_staffs);
+        //console.log('result_staffs : ', result_staffs);
         //
         //check each avilable staff have any bookins on same timings
         bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time: new Date(bookingData) }) //
+        let serviceStaffs = await context.models.Events.find({_id: args.event_id}, {_id:0, staff:1}).lean() //
+
+         result_staffs = serviceStaffs[0].staff.filter(item1 => 
+          result_staffs.some(item2 => 
+            {
+              
+              if (item2.toString() == item1.toString()){
+                //console.log('item2 : ', item2.toString())
+                //console.log('item1 : ', item1.toString())
+                return item2
+              }
+            }            
+            
+            ))
         
-        console.log('bookingData : ', bookingData);
+        //console.log('result_staffs : ', result_staffs);
         
         bookingDetails.forEach((b_elem)=>{
           console.log(`appointment start time :  ${b_elem.appointment_start_time} - ${b_elem.staff_id.toString()}`);          

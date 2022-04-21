@@ -189,3 +189,8 @@ dev{
     "babel-preset-es2015": "^6.24.1",
     "nodemon": "^2.0.15"
 }
+
+---------------
+Mac
+sls deploy
+node - v15.12.0

@@ -1308,7 +1308,7 @@ export let getStaffbyServiceId = async (args, context, check) => {
     
     let matched_staff = []
     matched_staff  = await location_day_check(args, context, event_loc_ar[0].locationsetting, staff_loc_ar,'get_staff')
-    console.log("matched_staff : ", matched_staff);
+    // console.log("matched_staff : ", matched_staff);
     if (matched_staff.length == 0) {
       console.log("Staff and Event location name does not match");
       throw new Error("Staff and Event location names does not match");

@@ -59,22 +59,13 @@ console.log(futureMonth.format('DD-MM-YYYY'));
 */
 
 
-
-
-staffdetail_ag_rs[k], 
-models, 
-newRes, 
-minutesFormat, 
- 
- 
-
-
-displaySettings,
-bookingStartDate,
-clientSlot, 
-minDate, 
-maxDate,
-pre_booking_day,
-selectedDate,
-dateFormat, 
-args.date,
+query {
+  getStaffToTransfer(
+    workspace_id: "61e666eca4a8d8c16e56f431"
+    site_id: "61cabd4dd4ab64500d0c6f7e"    
+    booking_id: "6255db17742649000963b557"
+  ) {
+    _id
+    name
+  }
+}
