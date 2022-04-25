@@ -130,6 +130,10 @@ export default {
         //console.log('rsp : '. rsp)
         let matched_loc = []
         let result = await avail_date_filter(args, context);
+        if(result.length == 0){
+          console.log('There is no available date')
+          throw new Error('There is no available date')
+        }
         return result;
       } catch (error) {
         throw new Error(error)

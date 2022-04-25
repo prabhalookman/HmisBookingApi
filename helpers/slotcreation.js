@@ -1569,17 +1569,20 @@ export let uniqueFromArr = (field, array) => {
 
 export let avail_date_filter = async (args, context) => {
   try {
-  } catch (error) {
-    console.log(error);
-    throw new Error(error);
-  }
-  const secondsFormat = "YYYY-MM-DDTHH:mm:ss";
+    const secondsFormat = "YYYY-MM-DDTHH:mm:ss";
   const dateFormat = "YYYY-MM-DD";
   let selectedDate = moment(new Date(), dateFormat).startOf("day");
   let day_names = args.timings_day; //["Monday", "Tuesday"]
 
   let Setting = await context.models.Setting.find({}).lean(); //await context.models.Setting.find({})
   const pre_booking_day = Setting[0].advance_Booking_Period;
+
+  let eventDateRange = await context.models.Events.find({_id: args.event_id}, {availability_range:1, _id: 0}).lean()
+  console.log('eventDateRange : ', JSON.stringify(eventDateRange))
+
+  let edr_from = moment(eventDateRange[0].availability_range.date_range.from, secondsFormat)
+  let edr_to = moment(eventDateRange[0].availability_range.date_range.to, secondsFormat)
+  
 
   let minDate = moment(new Date(), secondsFormat).startOf("day");
   let cr_date = moment(new Date()).startOf("day");
@@ -1599,22 +1602,30 @@ export let avail_date_filter = async (args, context) => {
     if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
       disable_date.push(new moment(bookStartDate).format(dateFormat));
     } else {
-      if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
-        available_date.push(bookStartDate.format(dateFormat));
-      }
+      if(eventDateRange[0].availability_range.Indefinitely){
+        if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
+          available_date.push(bookStartDate.format(dateFormat));
+        }
+      } else {
+        if(bookStartDate >= edr_from && bookStartDate <= edr_to){
+          if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
+            available_date.push(bookStartDate.format(dateFormat));
+          }
+        }
+      }      
     }
     bookStartDate.add(1, "days");
   }
   return available_date;
-};
-
-export let groupArray = (field, content, myArray, elem) => {
-  try {
   } catch (error) {
     console.log(error);
     throw new Error(error);
   }
-  var groups = {};
+};
+
+export let groupArray = (field, content, myArray, elem) => {
+  try {
+    var groups = {};
   for (var i = 0; i < myArray.length; i++) {
     var groupName = myArray[i][field];
     if (!groups[groupName]) {
@@ -1634,6 +1645,11 @@ export let groupArray = (field, content, myArray, elem) => {
     myArray.push(newObj);
   }
   return myArray;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error);
+  }
+  
 };
 
 export let uniqueObjDay = (data) => {
