@@ -45,7 +45,8 @@ export default {
         
         let bookingDetails = [];
         let bookingExist = false;
-        const bookingData   = moment(new Date(book_rec[0].appointment_start_time), "YYYY-MM-DDTHH:mm:ss").toISOString() 
+        const bk_starttime   = moment(new Date(book_rec[0].appointment_start_time), "YYYY-MM-DDTHH:mm:ss").toISOString() 
+        const bk_endtime   = moment(new Date(book_rec[0].appointment_end_time), "YYYY-MM-DDTHH:mm:ss").toISOString() 
         
         let result = await getStaffbyServiceId(args, context)
         result_staffs.push(...result)  
@@ -60,24 +61,17 @@ export default {
         //console.log('result_staffs : ', result_staffs);
         //
         //check each avilable staff have any bookins on same timings
-        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time: new Date(bookingData) }) //
+        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime), appointment_end_time: new Date(bk_endtime) }) //{$gte:new Date(bk_starttime)}
         let serviceStaffs = await context.models.Events.find({_id: args.event_id}, {_id:0, staff:1}).lean() //
 
          result_staffs = serviceStaffs[0].staff.filter(item1 => 
           result_staffs.some(item2 => 
             {
-              
               if (item2.toString() == item1.toString()){
-                //console.log('item2 : ', item2.toString())
-                //console.log('item1 : ', item1.toString())
                 return item2
               }
-            }            
-            
+            }
             ))
-        
-        //console.log('result_staffs : ', result_staffs);
-        
         bookingDetails.forEach((b_elem)=>{
           console.log(`appointment start time :  ${b_elem.appointment_start_time} - ${b_elem.staff_id.toString()}`);          
           const indx = result_staffs.indexOf(b_elem.staff_id.toString())

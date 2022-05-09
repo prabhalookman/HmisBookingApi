@@ -14,7 +14,7 @@ const bookingSchema = new mongoose.Schema({
   appointment_time_before_reschedule: [Date],
 
   cost: Double,
-  created_at: Date,
+  created_at: {type: Date, default: Date.now},
   answer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'answer'},
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'staff'},
   created_from: String,
@@ -42,6 +42,8 @@ const bookingSchema = new mongoose.Schema({
   location_link: String,
   location_setting_id: { type: mongoose.Schema.Types.ObjectId, ref: 'locationsetting'},
   note: String,
+  repeat_on: String,
+  repeat_upto_date: Date,
 
   site_id: { type: mongoose.Schema.Types.ObjectId, ref: 'site'},
   slot: Number,
@@ -49,7 +51,7 @@ const bookingSchema = new mongoose.Schema({
   timezone: String,
   transfered_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}],
   type: String,
-  updated_at: Date,
+  updated_at: {type: Date, default: Date.now},
   workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace'}
 })
 

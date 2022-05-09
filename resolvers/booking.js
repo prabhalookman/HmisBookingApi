@@ -106,7 +106,7 @@ export default {
         }
         let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
         
-        //let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
+        let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
         const timingsStartTime = moment(new Date(arg_input.appointment_start_time), secondsFormat)
         const timingsEndTime = moment(new Date(arg_input.appointment_end_time), secondsFormat) //arg_input.is_recurring == false ?  : moment(new Date(arg_input.repeat_upto_date), secondsFormat)
 
@@ -138,17 +138,18 @@ export default {
 
         console.log('disable_date : ', disable_date)
         console.log('available_date : ', available_date)
+        let uptoDate = moment(new Date(arg_input.repeat_upto_date), secondsFormat)
 
         if (arg_input.is_recurring == true) {
          
           if (arg_input.repeat_on == 'Daily') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, arg_input, 1)
+            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input, 1)
           } 
           else if (arg_input.repeat_on == 'Weekly') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, arg_input, 7)
+            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input, 7)
 
           } else if (arg_input.repeat_on == 'Monthly') {
-            newBooking = createAppoint (bookingStartTime ,bookingEndTime, newBooking, context,disable_date, arg_input, 30)
+            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input, 30)
           }
         } else {
           const checkbook = await checkBook(context, arg_input.staff_id, arg_input.event_id, arg_input.appointment_start_time)
@@ -266,8 +267,8 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       res = dateCreate(input.appointment_start_time, input.appointment_end_time)
       newBooking.appointment_start_time = arg_appointment_start_time
       newBooking.appointment_end_time = arg_appointment_end_time
-      newBooking.appointment_booking_time = arg_appointment_booking_time
-      newBooking.Is_cancelled = false
+      newBooking.appointment_booking_time = moment(new Date(), secondsFormat)
+      newBooking.Is_cancelled = false      
       newBooking.deleted = false
       const checkbook = await checkBook(context, input.staff_id, input.event_id, input.appointment_start_time)
       
@@ -298,6 +299,8 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       newBooking.site_id = input.site_id
       newBooking.workspace_id = input.workspace_id
       newBooking.is_recurring = input.is_recurring
+      newBooking.repeat_upto_date = input.repeat_upto_date
+      newBooking.repeat_on = input.repeat_on
       newBooking.Is_cancelled = false
       newBooking.deleted = false
       newBooking = await newBooking.save();
