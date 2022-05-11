@@ -14,7 +14,8 @@ type StaffDetails {
   timing_ids: [Timing],
   sorting_id: Int,
   events_ids: [Events],
-  location_setting_ids: [LocationSetting]
+  location_setting_ids: [LocationSetting],
+  appointment_booking_ids:[Booking]
 }
 
 type Availablilities {

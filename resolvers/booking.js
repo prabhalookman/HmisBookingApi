@@ -162,6 +162,21 @@ export default {
           newBooking.progress.push({status:'Booked'})
           newBooking.created_by = arg_input.staff_id
           newBooking = await newBooking.save();
+
+          //update staff 
+          console.log('new booking : ', newBooking._id.toString())
+          let updateObj = { $push: {} };
+          updateObj.$push['appointment_booking_ids'] = ObjectId(newBooking._id) ;
+          const resultStaffs = await context.models.Staff.find({ _id: newBooking.staff_id },{staff_detail_id:1});
+          console.log('update : ', JSON.stringify(updateObj))
+          const resultStaffDetails = await context.models.StaffDetails.findOneAndUpdate({ _id: resultStaffs[0].staff_detail_id }, updateObj, { new: true });
+          if(resultStaffDetails){
+            console.log('staff updated')
+          } else {
+            const deletedBooking = await context.models.Booking.deleteOne({ _id: newBooking._id });
+            console.error("Booking Error : Booking not successful : ", newBooking._id)
+            throw new Error('Booking Error : Booking not successful')
+          }
         }
         //console.log('newBooking', newBooking)
 
