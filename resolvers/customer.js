@@ -25,7 +25,7 @@ export default {
           i++
         }
         newCustomer = await newCustomer.save();
-        console.log("newCustomer Created : ", newCustomer)
+        //console.log("newCustomer Created : ", newCustomer)
 
         return newCustomer
       } catch (error) {

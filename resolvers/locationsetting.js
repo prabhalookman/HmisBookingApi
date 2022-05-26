@@ -14,7 +14,7 @@ export default {
     getLocationSetting: async (parent, args, context, info) => {
       try {
         let findObj = {workspace_id: ObjectId(args.workspace_id), site_id: ObjectId(args.site_id)}
-        console.log(findObj)
+        //console.log(findObj)
         let loc_result = await context.models.LocationSetting.find(findObj).exec()
         return loc_result
       } catch (error) {
@@ -24,7 +24,7 @@ export default {
     },getLocationSettingById: async (parent, args, context, info) => {
       try {
         let findObj = {workspace_id: ObjectId(args.workspace_id), site_id: ObjectId(args.site_id), _id: args.location_id}
-        console.log(findObj)
+        //console.log(findObj)
         let loc_result = await context.models.LocationSetting.find(findObj).exec()
         return loc_result
       } catch (error) {
@@ -58,37 +58,37 @@ export default {
           staff_loc_ar[0].locationsetting[0].events_id.forEach((el) => {
             event_ids.push(el.toString());
           });
-          console.log("getEnabledDate events_id Before loop : ", event_ids);
+          //console.log("getStaffEventLocationSettings events_id Before loop : ", event_ids);
           if (event_ids.includes(args.event_id)) {
             let events = await getEventLocations(args, context); //getEventLocation group by timings
-            console.log("events : ", events);
+            //console.log("events : ", events);
             event_loc_ar.push({
               event_id: args.event_id,
               data: events[0].locationsetting,
             });
           }
-          console.log(`getEnabledDate : , ${event_loc_ar}`);
+          //console.log(`getStaffEventLocationSettings : , ${event_loc_ar}`);
         }
       }
     }
 
       let rsp = await  getLocataion_workDay(args,context,staff_loc_ar[0].locationsetting, event_loc_ar, 'location_get')
-      //console.log('rsp locations: ', JSON.stringify(rsp)  )
+      ////console.log('rsp locations: ', JSON.stringify(rsp)  )
       //let loc_result = []
       // for(let i=0; i< rsp.length; i++){
       //   //let data =  await context.models.LocationSetting.aggregate(get_locationsettings_agg(rsp[i]))
       //   let obj = {_id: ObjectId(rsp[i]) }
       //   await context.models.LocationSetting.find(findObj)
       // }
-      console.log('resp : ', rsp)
+      //console.log('resp : ', rsp)
        let obj = {_id: rsp}
       // let findObj = {workspace_id: ObjectId(args.workspace_id), site_id: ObjectId(args.site_id)}
-      console.log('resp : ', obj)
+      //console.log('resp : ', obj)
       let loc_result =  await context.models.LocationSetting.find(obj).exec()
       let matched_loc = []
       
       if(loc_result == undefined){
-        console.log('getStaffEventLocationSettings : Staff and Event location name does not match')
+        //console.log('getStaffEventLocationSettings : Staff and Event location name does not match')
         throw new Error('getStaffEventLocationSettings : Staff and Event location names does not match')
       }
 

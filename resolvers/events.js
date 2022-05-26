@@ -45,8 +45,8 @@ export default {
         
         let bookingDetails = [];
         let bookingExist = false;
-        const bk_starttime   = moment(new Date(book_rec[0].appointment_start_time), "YYYY-MM-DDTHH:mm:ss").toISOString() 
-        const bk_endtime   = moment(new Date(book_rec[0].appointment_end_time), "YYYY-MM-DDTHH:mm:ss").toISOString() 
+        const bk_starttime   = moment(new Date(book_rec[0].appointment_start_time), "YYYY-MM-DDTHH:mm").format("YYYY-MM-DDTHH:mm")//.toISOString() 
+        const bk_endtime   = moment(new Date(book_rec[0].appointment_end_time), "YYYY-MM-DDTHH:mm").format("YYYY-MM-DDTHH:mm")//.toISOString() 
         
         let result = await getStaffbyServiceId(args, context)
         result_staffs.push(...result)  
@@ -61,7 +61,8 @@ export default {
         //console.log('result_staffs : ', result_staffs);
         //
         //check each avilable staff have any bookins on same timings
-        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime), appointment_end_time: new Date(bk_endtime) }) //{$gte:new Date(bk_starttime)}
+        //console.log('8888 : ', JSON.stringify({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime), appointment_end_time: new Date(bk_endtime) }))
+        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime)}) //{$gte:new Date(bk_starttime)}
         let serviceStaffs = await context.models.Events.find({_id: args.event_id}, {_id:0, staff:1}).lean() //
 
          result_staffs = serviceStaffs[0].staff.filter(item1 => 
@@ -72,9 +73,11 @@ export default {
               }
             }
             ))
+            //console.log('result_staffs : ', result_staffs)
+            //console.log('bookingDetails : ', bookingDetails)
         bookingDetails.forEach((b_elem)=>{
-          console.log(`appointment start time :  ${b_elem.appointment_start_time} - ${b_elem.staff_id.toString()}`);          
-          const indx = result_staffs.indexOf(b_elem.staff_id.toString())
+          console.log(`appointment start time :  ${b_elem.appointment_start_time} - ${b_elem.staff_id.toString()}`);
+          let indx = result_staffs.findIndex(r => r.toString() == b_elem.staff_id.toString())
           if (indx > -1) {
             result_staffs.splice(indx, 1); // 2nd parameter means remove one item only
           } 

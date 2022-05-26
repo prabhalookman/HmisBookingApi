@@ -568,9 +568,7 @@ export let getAvailability = async (args, context) => {
     let minutesFormat = "HH:mm";
     const dateFormat = "YYYY-MM-DD HH:mm:ss";
     let selectedDate = moment(args.date, "YYYY-MM-DD");
-    console.log(
-      `selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`
-    );
+    console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`    );
 
     let settings = await context.models.Setting.find({});
     const pre_booking_day = settings[0].advance_Booking_Period.value;
@@ -745,9 +743,7 @@ export let getAvailability = async (args, context) => {
         let location_flag = false;
         //events_ag_rs[k].location_name.forEach((stf)=>{
         args.locationName.forEach((loc) => {
-          console.log(
-            `Events ${loc._id}location : ${events_ag_rs[k].location_name}`
-          );
+          console.log(`Events ${loc._id}location : ${events_ag_rs[k].location_name}`          );
           if (loc == events_ag_rs[k].location_name) {
             location_flag = true;
           }
@@ -841,16 +837,12 @@ export let is_bookingExist = async (
       du_hours,
       "hours"
     );
-    console.log(
-      `Booking Start Time - ${dayStartTime} : After Hours - ${dayEndHours}`
-    );
+    console.log(`Booking Start Time - ${dayStartTime} : After Hours - ${dayEndHours}`);
     dayEndTime = moment(dayEndHours, "YYYY-MM-DDTHH:mm:ss").add(
       du_miniutes,
       "minutes"
     );
-    console.log(
-      `Booking Start Time - ${dayStartTime} : After Minutes - ${dayEndTime}`
-    );
+    console.log(`Booking Start Time - ${dayStartTime} : After Minutes - ${dayEndTime}`);
     //let resultduration = await duration_calc(bookingDetails.event_id, models);
     // const b_start_sec = moment.duration(dayStartTime).asSeconds()
     // const b_end_sec = moment.duration(dayEndTime).asSeconds()
@@ -866,9 +858,7 @@ export let is_bookingExist = async (
           // bookingDetails.splice(tindex, 1)
           //break;
         } else {
-          console.log(
-            `Booking Matched with Reschedule : ${elem.slotStartTime}`
-          );
+          console.log(`Booking Matched with Reschedule : ${elem.slotStartTime}`);
           elem.isBooking = false;
         }
       } else {
@@ -929,9 +919,7 @@ export let getStaffLocations = async (args, context) => {
     if (staff_loc_ar.length < 1) {
       throw new Error("Location setting not available in staff");
     }
-    console.log(
-      `\n getStaffLocations - id : ${args.staff_id} :  , ${staff_loc_ar}`
-    );
+    console.log(`\n getStaffLocations - id : ${args.staff_id} :  , ${staff_loc_ar}`);
     return staff_loc_ar;
   } catch (error) {
     console.log(error);
@@ -958,9 +946,7 @@ export let getStaffLocations_loc_day = async (args, context) => {
     if (staff_loc_ar.length < 1) {
       throw new Error("Location setting not available in staff");
     }
-    console.log(
-      `\n getStaffLocations_loc_day - staff id : ${args.staff_id} :  , ${staff_loc_ar}`
-    );
+    console.log(`\n getStaffLocations_loc_day - staff id : ${args.staff_id} :  , ${staff_loc_ar}`);
     return staff_loc_ar;
   } catch (error) {
     console.log(error);
@@ -986,9 +972,7 @@ export let getEventLocations_loc_day = async (args, context) => {
     if (event_loc_ar.length < 1) {
       throw new Error("Location setting not available in staff");
     }
-    console.log(
-      `\n getEventLocations_loc_day - event id : ${args.event_id} :  , ${event_loc_ar}`
-    );
+    console.log(`\n getEventLocations_loc_day - event id : ${args.event_id} :  , ${event_loc_ar}`);
     return event_loc_ar;
   } catch (error) {
     console.log(error);
@@ -1030,9 +1014,7 @@ export let getEventLocations = async (args, context) => {
     if (event_loc_ar.length < 1) {
       throw new Error("Location setting not available in event");
     }
-    console.log(
-      `\n getEventLocations - id : ${args.event_id} :  , ${event_loc_ar}`
-    );
+    console.log(`\n getEventLocations - id : ${args.event_id} :  , ${event_loc_ar}`    );
     return event_loc_ar;
   } catch (error) {
     console.log(error);
@@ -1146,10 +1128,11 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
             }
             //console.log('loc_obj : ', loc_obj)
             let matc_locat = [];
-            arr_left_elem.location_name.forEach((se)=>{
-              loc_obj.forEach((le)=>{
+            //arr_left_elem.location_name.forEach((se)=>{
+             for(let x=0; x < arr_left_elem.location_name.length; x++) {
+              for(let le of loc_obj){
                 
-                if(le.loc_name == se){
+                if(le.loc_name == arr_left_elem.location_name[x]){
                   matc_locat.push(le)
                   console.log(`location_day_check le : ${le.locset_id.toString()} - ${le.loc_name} - Event : ${le.event_id} - Staff :  ${le.staff_id}`)
                   //console.log('matc_locat : ', matc_locat)
@@ -1164,23 +1147,25 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
               /* Business Hours Classification End */
               
               /* Day Check */
-              left_timings.forEach((lft_time) => {
-                right_timings.forEach((rgt_time) => {
+              //left_timings.forEach((lft_time) => {
+                for(let k=0; k< left_timings.length; k++){
+                //right_timings.forEach((rgt_time) => {
+                  for(let r=0; r<right_timings.length; r++){
 
-                  if (lft_time.work_day_name == rgt_time.work_day_name) {
-                    //console.log(`Matched Day  ${arr_left_elem.location_name} - ${ev_elem.location_name}= Staff : ${lft_time.work_day_name} - Event :  ${rgt_time.work_day_name}`)
+                  if (left_timings[k].work_day_name == right_timings[r].work_day_name) {
+                    //console.log(`Matched Day  ${arr_left_elem.location_name} - ${ev_elem.location_name}= Staff : ${left_timings[k].work_day_name} - Event :  ${right_timings[r].work_day_name}`)
                     const lft_startDate = moment
-                      .duration(string_to_date(lft_time.start_time))
+                      .duration(string_to_date(left_timings[k].start_time))
                       .asSeconds();
                       const lft_endDate = moment
-                      .duration(string_to_date(lft_time.end_time))
+                      .duration(string_to_date(left_timings[k].end_time))
                       .asSeconds();
                     // console.log('seconds to date : ', moment(lft_startDate).format("YYYY-MM-DDTHH:mm:ss"))
                     const rgt_startDate = moment
-                      .duration(string_to_date(rgt_time.start_time))
+                      .duration(string_to_date(right_timings[r].start_time))
                       .asSeconds();
                     const ev_endDate = moment
-                      .duration(string_to_date(rgt_time.end_time))
+                      .duration(string_to_date(right_timings[r].end_time))
                       .asSeconds();
 
                     if (
@@ -1193,18 +1178,23 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                         let index = matched_right.findIndex(x => x._id === arr_right._id);
                         console.log(`location_day_check get_service arr_right.event_id : ${arr_right._id} `)
                         if(index == -1){
+                          // args.timings_day = []
+                          // args.timings_day.push(right_timings[r].work_day_name)
+                          // let result = await avail_date_filter(args, context);
+                          // console.log('999: ', JSON.stringify(result))
                           matched_days.push({
                             _id: arr_right._id ,
-                          day: rgt_time.work_day_name,
+                          day: right_timings[r].work_day_name,
                           });
                         }
                       } else if(process_for == 'get_staff'){
                         console.log(`location_day_check get_staff arr_left_elem._id : ${le.staff_id} `)
                         let index = matched_days.findIndex(x => x._id === le.staff_id);
                         if(index == -1){
+                          //let result = await avail_date_filter(args, context);
                           matched_days.push({
                             _id: le.staff_id,
-                            day: rgt_time.work_day_name,
+                            day: right_timings[r].work_day_name,
                           });
                         }
                         
@@ -1212,9 +1202,10 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                         console.log(`location_day_check get_service_date arr_right.event_id : ${el.event_id} `)
                         let bhrscheck = arr_right.timings.constructor.name
                         if(bhrscheck == 'Object'){
+                          //let result = await avail_date_filter(args, context);
                           matched_days.push({
                             _id: el.event_id,
-                            day: rgt_time.work_day_name,
+                            day: right_timings[r].work_day_name,
                             timings_id: el.data[0].timings._id, //el["timings"]["_id"],
                             loc: matc_locat,
                             loc_id: el.data[0].locationsetting_id
@@ -1224,12 +1215,12 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                     }
                   } //work day
 
-                }); // right timings end
-              }); /* left timings end */
+                }; // right timings end
+              }; /* left timings end */
 
                 } //if
-              }) //loc_obj
-            }) //arr_left_elem
+              } //loc_obj
+            } //arr_left_elem
             /* Match Location End */
 
             if (matc_locat.length > 0) {
@@ -1254,7 +1245,26 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
         matched_days,
         "day"
       );
-      matched_ids = events_day.map((ev) => {
+      let tim_day = events_day.map((ed)=>{
+        ed.timings_day = ed.timings_day.filter((item, i, ar) => ar.indexOf(item) === i);
+        return ed
+      });
+
+      if(process_for != 'get_staff'){
+        for(let q=0; q<tim_day.length; q++){  
+          args.timings_day = tim_day[q].timings_day
+          args.event_id = tim_day[q]._id;
+          //args.timings_day.push()
+          let result = await avail_date_filter(args, context);
+          if(result.length == 0){
+             tim_day.splice(q,1)
+          }
+          //console.log('999: ', JSON.stringify(result))
+        }
+      }
+      
+      
+      matched_ids = tim_day.map((ev) => {
         return ev._id;
       });
       console.log("matched_ids", matched_ids);
@@ -1551,11 +1561,7 @@ export let string_to_date = (start_time) => {
 
 export let uniqueFromArr = (field, array) => {
   try {
-  } catch (error) {
-    console.log(error);
-    throw new Error(error);
-  }
-  var flags = [],
+    var flags = [],
     output = [],
     l = array.length,
     i;
@@ -1565,9 +1571,14 @@ export let uniqueFromArr = (field, array) => {
     output.push(array[i][field]);
   }
   return output;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error);
+  }
+  
 };
 
-export let avail_date_filter = async (args, context) => {
+export let avail_date_filter = async (args, context, frm) => {
   try {
     const secondsFormat = "YYYY-MM-DDTHH:mm:ss";
   const dateFormat = "YYYY-MM-DD";
@@ -1576,7 +1587,7 @@ export let avail_date_filter = async (args, context) => {
 
   let Setting = await context.models.Setting.find({}).lean(); //await context.models.Setting.find({})
   const pre_booking_day = Setting[0].advance_Booking_Period;
-
+  
   let eventDateRange = await context.models.Events.find({_id: args.event_id}, {availability_range:1, _id: 0}).lean()
   console.log('eventDateRange : ', JSON.stringify(eventDateRange))
 
@@ -1603,6 +1614,7 @@ export let avail_date_filter = async (args, context) => {
       disable_date.push(new moment(bookStartDate).format(dateFormat));
     } else {
       if(eventDateRange[0].availability_range.Indefinitely){
+        console.log('new moment(bookStartDate).format("dddd") : ', new moment(bookStartDate).format("dddd"))
         if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
           available_date.push(bookStartDate.format(dateFormat));
         }

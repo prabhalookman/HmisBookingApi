@@ -71,7 +71,7 @@ export default {
         let customerResult = await context.models.Customer.find({ email: customer.email })
 
         if (customerResult.length > 0 && customerResult[0].email) {
-          console.log("Customer already exist")
+          //console.log("Customer already exist")
           customer_ids.push(customerResult[0]._id)
           // try {
           //   let updateObj = { $set: {} };
@@ -79,7 +79,7 @@ export default {
           //     updateObj.$set[param] = bookingInput[param];
           //   }
           //   newBooking = await context.models.Booking.findOneAndUpdate({ customer_ids: customerResult[0]._id }, updateObj, { new: true });    
-          //   console.log("Booking updated : ", newBooking)
+          //   //console.log("Booking updated : ", newBooking)
 
           // } catch (error) {
           //   console.error("Error : ", error)
@@ -119,8 +119,8 @@ export default {
         const bookingStartTime = moment(selectedStartTime, secondsFormat)
         const bookingEndTime = moment(selectedEndTime, secondsFormat)
 
-        //console.log('bookingStartTime : ', bookingStartTime)
-        //console.log('bookingEndTime : ', bookingEndTime)
+        ////console.log('bookingStartTime : ', bookingStartTime)
+        ////console.log('bookingEndTime : ', bookingEndTime)
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
 
         let available_date = [];
@@ -136,8 +136,8 @@ export default {
             available_date.push(new moment(bookingStartTime).format('YYYY-MM-DD'))
           }
 
-        console.log('disable_date : ', disable_date)
-        console.log('available_date : ', available_date)
+        //console.log('disable_date : ', disable_date)
+        //console.log('available_date : ', available_date)
         let uptoDate = moment(new Date(arg_input.repeat_upto_date), secondsFormat)
 
         if (arg_input.is_recurring == true) {
@@ -164,21 +164,21 @@ export default {
           newBooking = await newBooking.save();
 
           //update staff 
-          console.log('new booking : ', newBooking._id.toString())
+          //console.log('new booking : ', newBooking._id.toString())
           let updateObj = { $push: {} };
           updateObj.$push['appointment_booking_ids'] = ObjectId(newBooking._id) ;
           const resultStaffs = await context.models.Staff.find({ _id: newBooking.staff_id },{staff_detail_id:1});
-          console.log('update : ', JSON.stringify(updateObj))
+          //console.log('update : ', JSON.stringify(updateObj))
           const resultStaffDetails = await context.models.StaffDetails.findOneAndUpdate({ _id: resultStaffs[0].staff_detail_id }, updateObj, { new: true });
           if(resultStaffDetails){
-            console.log('staff updated')
+            //console.log('staff updated')
           } else {
             const deletedBooking = await context.models.Booking.deleteOne({ _id: newBooking._id });
             console.error("Booking Error : Booking not successful : ", newBooking._id)
             throw new Error('Booking Error : Booking not successful')
           }
         }
-        //console.log('newBooking', newBooking)
+        ////console.log('newBooking', newBooking)
 
         return newBooking
       } catch (error) {
@@ -190,13 +190,13 @@ export default {
     rescheduleBooking: async (parent, args, context, info) =>{
       try {
         let findObj = { _id: ObjectId(args.appointment_id), Is_cancelled:false, deleted:false  } //, workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , 
-        console.log(`booking find obj : ${JSON.stringify(findObj)}`)
+        //console.log(`booking find obj : ${JSON.stringify(findObj)}`)
         let bookingDetails = await context.models.Booking.find(findObj).lean()
         if(bookingDetails.length == 0){
           console.error("Error : appointment does not exist ")
           throw new Error ("Appointment does not exist")
         }
-        console.log('book start  : ', moment(bookingDetails[0].appointment_start_time).format())
+        //console.log('book start  : ', moment(bookingDetails[0].appointment_start_time).format())
         let db_start_time = moment(bookingDetails[0].appointment_start_time).format()
         let arg_start_time = moment(args.appointment_start_time).format()
         if(db_start_time === arg_start_time){
@@ -213,7 +213,7 @@ export default {
         updateObj.$set["appointment_time_before_reschedule"] = db_start_time
         const resultBooking = await context.models.Booking.findOneAndUpdate({ _id: ObjectId(args.appointment_id) }, updateObj, { new: true });
 
-        console.log("resultBooking created : ", resultBooking)
+        //console.log("resultBooking created : ", resultBooking)
 
         return resultBooking
 
@@ -294,7 +294,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
         throw new Error(`Can not book in this disabled day ${arg_appointment_start_time}, please select another slot`)
       }
       newBooking = await newBooking.save();
-      console.log('i ' + i + ' - ' + newBooking._id)
+      //console.log('i ' + i + ' - ' + newBooking._id)
     } else {
       res = dateCreate(res.bookingStartTime.add(days_count, 'days'), res.bookingEndTime.add(days_count, 'days'))
       const checkbook = await checkBook(context, input.staff_id, input.event_id, res.bookingStartTime)
@@ -319,7 +319,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       newBooking.Is_cancelled = false
       newBooking.deleted = false
       newBooking = await newBooking.save();
-      console.log('i ' + i + ' - ' + newBooking._id)
+      //console.log('i ' + i + ' - ' + newBooking._id)
     }
     recurring_start_date.add(days_count, 'days');
     i++
@@ -356,9 +356,9 @@ let checkBook = async (context, staffid, eventid,  appointmentstarttime) => {
   try {
     let bookingDetails = [];
     const bookdate   = moment(new Date(appointmentstarttime), "YYYY-MM-DDTHH:mm:ss").toISOString() 
-    console.log('bookdate : ', bookdate);
+    //console.log('bookdate : ', bookdate);
     bookingDetails = await context.models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate)  })
-    console.log('bookingDetails length: ', bookingDetails.length );
+    //console.log('bookingDetails length: ', bookingDetails.length );
     if (bookingDetails.length > 0) {
       return true
     } else {
@@ -385,7 +385,7 @@ guest_ids: async (booking) => {
         }
         const resultBooking = await context.models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
 
-        console.log("resultBooking created : ", resultBooking)
+        //console.log("resultBooking created : ", resultBooking)
 
         return resultBooking
       } catch (error) {
@@ -403,7 +403,7 @@ guest_ids: async (booking) => {
         if (resultBooking) {
           return resultBooking;
         } else {
-          console.log("Error Delet Booking")
+          //console.log("Error Delet Booking")
         }
         return resultBooking
       } catch (error) {

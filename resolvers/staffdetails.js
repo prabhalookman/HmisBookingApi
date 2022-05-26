@@ -50,7 +50,7 @@ export default {
       const secondsFormat = "YYYY-MM-DD HH:mm:ss";
       const dateFormat = "YYYY-MM-DD";
       let selectedDate = moment(args.date, dateFormat);
-      //console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
+      ////console.log(`selectedDate.isValid() : ${selectedDate.isValid()} : ${selectedDate}`)
 
       let settings = await context.models.Setting.find({})
       const pre_booking_day = settings[0].advance_Booking_Period.value
@@ -131,7 +131,7 @@ export default {
       try {
         let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.event_ids) }
         let staffEvent = await context.models.Staff.find(findObj)
-        console.log(`\n staffEvent Count : `, staffEvent.length)
+        //console.log(`\n staffEvent Count : `, staffEvent.length)
         let result_staffs = await getStaffbyServiceId(args, context)
          const staff_result = await context.models.Staff.find({_id: result_staffs})
         return staff_result
