@@ -18,7 +18,11 @@ import {
 } from "../helpers/aggregateFunctions";
 import { ContextExclusionPlugin } from "webpack";
 import events from "../resolvers/events";
+import logger from '../utils/index';
 
+const {slotCreationLog} = logger;
+
+//This function used for 'getAvailability' in to generate slot for both Staff and Event
 export const getting_slots = async (
   fromObj,
   details,
@@ -70,8 +74,8 @@ export const getting_slots = async (
           new Date(selected_date),
           "YYYY-MM-DDTHH:mm:ss"
         ).format("dddd");
-        let timingsStartTimeDay = e1.work_day_name; //moment(new Date(start_time), "YYYY-MM-DDTHH:mm:ss").format('dddd')
-        console.log(`Timings Day - ${timingsStartTimeDay}`);
+        let timingsStartTimeDay = e1.work_day_name;
+        slotCreationLog.info(`Timings Day - ${timingsStartTimeDay}`);
         
 
         if (selectedDayName == timingsStartTimeDay) {
@@ -86,19 +90,17 @@ export const getting_slots = async (
             dateFormat: dateFormat,
           };
           let tresult = slots(slotArguments);
-          result.availableTimes.push(...tresult.availableTimes);
-          //result.availableTimes = [result.availableTimes, ...tresult.availableTimes]
-          //console.log('result.availableTimes : ', JSON.stringify(result.availableTimes))
+          result.availableTimes.push(...tresult.availableTimes);          
           is_matched = true;
-          console.log("Match");
+          slotCreationLog.debug("selectedDayName Match with timingsStartTimeDay");
         } else {
-          console.log("NOT Match");
+          slotCreationLog.debug("selectedDayName NOT MATCH with timingsStartTimeDay");
         }
       });
     }
 
-    if (is_matched == false) {
-      console.log(`${fromObj} not available on the selected day`);
+    if (is_matched == false) {      
+      slotCreationLog.error(`${fromObj} not available on the selected day`)
       throw new Error(`${fromObj} not available on the selected day`);
     }
 
@@ -113,7 +115,7 @@ export const getting_slots = async (
 
     //}
   } catch (error) {
-    console.log(error);
+    slotCreationLog.error(new Error(error));
     throw new Error(error);
   }
 };
@@ -135,14 +137,10 @@ let slots = (params) => {
     let dayStartTime = "";
     let dayEndTime = "";
     let availLocations = [];
-    let minutesFormat = "YYYY-MM-DDTHH:mm";
     let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
 
     dayStartTime = moment(new Date(start_time), secondsFormat);
     dayEndTime = moment(new Date(end_time), secondsFormat);
-
-    const startSeconds = moment.duration(dayStartTime).asSeconds();
-    const endSeconds = moment.duration(dayEndTime).asSeconds();
 
     const timingsStartTime = moment(new Date(start_time), secondsFormat);
     const timingsEndTime = moment(new Date(end_time), secondsFormat);
@@ -195,17 +193,13 @@ let slots = (params) => {
           ))
         : (slotStartTime = bookingStartTime.format(secondsFormat));
       bookingStartTime.add(clientSlot, "minutes");
-      //slotEndTime = moment.tz(bookingStartTime, "Asia/Kolkata").format();
       displaySettings == "12"
         ? (slotEndTime = moment(bookingStartTime, [secondsFormat]).format(
             secondsFormat
           ))
-        : (slotEndTime = timingsStartTime.format(secondsFormat)); //.format("hh:mm A")
-      //console.log(`${slotStartTime} - ${slotEndTime}`)
+        : (slotEndTime = timingsStartTime.format(secondsFormat));      
       let current_time = moment(new Date(), secondsFormat);
-      //const cur_time_seconds = moment.duration(current_time).asSeconds()
       let _slotStartTime = moment(new Date(slotStartTime), secondsFormat);
-      //const slot_start_time_seconds = moment.duration(_slotStartTime).asSeconds()
       if (_slotStartTime < current_time) {
         availTimes.push({
           _id: _id,
@@ -224,7 +218,6 @@ let slots = (params) => {
         });
       }
     }
-    //availTimes = availTimes.splice(availTimes.lengh,1)
     result.locationAvailable = availLocations;
     result.availableTimes = availTimes;
     result.dayStartTime = dayStartTime.format(dateFormat);
@@ -232,7 +225,7 @@ let slots = (params) => {
 
     return result;
   } catch (error) {
-    console.log(error);
+    slotCreationLog.error(new Error(error));
     throw new Error(error);
   }
 };
@@ -447,17 +440,13 @@ export let removeByAttr = function (arr, attr, value) {
   }
 };
 
-function recur_ar(staff_ar, matched_slots) {
-  //staff_ar.forEach((e)=>{
+function recur_ar(staff_ar, matched_slots) {  
   if (matched_slots.includes(staff_ar[0].slot)) {
     console.log("Slot match  : ", staff_ar[0].slot);
-    staff_ar = removeByAttr(staff_ar, "slot", staff_ar[0].slot);
-    //matched_slots = arrayRemove(matched_slots, staff_ar[0].slot);
+    staff_ar = removeByAttr(staff_ar, "slot", staff_ar[0].slot);    
   } else {
-    console.log("Slot not match  : ", staff_ar[0].slot);
-    //staff_ar = removeByAttr(staff_ar, "slot", staff_ar[0].slot)
+    console.log("Slot not match  : ", staff_ar[0].slot);    
   }
-  //})
 
   if (matched_slots.length == 0) {
     return staff_ar;
@@ -490,6 +479,7 @@ export let date_check = async (args, context) => {
       "days"
     );
     if (selectedDate < cr_date) {
+      slotCreationLog.error(new Error("Selected date should be greater than current date"))
       throw new Error("Selected date should be greater than current date");
     }
 
@@ -582,7 +572,8 @@ export let getAvailability = async (args, context) => {
       pre_booking_day - 1,
       "days"
     );
-    if (selectedDate < cr_date) {
+    if (selectedDate < cr_date) {      
+      slotCreationLog.error(new Error("Selected date should be greater than current date"))
       throw new Error("Selected date should be greater than current date");
     }
 
@@ -602,6 +593,11 @@ export let getAvailability = async (args, context) => {
       staffdetail_ag_rs = await context.models.Staff.aggregate(staff_pipeline);
       console.log("staffdetail_ag_rs : ", staffdetail_ag_rs.length);
     }
+    staffdetail_ag_rs.forEach((elem)=>{
+      if(elem.locationsetting_id.length == 0 || elem.location_name.length == 0){
+        staffdetail_ag_rs = removeByAttr(staffdetail_ag_rs, '_id', elem._id)
+      }
+    })
     if (staffdetail_ag_rs.length == 0) {
       console.error("Staff is empty : ", error);
       throw new Error("Staff is empty");
@@ -649,6 +645,10 @@ export let getAvailability = async (args, context) => {
         });
         //})
         if (location_flag) {
+
+          // logger.profile("getting_slots", { level: "info" });
+          // const profiler = logger.startTimer();
+
           newStaffs = await getting_slots(
             "Staff",
             staffdetail_ag_rs[k],
@@ -666,13 +666,19 @@ export let getAvailability = async (args, context) => {
             pre_booking_day
           );
           newStaffs ? staffResult.push(newStaffs) : 0;
-        } else {
-          //staffdetail_ag_rs.splice(staffdetail_ag_rs.indexOf(staffdetail_ag_rs[k]._id),1)
+                     
+          // setTimeout(() => {
+          //   // End the timer and log the duration
+          //   profiler.done({ message: "Slot Created" });
+          // }, 1000);
+
+        } else {          
           staffdetail_ag_rs = removeByAttr(
             staffdetail_ag_rs,
             "location_name",
             staffdetail_ag_rs[k].location_name.toString()
           );
+          k = staffdetail_ag_rs.length
           console.error("location_flag not match ");
           //throw new Error ("Location Name  not match with staff location ")
         }
@@ -708,6 +714,11 @@ export let getAvailability = async (args, context) => {
         console.log("events_ag_rs BHF : ", events_ag_rs.length);
       }
     }
+    events_ag_rs.forEach((elem)=>{
+      if(elem.locationsetting_id.length == 0 || elem.location_name.length == 0){
+        events_ag_rs = removeByAttr(events_ag_rs, '_id', elem._id)
+      }
+    })
     if (events_ag_rs.length == 0) {
       console.error("Event is empty");
       throw new Error("Event is empty");
@@ -737,12 +748,14 @@ export let getAvailability = async (args, context) => {
       let k = events_ag_rs.length;
       console.log("events_ag_rs  count : ", k);
       while (k--) {
-        //for (let k = 0; k < events_ag_rs.length; k++) {
+       // for (let k = events_ag_rs.length-1; k >= 0 ; k--) {
+          console.log(` location name check K  :  ${k} - event length :  ${events_ag_rs.length}`)
 
         let newRes = new result("", "", 0, [], [], "", [], [], "", "");
         let location_flag = false;
         //events_ag_rs[k].location_name.forEach((stf)=>{
         args.locationName.forEach((loc) => {
+          console.log('loc : ', loc)
           console.log(`Events ${loc._id}location : ${events_ag_rs[k].location_name}`          );
           if (loc == events_ag_rs[k].location_name) {
             location_flag = true;
@@ -774,11 +787,13 @@ export let getAvailability = async (args, context) => {
             "location_name",
             events_ag_rs[k].location_name.toString()
           );
+          k = events_ag_rs.length
           console.error("location_flag not match ");
           //throw new Error ("Location Name  not match with staff location ")
         }
-        //}
-      }
+        //} // forloop
+        //k--
+      } // while k end
     }
     if (events_ag_rs.length == 0) {
       console.error("Event location does not match with selected location.");
@@ -943,9 +958,9 @@ export let getStaffLocations_loc_day = async (args, context) => {
     } else {
       staff_loc_ar = await context.models.Staff.aggregate(get_staff_locationName_bhf_agg([ObjectId(args.staff_id) ]))
     }
-    if (staff_loc_ar.length < 1) {
-      throw new Error("Location setting not available in staff");
-    }
+    // if (staff_loc_ar.length < 1) {
+    //   throw new Error("Location setting not available in staff");
+    // }
     console.log(`\n getStaffLocations_loc_day - staff id : ${args.staff_id} :  , ${staff_loc_ar}`);
     return staff_loc_ar;
   } catch (error) {
@@ -969,9 +984,9 @@ export let getEventLocations_loc_day = async (args, context) => {
     } else {
       event_loc_ar = await context.models.Events.aggregate(get_event_locationName_bhf_agg([ObjectId(args.event_id) ]))
     }
-    if (event_loc_ar.length < 1) {
-      throw new Error("Location setting not available in staff");
-    }
+    // if (event_loc_ar.length < 1) {
+    //   throw new Error("Location setting not available in staff");
+    // }
     console.log(`\n getEventLocations_loc_day - event id : ${args.event_id} :  , ${event_loc_ar}`);
     return event_loc_ar;
   } catch (error) {
@@ -1098,9 +1113,14 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                 for(let right_elem of loc_arr_right){
                   args.event_id = right_elem.event_id
                 let loc_details = await getEventLocations_loc_day(args, context)
-                for(let item of loc_details) {
-                  loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), event_id: item.events._id.toString() })
+                if(loc_details.length == 0){
+                  loc_arr_right = removeByAttr(loc_arr_right,'event_id', args.event_id)
+                } else {
+                  for(let item of loc_details) {
+                    loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), event_id: item.events._id.toString() })
+                  }
                 }
+                
                 }
                 
               } else if(process_for == 'get_staff'){
@@ -1115,10 +1135,15 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                 //arr_right.staff_id.toString()
                 args.staff_id = arr_right.staff_id
                 let loc_details = await getStaffLocations_loc_day(args, context)
-                //let loc_details = await context.models.Staff.aggregate(get_staff_locationName_bht_agg([ObjectId(loc_arr_right[0].staff_id) ]))
-                for(let item of loc_details) {
-                  loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
+                if(loc_details.length ==0){
+                  loc_arr_left = removeByAttr(loc_arr_left,'staff_id', args.staff_id)
+                } else {
+                  for(let item of loc_details) {
+                    loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
+                  }
                 }
+                //let loc_details = await context.models.Staff.aggregate(get_staff_locationName_bht_agg([ObjectId(loc_arr_right[0].staff_id) ]))
+                
               }
             } else {
               let loc_details = await context.models.Timing.aggregate(get_staff_event_locationName_bhf_agg([arr_right.timings._id]))
@@ -1175,21 +1200,35 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                         rgt_startDate <= lft_endDate)
                     ) {
                       if(process_for == 'get_service'){
-                        let index = matched_right.findIndex(x => x._id === arr_right._id);
-                        console.log(`location_day_check get_service arr_right.event_id : ${arr_right._id} `)
+                        if(matched_right.length == 0){
+                          matched_days.push({
+                            _id: le.event_id ,
+                          day: right_timings[r].work_day_name,
+                          });
+                        } else {
+                          let index = matched_right.findIndex(x => x._id === le.event_id);
+                        console.log(`location_day_check get_service le.eventevent_id : ${le.event_id} `)
                         if(index == -1){
                           // args.timings_day = []
                           // args.timings_day.push(right_timings[r].work_day_name)
                           // let result = await avail_date_filter(args, context);
                           // console.log('999: ', JSON.stringify(result))
                           matched_days.push({
-                            _id: arr_right._id ,
+                            _id: le.event_id ,
                           day: right_timings[r].work_day_name,
                           });
                         }
+                        }
+                        
                       } else if(process_for == 'get_staff'){
                         console.log(`location_day_check get_staff arr_left_elem._id : ${le.staff_id} `)
-                        let index = matched_days.findIndex(x => x._id === le.staff_id);
+                        if(matched_days.length == 0){
+                          matched_days.push({
+                            _id: le.staff_id,
+                            day: right_timings[r].work_day_name,
+                          });
+                        } else {
+                          let index = matched_days.findIndex(x => x._id === le.staff_id);
                         if(index == -1){
                           //let result = await avail_date_filter(args, context);
                           matched_days.push({
@@ -1197,6 +1236,8 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
                             day: right_timings[r].work_day_name,
                           });
                         }
+                        }
+                        
                         
                       } else if (process_for == 'get_service_date'){
                         console.log(`location_day_check get_service_date arr_right.event_id : ${el.event_id} `)
@@ -1274,7 +1315,7 @@ export let location_day_check = async(args, context, loc_arr_left, loc_arr_right
     return matched_ids
   } catch(error){
     console.log('location_day_check error : ', error)
-    throw new Error('location_day_check error')
+    throw new Error(error)
   }
 }
 
@@ -1331,7 +1372,7 @@ export let getStaffbyServiceId = async (args, context, check) => {
   }
 };
 
-export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_right, process_for) => {
+export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_right, process_for) => {0
   try {
     let matched_events_day = [];
     let matched_events_location = [];
@@ -1353,44 +1394,64 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                 for (let right_elem of loc_arr_right) {
                   args.event_id = right_elem.event_id;
                   let loc_details = await getEventLocations_loc_day(args,context);
-                  for (let item of loc_details) {
-                    // loc_obj.push({
-                    //   loc_name: item.location.name,
-                    //   locset_id: item.locationsetting._id,
-                    // });
-                    loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), event_id: item.events._id.toString() })
+                  
+                  if(loc_details.length == 0){
+                    loc_arr_right = removeByAttr(loc_arr_right,'event_id', args.event_id)
+                  } else {
+                    for (let item of loc_details) {
+                      loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), event_id: item.events._id.toString() })
+                    }
                   }
+
+                  
                 }
               } else if (process_for == "get_staff") {
                 //arr_right.staff_id.toString()
                 args.staff_id = arr_right.staff_id;
                   let loc_details = await getStaffLocations_loc_day(args,context);
-                  for (let item of loc_details) {
-                    loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
+                  if(loc_details.length ==0){
+                    loc_arr_left = removeByAttr(loc_arr_left,'staff_id', args.staff_id)
+                  } else {
+                    for (let item of loc_details) {
+                      loc_obj.push({loc_name: item.location.name, locset_id: item.locationsetting._id.toString(), staff_id:  item.staff._id.toString()})
+                    }
                   }
+
+                  
               } else {
                 for (let left_elem of loc_arr_left) {
                   args.staff_id = left_elem.staff_id;
                   let loc_details = await getStaffLocations_loc_day(args,context);
-                  for (let item of loc_details) {
-                    loc_obj.push({
-                      loc_name: item.location.name,
-                      locset_id: item.locationsetting._id,
-                      staff_id: left_elem.staff_id,
-                    });
+                  if(loc_details.length ==0){
+                    loc_arr_left = removeByAttr(loc_arr_left,'staff_id', args.staff_id)
+                  } else {
+                    for (let item of loc_details) {
+                      loc_obj.push({
+                        loc_name: item.location.name,
+                        locset_id: item.locationsetting._id,
+                        staff_id: left_elem.staff_id,
+                      });
+                    }
+
                   }
+                  
                 }
 
                 for (let right_elem of loc_arr_right) {
                   args.event_id = right_elem.event_id;
                   let loc_details = await getEventLocations_loc_day(args,context);
-                  for (let item of loc_details) {
-                    loc_obj.push({
-                      loc_name: item.location.name,
-                      locset_id: item.locationsetting._id,
-                      event_id: right_elem.event_id,
-                    });
+                  if(loc_details.length == 0){
+                    loc_arr_right = removeByAttr(loc_arr_right,'event_id', args.event_id)
+                  } else {
+                    for (let item of loc_details) {
+                      loc_obj.push({
+                        loc_name: item.location.name,
+                        locset_id: item.locationsetting._id,
+                        event_id: right_elem.event_id,
+                      });
+                    }
                   }
+                  
                 }
               }
             //}
@@ -1449,17 +1510,30 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                       (rgt_startDate >= lft_startDate &&
                         rgt_startDate <= lft_endDate)
                     ) {
-                      if(process_for == 'get_service'){                        
-                        let index = matched_right.findIndex(x => x._id === arr_right._id);
-                        console.log(`getLocataion_workDay get_service arr_right.event_id : ${arr_right._id} `)
+                      if(process_for == 'get_service'){
+                        if(matched_right.length == 0){
+                          matched_days.push({
+                            _id: le.event_id ,
+                          day: rgt_time.work_day_name,
+                          });
+                        } else {
+                          let index = matched_right.findIndex(x => x._id === le.event_id);
+                        console.log(`getLocataion_workDay get_service le.eventevent_id : ${le.event_id} `)
                         if(index == -1){
                           matched_days.push({
-                            _id: arr_right._id ,
+                            _id: le.event_id ,
                           day: rgt_time.work_day_name,
                           });
                         }
+                        }                        
                       } else if(process_for == 'get_staff'){
-                        let index = matched_days.findIndex(x => x._id === le.staff_id);
+                        if(matched_days.length == 0) {
+                          matched_days.push({
+                            _id: le.staff_id,
+                            day: rgt_time.work_day_name,
+                          });
+                        } else {
+                          let index = matched_days.findIndex(x => x._id === le.staff_id);
                         console.log(`getLocataion_workDay get_staff arr_right.event_id : ${le.staff_id} `)
                         if(index == -1){
                           matched_days.push({
@@ -1467,7 +1541,7 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
                             day: rgt_time.work_day_name,
                           });
                         }
-                        
+                        }
                       } else if (process_for == 'date_get' || process_for == 'location_get' ){
                          // let s_index = matched_days.findIndex(x => ((x._id === le.event_id) && (x.loc_name === le.loc_name)));
                          // let l_index = matched_days.findIndex(x => x.loc_name === le.loc_name); && l_index == -1
@@ -1496,15 +1570,11 @@ export let getLocataion_workDay = async (args,context, loc_arr_left, loc_arr_rig
     } //loc_arr_left end
 console.log('matched_days : ', matched_days)
 
-let arr = [];
-
-function areDatumsEquivalent(datumA, datumB) {
- return (
-   datumA.day === datumB.day &&
-   datumA.loc_name === datumB.loc_name 
- );
+if(matched_days.length == 0){
+  throw new Error('getLocataion_workDay staff and event location does not match')
 }
 
+let arr = [];
 matched_days.forEach(datum => {
  if(!arr.find(arrDatum => areDatumsEquivalent(datum, arrDatum))) {
    arr.push(datum);
@@ -1589,11 +1659,12 @@ export let avail_date_filter = async (args, context, frm) => {
   const pre_booking_day = Setting[0].advance_Booking_Period;
   
   let eventDateRange = await context.models.Events.find({_id: args.event_id}, {availability_range:1, _id: 0}).lean()
-  console.log('eventDateRange : ', JSON.stringify(eventDateRange))
 
-  let edr_from = moment(eventDateRange[0].availability_range.date_range.from, secondsFormat)
-  let edr_to = moment(eventDateRange[0].availability_range.date_range.to, secondsFormat)
-  
+  if(Object.keys(eventDateRange[0]).length != 0){
+    let edr_from = moment(eventDateRange[0].availability_range.date_range.from, secondsFormat)
+  let edr_to = moment(eventDateRange[0].availability_range.date_range.to, secondsFormat)    
+  }
+  //console.log('eventDateRange : ', JSON.stringify(eventDateRange)) 
 
   let minDate = moment(new Date(), secondsFormat).startOf("day");
   let cr_date = moment(new Date()).startOf("day");
@@ -1603,6 +1674,7 @@ export let avail_date_filter = async (args, context, frm) => {
     "days"
   );
   if (selectedDate < cr_date) {
+    slotCreationLog.error(new Error("Selected date should be greater than current date"))
     throw new Error("Selected date should be greater than current date");
   }
 
@@ -1612,9 +1684,9 @@ export let avail_date_filter = async (args, context, frm) => {
   while (bookStartDate <= maxDate) {
     if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
       disable_date.push(new moment(bookStartDate).format(dateFormat));
-    } else {
+    } else if(Object.keys(eventDateRange[0]).length != 0){
       if(eventDateRange[0].availability_range.Indefinitely){
-        console.log('new moment(bookStartDate).format("dddd") : ', new moment(bookStartDate).format("dddd"))
+        //console.log('new moment(bookStartDate).format("dddd") : ', new moment(bookStartDate).format("dddd"))
         if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
           available_date.push(bookStartDate.format(dateFormat));
         }
@@ -1625,8 +1697,15 @@ export let avail_date_filter = async (args, context, frm) => {
           }
         }
       }      
+    } else {
+      if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
+        available_date.push(bookStartDate.format(dateFormat));
+      }
     }
     bookStartDate.add(1, "days");
+  }
+  if(available_date.length == 0){
+    throw new Error('Events date range is not match')
   }
   return available_date;
   } catch (error) {
@@ -1712,290 +1791,9 @@ export let uniqueObjFromArray = (data) => {
   return resArr;
 };
 
-
-/* WorkDay logic */
-//  let result = uniqueObjFromArray(matched_events_day)
-      //  console.log('result : ', result)
-      //  let events_locations = groupArray('_id','location',matched_events_location, 'locations')
-      //  console.log('events_day', events_locations)
-      //let events_locations = groupArray('locations','timings_day',matched_events_day,'day')
-      //let events_day = groupArray('_id','locations',matched_events_day, 'locations')
-      //var selected_ids = _.filter(matched_events_day, 'day');
-
-      //let withoutDupes = _.uniq(_.isEqual, matched_events_day);
-      //  let days = _.groupBy(matched_events_day, function(item) {
-      //   return item.day;
-      // });
-      /*
-    let uniqueDay = uniqueFromArr('day',matched_events_day)
-    let groups = []
-    uniqueDay.forEach((d)=>{
-      let obj1 = {}
-      let arr1 = []
-      let t_ids = matched_events_day.map((m)=>{
-        if(d == m.day){
-          arr1.includes(m.timings_id) ? arr1: arr1.push(m.timings_id)
-        }
-      })
-      console.log('f_day : ', arr1)
-      groups.push({day: d, timings_id: arr1,  })
-    })
-    console.log('groups : ', groups)
-    let groupObj = []
-    tim_loc.forEach((d)=>{    
-      groups.forEach((m)=>{
-        if(m.timings_id.includes(d.timings_id)){
-          //arr2.includes(m.timings_id) ? arr1: arr1.push(m.timings_id)
-          groupObj.push({timings_id: d.timings_id, loc: d.locat, day: m.day, event_id: d._id})
-        }
-      })    
-    })
-    console.log("groupObj : ",groupObj)
-    let group_timings = 
-      _.chain(groupObj)
-        // Group the elements of Array based on `color` property
-        .groupBy("timings_id")
-        // `key` is group's name (color), `value` is the array of objects
-        .map((value, key) => ({ timings_id: key, data: value }))
-        .value()
-    console.log('group_timings : ', group_timings)
-    */
-      /*
-     let days = _.groupBy(matched_events_day, function(item) {
-      return item.day;
-    });
-    let selected_ids = _.forEach(days, function(value, key) {
-      days[key] = _.groupBy(days[key], function(item) {
-        return item.timings_id;
-      });
-    });
-    let w_day = Object.keys(days)
-    let timings_ar = Object.values({...Object.values(days)})
-    let timing_det = []
-    //for(let i =0; i < w_day.length; i++){
-      w_day.forEach((w)=>{
-        timings_ar.forEach((el)=>{
-          let day = w
-          timing_det.push({timings_id: Object.keys(el), timing_day: day})
-        })
-      })
-      
-    //}
-    console.log('timing_det : ', timing_det)
-    let result = [...tim_loc, ...timing_det]
-  */
-
-      //console.log('groupObj ', groupObj)
-
-      //  console.log('selected_ids : ', selected_ids)
-      // let rs = _.forEach(selected_ids, function(value, key) {
-      //   selected_ids[key] = _.groupBy(selected_ids[key], function(item) {
-      //     return item.modelCode;
-      //   });
-      // });
-
-      //  matched_events = events_day.map((ev)=>{return ev._id})
-      //  console.log('matched_events', matched_events)
-
-      /*Booking Exist Logic */
-      // for (let q = 0; q < staff_ar.length; q++) {
-
-    //     let s_start = moment(staff_ar[q].slotStartTime)
-    //    let s_end = moment(staff_ar[q].slotEndTime)
-    //     let s_start_sec = moment.duration(s_start).asSeconds()
-    //     let s_end_sec = moment.duration(s_end).asSeconds()
-
-    //     //Booking
-    //     //bookingDetails.forEach((e1) => {
-    //     //for (let l = 0; l < bookingDetails.length; l++) {
-    //       const timingsStartTime = moment(new Date(bookingDetails.appointment_start_time), "YYYY-MM-DDTHH:mm:ss")
-    //       console.log(`\n ${moment(dayStartTime).format("YYYY-MM-DDTHH:mm:ss")} - ${moment(dayEndTime).format("YYYY-MM-DDTHH:mm:ss")}`)
-    //       //if (s_start_sec >= b_start_sec  && s_start_sec <= b_end_sec) {
-    //         if (s_start >= dayStartTime  && s_start <= dayEndTime) {
-
-    //           if(callfrom == 'slot'){
-    //             console.log(`Booking Matched with Slot : ${staff_ar[q].slotStartTime}`)
-    //             staff_ar[q].isBooking = true
-    //             // const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
-    //             // bookingDetails.splice(tindex, 1)
-    //             //break;
-    //           } else {
-    //             console.log(`Booking Matched with Reschedule : ${staff_ar[q].slotStartTime}`)
-    //             staff_ar[q].isBooking = false
-    //           }
-
-    //       } else {
-    //         //staff_ar[q].isBooking = false
-    //       }
-
-    //     //}
-    //   }
-
-    /*
-    
-    // staff_loc_ar.forEach((stf_elem) => {
-    //   if (event_loc_ar[0].locationsetting) {
-    //     event_loc_ar[0]["data"] = event_loc_ar[0].locationsetting;
-    //   }
-    //   //console.log('event_loc_ar location issue : ', JSON.stringify(event_loc_ar))
-    //   let tim_loc = [];
-    //   event_loc_ar.forEach((el) => {
-    //     //elem.forEach((el)=>{
-    //     el.data.forEach((ev_data) => {
-    //       //  let matc_locat = ev_data.location_name.map((i) => {
-    //       //    if (stf_elem.location_name.includes(i)) {
-    //       //      return i;
-    //       //    }
-    //       //  });
-    //       //console.log('matc_locat : ', matc_locat)
-    //       //matched_events_location.push({_id: ev_data.events_id,  locations: matc_locat})
-    //       // if(check == 'date'){
-    //       //   if(ev_data.day.includes(selected_day)){
-    //       //     matc_locat.push(ev_data["locationsetting_id"])
-    //       //   }
-    //       // }
-    //       var matc_locat = _.intersectionWith(
-    //         ev_data.location_name,
-    //         stf_elem.location_name,
-    //         _.isEqual
-    //       );
-
-          
-    //       let stf_arr_arr = stf_elem.timings_day.some(Array.isArray) 
-    //       if(stf_arr_arr){
-    //         stf_elem.timings_day = stf_elem.timings_day[0]
-    //       }
-    //       let ev_arr_arr = ev_data.timings_day.some(Array.isArray) 
-    //       if(ev_arr_arr){
-    //         ev_data.timings_day = ev_data.timings_day[0]
-    //       }
-          
-    //       console.log('stf_arr_arr : ', stf_arr_arr)
-    //       console.log('ev_arr_arr : ', ev_arr_arr)
-    //       var matc_day = _.intersectionWith(
-    //         _.uniq(ev_data.timings_day),
-    //         _.uniq(stf_elem.timings_day),
-    //         _.isEqual
-    //       );
-    //       if (matc_locat.length > 0 && matc_day.length > 0) {
-    //         tim_loc.push({
-    //           timings_id: ev_data["timings"]["_id"],
-    //           _id: ev_data["_id"],
-    //           locat: ev_data["locationsetting_id"],
-    //         });
-
-    //         let staff_timings = [];
-    //         if (stf_elem.timings.timings) {
-    //           staff_timings = stf_elem.timings.timings; //BH : False
-    //         } else if (
-    //           stf_elem.timings.timings == undefined &&
-    //           stf_elem.timings.length > 0
-    //         ) {
-    //           staff_timings = stf_elem.timings[0].timings; //BH : True
-    //         }
-
-    //         staff_timings.forEach((stf_time) => {
-    //           ev_data.timings.timings.forEach((ev_time) => {
-    //             //console.log(`Matched Day  ${stf_elem.location_name} - ${ev_elem.location_name}= Staff : ${stf_time.work_day_name} - Event :  ${ev_time.work_day_name}`)
-    //             const stf_startDate = moment
-    //               .duration(string_to_date(stf_time.start_time))
-    //               .asSeconds();
-    //             // console.log('seconds to date : ', moment(stf_startDate).format("YYYY-MM-DDTHH:mm:ss"))
-    //             const ev_startDate = moment
-    //               .duration(string_to_date(ev_time.start_time))
-    //               .asSeconds();
-    //             const ev_endDate = moment
-    //               .duration(string_to_date(ev_time.end_time))
-    //               .asSeconds();
-
-    //             if (
-    //               stf_startDate <= ev_startDate ||
-    //               stf_startDate <= ev_endDate
-    //             ) {
-    //               matched_events_day.push({
-    //                 _id: ev_data.events_id,
-    //                 day: ev_time.work_day_name,
-    //                 timings_id: ev_data["timings"]["_id"],
-    //                 loc: matc_locat,
-    //                 loc_id: ev_data["locationsetting_id"]
-    //               });
-    //             }
-    //           });
-    //         });
-    //       } else {
-    //         console.log('Staff and Service Location does not match')
-    //         throw new Error('Staff and Service Location does not match')
-    //       }
-    //     });
-    //     //})
-    //   });
-    //   //get_service_day
-
-    //   //console.log('matched_events_day : ',JSON.stringify(matched_events_day) )
-    //   console.log("tim_loc : ", tim_loc);
-
-    //   var resArr = [];
-    //   matched_events_day.filter(function (item) {
-    //     var i = resArr.findIndex(
-    //       (x) => x.timings_id == item.timings_id && x.day == item.day
-    //     );
-    //     if (i <= -1) {
-    //       resArr.push(item);
-    //     }
-    //     return null;
-    //   });
-    //   console.log(resArr);
-    //   let result;
-    //   result = resArr.reduce(function (r, a) {
-    //     r[a.timings_id] = r[a.timings_id] || [];
-    //     r[a.timings_id].push(a);
-    //     return r;
-    //   }, Object.create(null));
-
-    //   let ids = Object.keys(result);
-    //   ids.forEach((id) => {
-    //     let valueArr = [];
-    //     valueArr = result[id].map(function (item) {
-    //       return item.day;
-    //     });
-    //     result[id].forEach((obj) => {
-    //       obj.day = valueArr;
-    //     });
-    //   });
-    //   let arrayOfObj = Object.entries(result).map((e) => ({ [e[0]]: e[1] }));
-    //   console.log("result : ", JSON.stringify(arrayOfObj));
-    //   let tims_ar = [];
-    //   tim_loc.forEach((t_id) => {
-    //     arrayOfObj = arrayOfObj.filter((x) => {
-    //       if (
-    //         x[t_id.timings_id] != undefined &&
-    //         x[t_id.timings_id].length > 1
-    //       ) {
-    //         let obj = x[t_id.timings_id].splice(1, x[t_id.timings_id].length);
-    //         console.log("obj  ", obj);
-    //         return obj;
-    //       }
-    //       return x;
-    //     });
-    //   });
-    //   console.log("arrayOfObj:  ", JSON.stringify(arrayOfObj));
-    //   let mergedDay = [];
-    //   let mergedLocation = [];
-    //   arrayOfObj.map((x) => {
-    //     mergedDay = [...Object.values(x)[0][0].day];
-    //     mergedLocation = [...Object.values(x)[0][0].loc_id];
-    //     return null;
-    //   });
-    //   console.log("mergedDay : ", mergedDay);
-    //   console.log("mergedLocation : ", mergedLocation);
-    //   matched_events.days =  mergedDay;
-    //   matched_events.locations =  mergedLocation;
-    // });
-
-    //_id: ev_data.events_id,
-    //                 day: ev_time.work_day_name,
-    //                 timings_id: ev_data["timings"]["_id"],
-    //                 loc: matc_locat,
-    //                 loc_id: ev_data["locationsetting_id"]
-
-     */
+function areDatumsEquivalent(datumA, datumB) {
+  return (
+    datumA.day === datumB.day &&
+    datumA.loc_name === datumB.loc_name 
+  );
+ }

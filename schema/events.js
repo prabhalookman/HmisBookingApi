@@ -18,6 +18,7 @@ type Events {
   isformrequired: Boolean,
   isform: Boolean,
   form_id: Form,
+  is_recurring: Boolean
 
   workspace_id: Workspace,
   site_id: Site,

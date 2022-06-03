@@ -73,36 +73,17 @@ export default {
     }
 
       let rsp = await  getLocataion_workDay(args,context,staff_loc_ar[0].locationsetting, event_loc_ar, 'location_get')
-      ////console.log('rsp locations: ', JSON.stringify(rsp)  )
-      //let loc_result = []
-      // for(let i=0; i< rsp.length; i++){
-      //   //let data =  await context.models.LocationSetting.aggregate(get_locationsettings_agg(rsp[i]))
-      //   let obj = {_id: ObjectId(rsp[i]) }
-      //   await context.models.LocationSetting.find(findObj)
-      // }
-      //console.log('resp : ', rsp)
+      
        let obj = {_id: rsp}
       // let findObj = {workspace_id: ObjectId(args.workspace_id), site_id: ObjectId(args.site_id)}
       //console.log('resp : ', obj)
       let loc_result =  await context.models.LocationSetting.find(obj).exec()
       let matched_loc = []
       
-      if(loc_result == undefined){
+      if(loc_result == undefined || loc_result.length == 0 ){
         //console.log('getStaffEventLocationSettings : Staff and Event location name does not match')
         throw new Error('getStaffEventLocationSettings : Staff and Event location names does not match')
-      }
-
-      // let result = {
-      //   displaySettings,
-      //   selectedDate: selectedDate,
-      //   start_date: start_date,
-      //   end_date: end_date,
-      //   pre_booking_day,
-      //   clientSlot,
-      //   available_date,
-      //   disable_date,
-      //   locationAvailable:rsp.locations
-      // }
+      }      
 
       return loc_result
       

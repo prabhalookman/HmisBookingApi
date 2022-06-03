@@ -70,22 +70,8 @@ export default {
         
         let customerResult = await context.models.Customer.find({ email: customer.email })
 
-        if (customerResult.length > 0 && customerResult[0].email) {
-          //console.log("Customer already exist")
-          customer_ids.push(customerResult[0]._id)
-          // try {
-          //   let updateObj = { $set: {} };
-          //   for (var param in bookingInput) {
-          //     updateObj.$set[param] = bookingInput[param];
-          //   }
-          //   newBooking = await context.models.Booking.findOneAndUpdate({ customer_ids: customerResult[0]._id }, updateObj, { new: true });    
-          //   //console.log("Booking updated : ", newBooking)
-
-          // } catch (error) {
-          //   console.error("Error : ", error)
-          // }
-
-          //throw new Error("Customer already exist")          
+        if (customerResult.length > 0 && customerResult[0].email) {          
+          customer_ids.push(customerResult[0]._id)         
         } else {
           newCustomer = await newCustomer.save();
           customer_ids.push(newCustomer._id)
@@ -105,8 +91,15 @@ export default {
           newBooking.customer_ids = customer_ids
         }
         let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
-        
-        let repeat_upto_date = moment(new Date(newBooking.repeat_upto_date), "YYYY-MM-DDTHH:mm:ss").toISOString()
+        let dateonlyFormat = "YYYY-MM-DD";
+
+        let repeat_temp = moment(new Date(newBooking.repeat_upto_date), dateonlyFormat)
+
+        const repeat_date = repeat_temp.year() + '-' + (repeat_temp.month() + 1) + '-' + repeat_temp.date()
+        //console.log('repeat_date : ', repeat_date)
+
+        let repeat_upto_date = moment(new Date(repeat_date), secondsFormat).endOf('day')
+        //console.log('repeat_upto_date : ', repeat_upto_date)
         const timingsStartTime = moment(new Date(arg_input.appointment_start_time), secondsFormat)
         const timingsEndTime = moment(new Date(arg_input.appointment_end_time), secondsFormat) //arg_input.is_recurring == false ?  : moment(new Date(arg_input.repeat_upto_date), secondsFormat)
 
@@ -119,16 +112,16 @@ export default {
         const bookingStartTime = moment(selectedStartTime, secondsFormat)
         const bookingEndTime = moment(selectedEndTime, secondsFormat)
 
-        ////console.log('bookingStartTime : ', bookingStartTime)
-        ////console.log('bookingEndTime : ', bookingEndTime)
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
+        let current_time = moment(new Date(), secondsFormat);
+        
+        if(bookingStartTime < current_time){
+          console.log('Selected appointment date should be greater than current date');
+          throw new Error('Selected appointment date should be greater than current date')
+        }
 
         let available_date = [];
         let disable_date = [];
-
-        // let b_start_sec = moment.duration(bookStartDate).asSeconds()
-        // let max_date_sec = moment.duration(maxDate).asSeconds()
-
         
           if (bookingStartTime.isoWeekday() == 6 || bookingStartTime.isoWeekday() == 7) {
             disable_date.push(new moment(bookingStartTime).format('YYYY-MM-DD'))
@@ -136,23 +129,21 @@ export default {
             available_date.push(new moment(bookingStartTime).format('YYYY-MM-DD'))
           }
 
-        //console.log('disable_date : ', disable_date)
-        //console.log('available_date : ', available_date)
-        let uptoDate = moment(new Date(arg_input.repeat_upto_date), secondsFormat)
+        let uptoDate = moment(new Date(repeat_upto_date), secondsFormat)
 
         if (arg_input.is_recurring == true) {
          
-          if (arg_input.repeat_on == 'Daily') {
-            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input, 1)
+          if (arg_input.repeat_on.toLowerCase() == 'daily') {
+            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input,customer_ids, 1)
           } 
-          else if (arg_input.repeat_on == 'Weekly') {
-            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input, 7)
+          else if (arg_input.repeat_on.toLowerCase() == 'weekly') {
+            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input,customer_ids, 7)
 
-          } else if (arg_input.repeat_on == 'Monthly') {
-            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input, 30)
+          } else if (arg_input.repeat_on.toLowerCase() == 'monthly') {
+            newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input,customer_ids, 30)
           }
         } else {
-          const checkbook = await checkBook(context, arg_input.staff_id, arg_input.event_id, arg_input.appointment_start_time)
+          const checkbook = await checkBook(context, arg_input.staff_id, arg_input.event_id, arg_input.appointment_start_time, arg_input.workspace_id, arg_input.site_id)
           if (checkbook) {
             throw new Error(`Booking not available in this slot ${arg_input.appointment_start_time}, please select another slot`)
           }
@@ -163,8 +154,7 @@ export default {
           newBooking.created_by = arg_input.staff_id
           newBooking = await newBooking.save();
 
-          //update staff 
-          //console.log('new booking : ', newBooking._id.toString())
+          //update staff           
           let updateObj = { $push: {} };
           updateObj.$push['appointment_booking_ids'] = ObjectId(newBooking._id) ;
           const resultStaffs = await context.models.Staff.find({ _id: newBooking.staff_id },{staff_detail_id:1});
@@ -178,8 +168,6 @@ export default {
             throw new Error('Booking Error : Booking not successful')
           }
         }
-        ////console.log('newBooking', newBooking)
-
         return newBooking
       } catch (error) {
         console.error("Error : ", error)
@@ -268,13 +256,20 @@ export default {
   }
 }
 
-let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, context, disable_date, input, days_count) =>{
+let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, context, disable_date, input, customer_ids, days_count) =>{
+  let newBook = new context.models.Booking();
+  let totalBookings = []
   let i = 0;
   let res = {};
   let secondsFormat = "YYYY-MM-DDTHH:mm:ss";
   let arg_appointment_start_time = moment(input.appointment_start_time, secondsFormat).format(secondsFormat)
   let arg_appointment_end_time = moment(input.appointment_end_time, secondsFormat).format(secondsFormat)
   let arg_appointment_booking_time = moment(input.appointment_booking_time, secondsFormat).format(secondsFormat)
+  let current_time = moment(new Date(), secondsFormat);
+  if(recurring_start_date < current_time){
+    console.log('Selected appointment date should be greater than current date');
+    throw new Error('Selected appointment date should be greater than current date')
+  }
 
   while (recurring_start_date <= recurring_end_date) {
 
@@ -285,7 +280,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       newBooking.appointment_booking_time = moment(new Date(), secondsFormat)
       newBooking.Is_cancelled = false      
       newBooking.deleted = false
-      const checkbook = await checkBook(context, input.staff_id, input.event_id, input.appointment_start_time)
+      const checkbook = await checkBook(context, input.staff_id, input.event_id, input.appointment_start_time, input.workspace_id, input.site_id)
       
       if (checkbook) {
         throw new Error(`Booking not available in this slot ${arg_appointment_start_time}, please select another slot`)
@@ -295,6 +290,7 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
       }
       newBooking = await newBooking.save();
       //console.log('i ' + i + ' - ' + newBooking._id)
+      totalBookings.push(newBooking)
     } else {
       res = dateCreate(res.bookingStartTime.add(days_count, 'days'), res.bookingEndTime.add(days_count, 'days'))
       const checkbook = await checkBook(context, input.staff_id, input.event_id, res.bookingStartTime)
@@ -306,25 +302,31 @@ let createAppoint = async (recurring_start_date ,recurring_end_date,newBooking, 
         throw new Error(`Can not book in this disabled day ${arg_appointment_start_time}, please select another slot`)
       }
       newBooking = new context.models.Booking();
-      newBooking.appointment_start_time = res.bookingStartTime
-      newBooking.appointment_end_time = res.bookingEndTime
-      newBooking.appointment_booking_time = arg_appointment_booking_time
-      newBooking.event_id = input.event_id
-      newBooking.staff_id = input.staff_id
-      newBooking.site_id = input.site_id
-      newBooking.workspace_id = input.workspace_id
-      newBooking.is_recurring = input.is_recurring
-      newBooking.repeat_upto_date = input.repeat_upto_date
-      newBooking.repeat_on = input.repeat_on
+      input.appointment_start_time = res.bookingStartTime
+      input.appointment_end_time = res.bookingEndTime
+      input.appointment_booking_time = moment(input.appointment_booking_time, secondsFormat).format(secondsFormat)
+
+      for(let key in input){
+        newBooking[key] = input[key]
+      }
       newBooking.Is_cancelled = false
-      newBooking.deleted = false
+      newBooking.deleted = false      
+      newBooking.created_by = input.created_by
+      newBooking.customer_ids = customer_ids
+      
+      //console.log('newBooking Repeat ', newBooking)
       newBooking = await newBooking.save();
-      //console.log('i ' + i + ' - ' + newBooking._id)
+      totalBookings.push(newBooking)
+      
     }
     recurring_start_date.add(days_count, 'days');
+    // console.log('recurring_start_date : ', recurring_start_date)
+    // console.log('recurring_end_date : ', recurring_end_date)
+    
     i++
   }
-  return newBooking
+  console.log('totalBookings : ', totalBookings.length)
+  return totalBookings[0]
 }
 
 let dateCreate = (start_time, end_time) => {
@@ -352,12 +354,12 @@ let dateCreate = (start_time, end_time) => {
 
 }
 
-let checkBook = async (context, staffid, eventid,  appointmentstarttime) => {
+let checkBook = async (context, staffid, eventid,  appointmentstarttime, workspace_id, site_id) => {
   try {
     let bookingDetails = [];
     const bookdate   = moment(new Date(appointmentstarttime), "YYYY-MM-DDTHH:mm:ss").toISOString() 
     //console.log('bookdate : ', bookdate);
-    bookingDetails = await context.models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate)  })
+    bookingDetails = await context.models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate), workspace_id:workspace_id, site_id:site_id  }).lean()
     //console.log('bookingDetails length: ', bookingDetails.length );
     if (bookingDetails.length > 0) {
       return true
@@ -368,61 +370,3 @@ let checkBook = async (context, staffid, eventid,  appointmentstarttime) => {
     throw new Error(error)
   }
 }
-
-/*
-guest_ids: async (booking) => {
-      let resultBooking = await booking.populate('guest_ids').execPopulate();
-      return resultBooking.guest_ids
-    },
- */
-/*
-,
-    updateBooking: async (parent, args, context, info) => {
-      try {
-        let updateObj = { $set: {} };
-        for (var param in args.input) {
-          updateObj.$set[param] = args.input[param];
-        }
-        const resultBooking = await context.models.Booking.findOneAndUpdate({ _id: args.bookingID }, updateObj, { new: true });
-
-        //console.log("resultBooking created : ", resultBooking)
-
-        return resultBooking
-      } catch (error) {
-        console.error("Error : ", error)
-      }
-
-    },
-    deleteBooking: async (parent, args, context, info) => {
-      try {
-        args = args.bookingID;
-        const deleteStatus = true;
-        let updateObj = { deleted: deleteStatus }
-
-        let resultBooking = await context.models.Booking.findOneAndUpdate({ _id: args }, updateObj, { new: true });
-        if (resultBooking) {
-          return resultBooking;
-        } else {
-          //console.log("Error Delet Booking")
-        }
-        return resultBooking
-      } catch (error) {
-        console.error("Error : ", error)
-      }
-
-    }
-    */
-   //Test
-/*
-    db.AlertDump.find().forEach(function(doc){
-      print(doc._id + " " + doc.VehicleNo.toUpperCase());
-      print("-------------------------------------");
-      db.Alarm.find({"LicensePlateNumber":doc.VehicleNo.toUpperCase(),Year:2021,Month:10}).forEach(function(doc1)
-      {
-            db.FinalResult.insertOne(
-               { LicensePlateNumber : doc.VehicleNo.toUpperCase(), TimeStamp:doc1.TimeStamp,SourceLocation:doc1.SourceLocation ,CamName:doc1.CamName }
-            )
-            print(doc.VehicleNo.toUpperCase() + "," + doc1.TimeStamp +" inserted");
-      })
-    })
-    */

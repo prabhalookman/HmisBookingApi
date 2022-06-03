@@ -12,6 +12,7 @@ const eventSchema = new mongoose.Schema({
   retailPrice: String,
   isformrequired: Boolean,
   isform: Boolean,
+  is_recurring: Boolean,
   form_id: { type: mongoose.Schema.Types.ObjectId, ref: 'form' },
   add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addons' }],
   business_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'business' }],

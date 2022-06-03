@@ -62,7 +62,7 @@ export default {
         //
         //check each avilable staff have any bookins on same timings
         //console.log('8888 : ', JSON.stringify({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime), appointment_end_time: new Date(bk_endtime) }))
-        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime)}) //{$gte:new Date(bk_starttime)}
+        bookingDetails = await context.models.Booking.find({ staff_id: {$in:search_staffs}, Is_cancelled: false, deleted: false , appointment_start_time:new Date(bk_starttime), workspace_id: args.workspace_id, site_id: args.site_id}) //{$gte:new Date(bk_starttime)}
         let serviceStaffs = await context.models.Events.find({_id: args.event_id}, {_id:0, staff:1}).lean() //
 
          result_staffs = serviceStaffs[0].staff.filter(item1 => 
