@@ -1654,15 +1654,22 @@ export let avail_date_filter = async (args, context, frm) => {
   const dateFormat = "YYYY-MM-DD";
   let selectedDate = moment(new Date(), dateFormat).startOf("day");
   let day_names = args.timings_day; //["Monday", "Tuesday"]
+  let available_date = [];
 
   let Setting = await context.models.Setting.find({}).lean(); //await context.models.Setting.find({})
   const pre_booking_day = Setting[0].advance_Booking_Period;
   
-  let eventDateRange = await context.models.Events.find({_id: args.event_id}, {availability_range:1, _id: 0}).lean()
-
-  if(Object.keys(eventDateRange[0]).length != 0){
-    let edr_from = moment(eventDateRange[0].availability_range.date_range.from, secondsFormat)
-  let edr_to = moment(eventDateRange[0].availability_range.date_range.to, secondsFormat)    
+  let eventDateRange = await context.models.Events.find({_id: args.event_id, site_id: args.site_id, workspace_id: args.workspace_id}, {availability_range:1,limit_booking:1,no_of_multiple_appointment:1, _id: 0}).lean()
+  let bookingLimit = await context.models.Booking.find({event_id: args.event_id, site_id: args.site_id, workspace_id: args.workspace_id,  "progress.status" : { $all : [ "Booked" ] }, "progress" : { $size : 1 }  }, {progress:1, _id: 0}).lean()
+  if(eventDateRange[0].limit_booking == true && eventDateRange[0].no_of_multiple_appointment <= bookingLimit.length){
+    console.log('Booking limit reached')
+    return available_date
+  }
+  let edr_from = null
+  let edr_to = null
+  if(Object.keys(eventDateRange[0]).length != 0 && eventDateRange[0].availability_range.Indefinitely == false){
+    edr_from = moment(eventDateRange[0].availability_range.date_range.from, secondsFormat)
+    edr_to = moment(eventDateRange[0].availability_range.date_range.to, secondsFormat)    
   }
   //console.log('eventDateRange : ', JSON.stringify(eventDateRange)) 
 
@@ -1678,13 +1685,13 @@ export let avail_date_filter = async (args, context, frm) => {
     throw new Error("Selected date should be greater than current date");
   }
 
-  let available_date = [];
+  
   let disable_date = [];
   let bookStartDate = moment(minDate, secondsFormat);
   while (bookStartDate <= maxDate) {
     if (bookStartDate.isoWeekday() == 6 || bookStartDate.isoWeekday() == 7) {
       disable_date.push(new moment(bookStartDate).format(dateFormat));
-    } else if(Object.keys(eventDateRange[0]).length != 0){
+    } else if(Object.keys(eventDateRange[0]).length != 0 && eventDateRange[0].availability_range.Indefinitely == false){
       if(eventDateRange[0].availability_range.Indefinitely){
         //console.log('new moment(bookStartDate).format("dddd") : ', new moment(bookStartDate).format("dddd"))
         if (day_names.includes(new moment(bookStartDate).format("dddd"))) {
