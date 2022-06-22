@@ -10,14 +10,40 @@ import {
   getEventLocations,
   getStaffbyServiceId
 } from '../helpers/slotcreation'
+import {  
+  bushiness_timings_agg,  
+  get_event_locationName_bht_agg,  
+  get_event_locationName_bhf_agg
+} from "../helpers/aggregateFunctions";
 export default {
   Query: {
     getEvents: async (parent, args, context, info) => {
       try {
-        let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , staff: ObjectId(args.staff_ids) }
+        let findObj = {workspace_id: ObjectId(args.workspace_id) , site_id: ObjectId(args.site_id) , type: args.type }
         console.log(findObj)
-        let even = await context.models.Events.find(findObj)
-        return even
+        let events = await context.models.Events.find(findObj, {_id:1}).lean()
+        //events = events.toJSON()
+        let removedId = []
+        let befordId = []
+        for(let event of events){
+          befordId.push(event._id.toString()) 
+          args.event_id = event._id
+          // if(event._id.toString() == '61e8fc7ca2af59cecc6f19a5'){
+          //   console.log('hi', event._id.toString())
+          // }
+        let loc_details = await getEventLocations_loc_day(args, context)
+        if(loc_details.length == 0){
+          removedId.push(event._id.toString())
+          events = removeByAttr(events,'_id', event._id)
+        }
+        }
+        events = events.map((e)=>ObjectId(e._id))
+        events = await context.models.Events.find({_id: {$in:events}})
+        
+        // console.log('events length : ', events.length)
+        // console.log('befordId : ', befordId )
+        // console.log('removedId : ', removedId )
+        return events
       } catch (error) {
         console.error("Error : ", error)
         throw new Error (error)
@@ -174,71 +200,51 @@ form_id: async (evens, args, context) => {
   let resultEvent = await evens.populate('form_id').execPopulate();
   return resultEvent.form_id
 },
-
-    
-  }
 }
-/*
-
-      timing_ids: async (evens, args, context) => {
-          let resultEvent = await evens.populate('timing_ids').execPopulate();
-          return resultEvent.timing_ids
-      },
-      workspace_id: async (evens, args, context) => {
-          let resultEvent = await evens.populate('workspace_id').execPopulate();
-          return resultEvent.workspace_id
-      },
-      site_id: async (evens, args, context) => {
-          let resultEvent = await evens.populate('site_id').execPopulate();
-          return resultEvent.site_id
-      },
-      staff: async (evens, args, context) => {
-        let resultEvent = await evens.populate('staff').execPopulate();
-        return resultEvent.staff
-      },
-      location_setting_ids: async (evens, args, context) => {
-        let resultEvent = await evens.populate('location_setting_ids').execPopulate();
-        return resultEvent.location_setting_ids
-    },
-    add_on_ids: async (evens, args, context) => {
-      let resultEvent = await evens.populate('add_on_ids').execPopulate();
-      return resultEvent.add_on_ids
+}
+export let removeByAttr = function (arr, attr, value) {
+  try {
+    var i = arr.length;
+    while (i--) {
+      if (
+        arr[i] &&
+        arr[i].hasOwnProperty(attr) &&
+        arguments.length > 2 &&
+        arr[i][attr] == value
+      ) {
+        arr.splice(i, 1);
+      }
+    }
+    return arr;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error);
   }
-  */
-/*
-function testDate(){
-  var format = "HH:mm:ss";
-var hourFormat = "HH:mm";
-var maxStartHour = moment("07:00:00", format);
-var minEndHour = moment("19:00:00", format);
-console.log('maxStartHour : ', maxStartHour)
-var arrayOfWorkDates = [
+};
 
-  {
-    start: "2018-02-24T14:00:00",
-    end: "2018-02-24T15:00:00"
-  },
-  {
-    start: "2018-02-24T05:00:00",
-    end: "2018-02-24T06:00:00"
-  },
-  {
-    start: "2018-02-24T20:00:00",
-    end: "2018-02-24T21:00:00"
+export let getEventLocations_loc_day = async (args, context) => {
+  try {
+    let event_loc_ar = [];
+    let business_time = await context.models.Events.aggregate(
+      bushiness_timings_agg(
+        args.event_id,
+        args.workspace_id,
+        args.site_id,
+        "event"
+      )
+    );
+    if (business_time[0].business_hours) {
+      event_loc_ar = await context.models.Events.aggregate(get_event_locationName_bht_agg([ObjectId(args.event_id) ]))
+    } else {
+      event_loc_ar = await context.models.Events.aggregate(get_event_locationName_bhf_agg([ObjectId(args.event_id) ]))
+    }
+    // if (event_loc_ar.length < 1) {
+    //   throw new Error("Location setting not available in staff");
+    // }
+    console.log(`\n getEventLocations_loc_day - event id : ${args.event_id} :  , ${event_loc_ar}`);
+    return event_loc_ar;
+  } catch (error) {
+    console.log(error);
+    throw new Error(error);
   }
-];
-
-
-var filteredWokrHours = arrayOfWorkDates.filter(function(el) {
-
-  var start = moment(el.start).format(hourFormat);
-  var end = moment(el.end).format(hourFormat);
-
-  var checkHourStart = moment(start, format);
-  var checkHourEnd = moment(end, format);
-
-  return checkHourStart.isBefore(maxStartHour) || checkHourEnd.isAfter(minEndHour);
-});
-
-if(filteredWokrHours.length > 0){console.log("success: " + filteredWokrHours.length);}else{console.log("fail");}
-}*/
+};

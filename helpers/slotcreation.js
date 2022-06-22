@@ -111,6 +111,12 @@ export const getting_slots = async (
     result.disable_date = disable_date;
     result.selectedDate = selectedDate.format("YYYY-MM-DD");
     result.displaySettings = displaySettings;
+    if(details.multiple_client != undefined){
+      result.multiple_client = details.multiple_client[0]
+    }
+    if(details.noofmultippleAppoint != undefined){
+      result.noofmultippleAppoint = details.noofmultippleAppoint[0]
+    }    
     return result;
 
     //}
@@ -305,7 +311,9 @@ export let checkBooking = async (
   select_date,
   models,
   args_staff_ids,
-  args_event_id
+  args_event_id,
+  args_site_id,
+  args_workspace_id
 ) => {
   try {
     let selectedDate = moment(
@@ -315,6 +323,11 @@ export let checkBooking = async (
     let selectedDatePlus = moment(new Date(select_date), "YYYY-MM-DDTHH:mm:ss")
       .add(1, "days")
       .toISOString();
+    //Staff
+    let list_availTimes = [];
+    let staff_ar = list_one.availableTimes;
+    let multiple_client = list_one.multiple_client;
+    let noofmultippleAppoint = list_one.noofmultippleAppoint
 
     let findObj = {
       staff_id: ObjectId(args_staff_ids),
@@ -323,13 +336,12 @@ export let checkBooking = async (
         $gte: new Date(selectedDate),
         $lte: new Date(selectedDatePlus),
       },
-    }; //Is_cancelled:false, deleted:false,
-    console.log(`booking find obj : ${JSON.stringify(findObj)}`);
-    let bookingDetails = await models.Booking.find(findObj).lean(); //appointment_start_time: moment.utc('2021-10-29T01:00:00.000+00:00')  //site_id: args_site_id, workspace_ids: args_workspace_id,
+      site_id: ObjectId(args_site_id),
+      workspace_id: ObjectId(args_workspace_id)
+    }; //Is_cancelled:false, deleted:false,q
 
-    //Staff
-    let list_availTimes = [];
-    let staff_ar = list_one.availableTimes;
+    console.log(`booking findObj : ${JSON.stringify(findObj)}`);
+    let bookingDetails = await models.Booking.find(findObj).lean();
 
     console.log("staff_ar.length  : ", staff_ar.length);
     if (bookingDetails.length > 0) {
@@ -353,7 +365,13 @@ export let checkBooking = async (
           models,
           du_hours,
           du_miniutes,
-          "slot"
+          "slot",
+          args_staff_ids,
+          args_event_id[0],
+          args_site_id,
+          args_workspace_id,
+          multiple_client,
+          noofmultippleAppoint
         );
       }
     } else {
@@ -806,7 +824,9 @@ export let getAvailability = async (args, context) => {
       args.date,
       context.models,
       args.staff_ids,
-      args.event
+      args.event,
+      args.site_id,
+      args.workspace_id
     );
     let events_availableTimes = compareTwoSlots(staffResult, eventResult);
     resp_result.start_date = eventResult[0].start_date;
@@ -836,7 +856,13 @@ export let is_bookingExist = async (
   models,
   du_hours,
   du_miniutes,
-  callfrom
+  callfrom,  
+  args_staff_ids,
+  args_event_id,
+  args_site_id,
+  args_workspace_id,
+  multiple_client,
+  noofmultippleAppoint
 ) => {
   try {
     //Booking Hours Calc
@@ -862,20 +888,64 @@ export let is_bookingExist = async (
     // const b_start_sec = moment.duration(dayStartTime).asSeconds()
     // const b_end_sec = moment.duration(dayEndTime).asSeconds()
 
+    // let multiple_client = null //list_one.multiple_client;
+    // let noofmultippleAppoint = null //list_one.noofmultippleAppoint
+
+    let findObj2 = {      
+      $and : [
+          {
+              "appointment_start_time" : {
+                  $gte : new Date(bookingDetails.appointment_start_time)
+              }
+          },
+          {
+              $and : [
+                  {
+                      "appointment_end_time" : {
+                          $lte : new Date(bookingDetails.appointment_end_time)
+                      }
+                  }
+              ]
+          }
+      ],  
+      staff_id : ObjectId(args_staff_ids),
+      site_id: ObjectId(args_site_id),
+      workspace_id: ObjectId(args_workspace_id),
+    }    
+    let bookingDetailsCount = null
+      if(multiple_client){
+        console.log(`booking findObj2 : ${JSON.stringify(findObj2)}`);
+        bookingDetailsCount = await models.Booking.find(findObj2).lean();        
+      }
+
     staff_ar = staff_ar.map((elem) => {
       let s_start = moment(elem.slotStartTime);
       let s_end = moment(elem.slotEndTime);
       if (s_start >= dayStartTime && s_start <= dayEndTime) {
-        if (callfrom == "slot") {
-          console.log(`Booking Matched with Slot : ${elem.slotStartTime}`);
-          elem.isBooking = true;
-          // const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
-          // bookingDetails.splice(tindex, 1)
-          //break;
+        if(multiple_client!= undefined){
+          if (callfrom == "slot" && multiple_client == true && !(bookingDetailsCount.length < noofmultippleAppoint) ) {
+            console.log(`Booking Matched with Slot : ${elem.slotStartTime}`);
+            elem.isBooking = true;
+            // const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
+            // bookingDetails.splice(tindex, 1)
+            //break;
+          } else {
+            console.log(`Booking Matched with Reschedule : ${elem.slotStartTime}`);
+            elem.isBooking = false;
+          }
         } else {
-          console.log(`Booking Matched with Reschedule : ${elem.slotStartTime}`);
-          elem.isBooking = false;
+          if (callfrom == "slot" ) {
+            console.log(`Booking Matched with Slot : ${elem.slotStartTime}`);
+            elem.isBooking = true;
+            // const tindex = bookingDetails.map(e => e.appointment_start_time).indexOf(bookingDetails[l].appointment_start_time);
+            // bookingDetails.splice(tindex, 1)
+            //break;
+          } else {
+            console.log(`Booking Matched with Reschedule : ${elem.slotStartTime}`);
+            elem.isBooking = false;
+          }
         }
+        
       } else {
         //elem.isBooking = false
       }
@@ -1804,3 +1874,32 @@ function areDatumsEquivalent(datumA, datumB) {
     datumA.loc_name === datumB.loc_name 
   );
  }
+
+ /*
+  $and : [
+          {
+              "event_id" : ObjectId(args_event_id[0])
+          },
+          {
+              "staff_id" : ObjectId(args_staff_ids)
+          }
+      ],
+      $and : [
+          {
+              "appointment_start_time" : {
+                  $gte : new Date(selectedDate)
+              }
+          },
+          {
+              $and : [
+                  {
+                      "appointment_end_time" : {
+                          $lte : new Date(selectedDatePlus)
+                      }
+                  }
+              ]
+          }
+      ],
+      site_id: ObjectId(args_site_id),
+      workspace_id: ObjectId(args_workspace_id),
+       */

@@ -3,7 +3,9 @@ export default {
         getStaffs: async (parent, args, context, info) => {
             try {
                 let staff = await context.models.Staff.find({ workspace_ids: args.workspace_ids, site_id:args.site_id})
+
                 //workspace_ids: args.workspace_ids, site_id:args.site_id, _id:args.staff_id 
+                console.log('Staff Count : ', staff.length)
                 return staff
             } catch (error) {
                 console.error("Error : ", error)

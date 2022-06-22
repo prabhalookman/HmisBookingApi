@@ -37,6 +37,11 @@ token :
   "jwtTokenString":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJsb2NhbGhvc3QiLCJzdWIiOiIxMjMiLCJzY29wZSI6InNlbGYsIGFkbWlucyIsImF1ZCI6InNjaGVkdWxlLXNwenV0IiwianRpIjoiYzMyNDRmMmUtOTVkZS00NTYyLTkwOGYtYzMzMWY0OWMxNTlmIiwiaWF0IjoxNjI1NjYwODUyLCJleHAiOjE4NDE2NjA4NTJ9.iR5bmOpMc2Se-sDKADwb5GD3k_uisHUMa7xqvYh1VIY"
 }
 
+New : 
+https://realm.mongodb.com/api/client/v2.0/app/appointment-mdrbb/graphql
+{
+"jwtTokenString":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3JlYWxtLm1vbmdvZGIuY29tL2FwaS9jbGllbnQvdjIuMC9hcHAvc2NoZWR1bGUtc3B6dXQvZ3JhcGhxbCIsInN1YiI6IjEyMyIsInNjb3BlIjoic2VsZiwgYWRtaW5zIiwiYXVkIjoiYXBwb2ludG1lbnQtbWRyYmIiLCJqdGkiOiJjOGYyNjk5Yi1hZmYzLTQ5NDctYmJhYS00MDFjZTAzZTNlZTIiLCJpYXQiOjE2NDI0MTAyMzAsImV4cCI6MTg1ODQxMDIzMH0.EDsGvuU7zE30GTxI-ywSsXSb-rFKnCGUfvJHkq-AXWw"
+ }
 mongodb+srv://ananduse:<password>@cluster0.zt0q7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
 
 New DB : mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster1.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority

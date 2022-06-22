@@ -2,6 +2,7 @@ import { MyError } from '../helpers/helper'
 import moment from 'moment-timezone';
 import { ObjectId } from 'bson';
 import{ getAvailability, is_bookingExist } from '../helpers/slotcreation'
+import {staff_multiple_client_limit} from '../helpers/aggregateFunctions'
 export default {
   Query: {
     getBooking: async (parent, args, context, info) => {
@@ -143,7 +144,7 @@ export default {
             newBooking = createAppoint (bookingStartTime ,uptoDate, newBooking, context,disable_date, arg_input,customer_ids, 30)
           }
         } else {
-          const checkbook = await checkBook(context, arg_input.staff_id, arg_input.event_id, arg_input.appointment_start_time, arg_input.workspace_id, arg_input.site_id)
+          const checkbook = await checkBook(context, arg_input.staff_id, arg_input.event_id, arg_input.appointment_start_time, arg_input.appointment_end_time,  arg_input.workspace_id, arg_input.site_id)
           if (checkbook) {
             throw new Error(`Booking not available in this slot ${arg_input.appointment_start_time}, please select another slot`)
           }
@@ -354,14 +355,29 @@ let dateCreate = (start_time, end_time) => {
 
 }
 
-let checkBook = async (context, staffid, eventid,  appointmentstarttime, workspace_id, site_id) => {
+let checkBook = async (context, staffid, eventid,  appointmentstarttime, appointmentendtime, workspace_id, site_id) => {
   try {
     let bookingDetails = [];
     const bookdate   = moment(new Date(appointmentstarttime), "YYYY-MM-DDTHH:mm:ss").toISOString() 
     //console.log('bookdate : ', bookdate);
     bookingDetails = await context.models.Booking.find({ staff_id: staffid, event_id: eventid, Is_cancelled: false, deleted: false, appointment_start_time: new Date(bookdate), workspace_id:workspace_id, site_id:site_id  }).lean()
+    
+    let startday = moment(new Date(appointmentstarttime)).startOf("day");
+    let endday = moment(new Date(appointmentendtime)).endOf("day");
+
+    let bookingCounts = await context.models.Booking.aggregate(
+      staff_multiple_client_limit(
+        staffid, eventid, startday, endday, workspace_id, site_id
+      )
+    );
+
+    console.log('bookingCounts : ', bookingCounts)
+    let is_multiple_client = null;
+    if(bookingCounts && bookingCounts.length > 0){
+      is_multiple_client = bookingCounts[0].staff_multiple_client[0]
+    }
     //console.log('bookingDetails length: ', bookingDetails.length );
-    if (bookingDetails.length > 0) {
+    if (bookingDetails.length > 0 && is_multiple_client == false) {
       return true
     } else {
       return false

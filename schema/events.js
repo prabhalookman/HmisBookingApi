@@ -18,7 +18,8 @@ type Events {
   isformrequired: Boolean,
   isform: Boolean,
   form_id: Form,
-  is_recurring: Boolean
+  is_recurring: Boolean,
+  type: String
 
   workspace_id: Workspace,
   site_id: Site,
@@ -42,7 +43,7 @@ type EventWithAvailDate {
 }
 
 extend type Query {
-  getEvents(workspace_id: ID, site_id: ID, staff_ids: ID ): [Events]
+  getEvents(workspace_id: ID, site_id: ID, type: String ): [Events]
   getEventsDetailByStaff(workspace_id: ID, site_id: ID, staff_id: ID): [Events]
   getEnabledDate(workspace_id: ID, site_id: ID, staff_id: ID, event_id: ID, timings_day: [String] ) : [String]
   getStaffToTransfer(workspace_id: ID, site_id: ID, staff_id: ID, event_id: ID, appointment_date: String, booking_id: ID): [Staff]

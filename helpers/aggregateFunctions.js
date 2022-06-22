@@ -14,6 +14,8 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
         { '$match': match },
         {
           '$project': {
+            "noofmultippleAppoint":"$staffdetails.no_of_multiple_appointment",
+            "multiple_client":"$staffdetails.multiple_client_at_same_time",
               "timings": "$timings",
               "locationsetting_id": "$locationsetting._id",
               "location_name": "$location.name",
@@ -38,6 +40,8 @@ export function aggregate_bhf(_ids, root, bizhours, eventid) {
         { '$match': match },
         {
           '$project': {
+            "noofmultippleAppoint":"$staffdetails.no_of_multiple_appointment",
+            "multiple_client":"$staffdetails.multiple_client_at_same_time",
             "timings": "$timings",
             "locationsetting_id": "$locationsetting._id",
               "appintegration_id": "$locationsetting.integration_id",
@@ -73,6 +77,8 @@ export function aggregate_bht(_ids, root, bizhours) {
         {
           '$project': {
             "timings": "$timings",
+            "noofmultippleAppoint":"$staffdetails.no_of_multiple_appointment",
+            "multiple_client":"$staffdetails.multiple_client_at_same_time",
               "locationsetting_id": "$locationsetting._id",
               "location_name": "$location.name",
               "events": "$events._id",
@@ -97,6 +103,8 @@ export function aggregate_bht(_ids, root, bizhours) {
         { '$match': match },
         {
           '$project': {
+            "noofmultippleAppoint":"$staffdetails.no_of_multiple_appointment",
+            "multiple_client":"$staffdetails.multiple_client_at_same_time",
             "timings": "$timings",
               "locationsetting_id": "$locationsetting._id",
               "location_name": "$location.name",
@@ -1654,4 +1662,77 @@ export  function bushiness_timings_agg(_id,workspace_id,site_id, type_o) {
     console.log('\n get_staffdetails_agg : ', JSON.stringify(pipeline) )
     return pipeline
       
+  }
+
+  export function staff_multiple_client_limit(staff_id, event_id, appointment_start_time, appointment_end_time, workspace_id, site_id) {
+    let pipline = [];
+    pipline.push(
+      {
+        $project: {
+          booking: "$$ROOT",
+        },
+      },
+      {
+        $lookup: {
+          localField: "booking.event_id",
+          from: "events",
+          foreignField: "_id",
+          as: "events",
+        },
+      },
+      {
+        $lookup: {
+          localField: "booking.staff_id",
+          from: "staff",
+          foreignField: "_id",
+          as: "staff",
+        },
+      },
+      {
+        $lookup: {
+          localField: "staff.staff_detail_id",
+          from: "staffdetails",
+          foreignField: "_id",
+          as: "staffdetails",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              "booking.staff_id": ObjectId(staff_id),
+            },
+          ],
+          $and: [
+            {
+              "booking.appointment_start_time": {
+                $gte: new Date(appointment_start_time),
+              },
+            },
+            {
+              $and: [
+                {
+                  "booking.appointment_end_time": {
+                    $lte: new Date(appointment_end_time),
+                  },
+                },
+              ],
+            },
+          ],
+          "booking.site_id": ObjectId(site_id),
+          "booking.workspace_id": ObjectId(workspace_id),
+        },
+      },
+      {
+        $project: {
+          event_noofmultippleAppoint: "$events.no_of_multiple_appointment",
+          event_multiple_client: "$events.multiple_client_at_same_time",
+          staff_noofmultipleAppoint:
+            "$staffdetails.no_of_multiple_appointment",
+          staff_multiple_client: "$staffdetails.multiple_client_at_same_time",
+        },
+      }
+    );
+    return pipline;
+    //console.log(`\n staff_business_hours_true : ${JSON.stringify(pipline) } `)
   }

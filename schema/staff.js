@@ -20,7 +20,7 @@ type Staff {
 }
 
 extend type Query {
-  getStaffs(workspace_ids: ID, site_id: ID): [Staff]
+  getStaffs(workspace_ids: ID, site_id: ID): [Staff]  
   getLocationByStaffId(workspace_ids: ID, site_id: ID, staff_id: ID):[Staff]  
 }
 `
