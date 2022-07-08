@@ -14,13 +14,14 @@ type Booking {
   repeat_on: String,
   booked_by: String,
   progress: [book_progress],
-  answer_id:[Answer],
+  answer_id: Answer,
 
   cost: Int
   created_at: String
   created_by: Staff
   created_from: String
-  customer_ids: [Customer]
+  customer_ids: [Customer],
+  guest_ids: [Guest],
   customer_mood: String
   customer_status: String
   Is_cancelled: Boolean
@@ -54,6 +55,11 @@ type Booking {
     date_time: Date,
     status: String
   }
+  type Bookings {
+      bookings: [Booking],
+      unavilable_date: [String],
+      success_date: [String]
+  }
 
   input bookingInput {  
   add_on_ids: [ID]
@@ -73,11 +79,13 @@ type Booking {
   created_by: ID
   created_from: String
   customer_ids: [ID]
+  guest_ids: [ID],
   customer_mood: String
   customer_status: String
   deleted: Boolean
   Is_cancelled: Boolean
   deleted_at: String
+  repeat_day: String
 
   buffer_after_min: Int,
   buffer_before_min: Int,
@@ -105,6 +113,8 @@ type Booking {
 input bookingIn {  
   availablity:bookingInput
   customer:customerInput
+  guest: [guestInput]
+  intakeform:answerInput
 }
 input book_progress_input {
   date_time: Date,
@@ -127,7 +137,7 @@ getBookingByEvent(workspace_id: ID!, site_id:ID!, event_id: ID! ):[Booking]
 }
 
 extend type Mutation {
-addBooking(input: bookingIn): Booking  
+addBooking(input: bookingIn): Bookings
 rescheduleBooking(
   appointment_id: ID!,
   appointment_start_time: String!
@@ -188,3 +198,4 @@ rescheduleBooking(
 // resource_id: Int
 // room_id: String
 // */
+

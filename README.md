@@ -199,3 +199,6 @@ dev{
 Mac
 sls deploy
 node - v15.12.0
+
+----
+Booking Client url -  https://booking-dev-2021.d3hlx47hg3uecm.amplifyapp.com/61cabd4dd4ab64500d0c6f7e/61e666eca4a8d8c16e56f431

@@ -7,6 +7,8 @@ type StaffDetails {
   description: String,
   price: String,
   business_timings: Boolean,
+  active: Boolean,
+  is_service_provider: Boolean, 
   business_id: [Business],  
   workspace_id: [Workspace],
   site_id: String,

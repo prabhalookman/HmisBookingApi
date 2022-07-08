@@ -19,6 +19,8 @@ const bookingSchema = new mongoose.Schema({
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'staff'},
   created_from: String,
   customer_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'customer'}],
+  guest_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'guest'}],
+  
   customer_mood: String,
   customer_status: String,
   Is_cancelled: { type: Boolean, default: false },
@@ -51,7 +53,7 @@ const bookingSchema = new mongoose.Schema({
   timezone: String,
   transfered_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}],
   type: String,
-  updated_at: {type: Date, default: Date.now},
+  updated_at: {type: Date, default: Date.now},  
   workspace_id: { type: mongoose.Schema.Types.ObjectId, ref: 'workspace'}
 })
 

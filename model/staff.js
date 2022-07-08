@@ -12,6 +12,7 @@ const staffSchema = new mongoose.Schema({
   education: String,
   experience_year: String,
   experience_month: Number,
+  deleted: Boolean,
   workspace_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'workspace' }],
   site_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'site' }],
   staff_detail_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staffdetails'}]

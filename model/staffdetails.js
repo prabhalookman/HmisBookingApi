@@ -5,6 +5,8 @@ const staffDetailsSchema = new mongoose.Schema({
   sorting_id: Number,
   description: String,
   price: String,
+  active: Boolean,
+  is_service_provider: Boolean, 
   appointment_booking_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'booking' }],
   business_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'business' }],
   workspace_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'workspace' }],

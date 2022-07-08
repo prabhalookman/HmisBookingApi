@@ -6,6 +6,7 @@ const customerSchema = new mongoose.Schema({
   avatar_or_icon: String,
   avatar_or_icon_path: String,
   booking_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'booking'}],
+  guest_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'guest'}],
   color_code: String,
   date_of_birth: String,
   description: String,

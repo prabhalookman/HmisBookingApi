@@ -12,6 +12,8 @@ import timingsResolver  from './timings'
 import workspaceResolver from './workspace'
 import siteResolver from './site'
 import settingResolver from './settings'
+import guestResolver from './guest'
+import answerResolver from './answer'
 
 import datescalar  from '../resolvers/datescalar'
 
@@ -44,5 +46,7 @@ export default [
   workspaceResolver,
   datescalar,
   siteResolver,
-  settingResolver
+  settingResolver,
+  guestResolver,
+  answerResolver
 ]

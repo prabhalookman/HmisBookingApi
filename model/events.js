@@ -14,6 +14,8 @@ const eventSchema = new mongoose.Schema({
   isform: Boolean,
   is_recurring: Boolean,
   type: { type: String},
+  active: Boolean,
+  delete: Boolean,
   form_id: { type: mongoose.Schema.Types.ObjectId, ref: 'form' },
   add_on_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'addons' }],
   business_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'business' }],
@@ -24,17 +26,19 @@ const eventSchema = new mongoose.Schema({
   location_setting_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'locationsetting' }],
   staff: [{ type: mongoose.Schema.Types.ObjectId, ref: 'staff'}]
  
-},{
-  toObject: {
-    transform: function (doc, ret) {
-      delete ret.__v;
-    }
-  },
-  toJSON: {
-    transform: function (doc, ret) {
-      delete ret.__v;
-    }
-  }})
-  eventSchema.set('toJSON', { getters: true });
+})
+// {
+//   toObject: {
+//     transform: function (doc, ret) {
+//       delete ret.__v;
+//     }
+//   },
+//   toJSON: {
+//     transform: function (doc, ret) {
+//       delete ret.__v;
+//     }
+//   }}
+// eventSchema.set('toJSON', { getters: true });
+
 const Event = mongoose.model('events', eventSchema, 'events')
 export default Event;

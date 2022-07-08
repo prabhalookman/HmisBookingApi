@@ -19,6 +19,7 @@ import appintegrationSchema from './appintegration'
 import appSchema from './app'
 import formSchema from './form'
 import answerSchema from './answer'
+import guestSchema from './guest'
 
 // import businessInfoSchema  from './businessinfo'
 // import eventCategorySchema  from './eventcategory'
@@ -58,5 +59,6 @@ settingSchema,
 appintegrationSchema,
 appSchema,
 formSchema,
-answerSchema
+answerSchema,
+guestSchema
 ]

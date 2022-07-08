@@ -19,8 +19,9 @@ type Events {
   isform: Boolean,
   form_id: Form,
   is_recurring: Boolean,
-  type: String
-
+  type: String,
+  active: Boolean,
+  delete: Boolean,
   workspace_id: Workspace,
   site_id: Site,
   timing_ids: [Timing],

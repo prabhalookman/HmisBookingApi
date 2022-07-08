@@ -12,4 +12,18 @@ type Answer {
   site_id: Site
   workspace_ids: [Workspace]
 }
+
+input answerInput {
+  answer: String
+  created_by: String
+  customer_id: [ID]
+  form_id: ID
+  form_with_answer: String
+  staff_id: ID
+  site_id: ID
+  workspace_ids: [ID]
+}
+extend type Query {
+  getAnswer: [Answer]
+}
 `

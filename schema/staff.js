@@ -14,6 +14,7 @@ type Staff {
   color_code: String,
   avatar_or_icon: String,
   avatar_or_icon_path: String,
+  deleted: Boolean,
   workspace_ids: [Workspace],
   site_id: [Site],  
   staff_detail_id: [StaffDetails]

@@ -17,7 +17,8 @@ import Setting from './settings';
 import appintegration from './appintegration';
 import app from './app';
 import form from './form';
-import answer from './answer';
+import Answer from './answer';
+import Guest from './guest';
 
 // import BusinessInfo from './businessInfo';
 // import EventCategory  from "./eventcategory"
@@ -27,7 +28,7 @@ import answer from './answer';
 //mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster0.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority
 
 const connectMongo = () => {
-  return mongoose.connect("mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster1.zt0q7.mongodb.net/hmis?retryWrites=true&w=majority", {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
+  return mongoose.connect("mongodb+srv://ananduse:3CTLbbttBT7wTZw@cluster1.zt0q7.mongodb.net/hmis?connectTimeoutMS=300000&retryWrites=true&w=majority", {useNewUrlParser : true, useFindAndModify: false, useUnifiedTopology: true})
 }
 
 const models = {
@@ -49,7 +50,8 @@ const models = {
   appintegration,
   app,
   form,
-  answer
+  Answer,
+  Guest
 }
 
 export {connectMongo};
